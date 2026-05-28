@@ -66,7 +66,20 @@ final class ManagedPostgresCliTest {
     void rootHelpListsCleanupAndDestroyCommands() {
         final CliRun run = run("--help");
 
-        assertThat(run.output()).contains("cleanup").contains("destroy");
+        assertThat(run.output())
+                .contains("cleanup")
+                .contains("destroy")
+                .contains("restart")
+                .contains("runtime");
+    }
+
+    @Test
+    void runtimeCommandWithoutSubcommandPrintsUsage() {
+        final CliRun run = run("runtime");
+
+        assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
+        assertThat(run.output()).contains("Usage: runtime").contains("verify");
+        assertThat(run.errorOutput()).isEmpty();
     }
 
     private static CliRun run(final String... arguments) {
