@@ -45,6 +45,26 @@ Run the default completion gate from the repository root:
 This project treats engineering checks as build contracts. `verify` is the
 default proof that a change is complete.
 
+## Allure Reports
+
+Module-level Allure results are produced under each module's `target/allure-results`
+directory during test execution.
+
+Generate a single aggregated HTML report for the whole reactor:
+
+```bash
+./scripts/allure-report.sh --verify
+```
+
+If tests already ran and you only want the report:
+
+```bash
+./scripts/allure-report.sh
+```
+
+The aggregated report is written to
+`target/site/allure-report-aggregate/index.html`.
+
 ## Real Runtime Validation
 
 The real-runtime scenarios require an explicit PostgreSQL installation path.
@@ -67,6 +87,62 @@ The framework is organized around:
 
 Product usage guides and end-user documentation will live in this repository as
 they are written.
+
+## Quickstart
+
+### Library
+
+```java
+try (ManagedPostgres managedPostgres = ManagedPostgres.local()
+        .name("app-db")
+        .version("16.4")
+        .build()) {
+    try (RunningPostgres runningPostgres = managedPostgres.start()) {
+        PostgresConnectionInfo connectionInfo = runningPostgres.connectionInfo();
+        System.out.println(connectionInfo.jdbcUrl());
+    }
+}
+```
+
+### CLI
+
+Start PostgreSQL with the default local layout:
+
+```bash
+./mvnw -pl managed-postgres/cli -am package
+java -cp managed-postgres/cli/target/managed-postgres-cli-1.0-SNAPSHOT.jar \
+  eu.virtualparadox.managedpostgres.cli.Main start
+```
+
+Common operations:
+
+```bash
+managed-postgres start
+managed-postgres status --format json
+managed-postgres restart
+managed-postgres backup ./backups/app.dump
+managed-postgres restore ./backups/app.dump --drop-current-database --create-safety-backup
+managed-postgres runtime verify --runtime-existing /opt/postgresql
+managed-postgres stop
+```
+
+### Spring Boot 4
+
+Add the starter and a runtime source, then enable managed Postgres:
+
+```yaml
+managed-postgres:
+  enabled: true
+  name: app-db
+  version: 16.4
+  runtime:
+    source: existing
+    path: /opt/postgresql
+  cluster:
+    database: app
+```
+
+See [docs/cli.md](/Users/tothp/Workspaces/Java/managed-postgres/docs/cli.md) and [docs/spring-boot.md](/Users/tothp/Workspaces/Java/managed-postgres/docs/spring-boot.md) for the current command and configuration surface.
 
 ## Development Docs
 

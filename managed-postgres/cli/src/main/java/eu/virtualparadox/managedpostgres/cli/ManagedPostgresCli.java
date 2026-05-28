@@ -8,6 +8,9 @@ import eu.virtualparadox.managedpostgres.cli.command.RestoreCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StartCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StatusCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StopCommand;
+import eu.virtualparadox.managedpostgres.cli.command.lifecycle.RestartCommand;
+import eu.virtualparadox.managedpostgres.cli.command.runtime.RuntimeCommand;
+import eu.virtualparadox.managedpostgres.cli.command.runtime.RuntimeVerifyCommand;
 import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresFrameworkVersion;
 import java.io.PrintWriter;
 import java.util.Objects;
@@ -91,10 +94,13 @@ public final class ManagedPostgresCli implements Callable<Integer> {
         checkedCommandLine.addSubcommand("doctor", new DoctorCommand(output));
         checkedCommandLine.addSubcommand("start", new StartCommand(output));
         checkedCommandLine.addSubcommand("stop", new StopCommand(output));
+        checkedCommandLine.addSubcommand("restart", new RestartCommand(output));
         checkedCommandLine.addSubcommand("cleanup", new CleanupCommand(output));
         checkedCommandLine.addSubcommand("destroy", new DestroyCommand(output));
         checkedCommandLine.addSubcommand("backup", new BackupCommand(output));
         checkedCommandLine.addSubcommand("restore", new RestoreCommand(output));
+        final CommandLine runtime = checkedCommandLine.addSubcommand("runtime", new RuntimeCommand(output));
+        runtime.addSubcommand("verify", new RuntimeVerifyCommand(output));
     }
 
     /**

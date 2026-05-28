@@ -1,0 +1,30 @@
+name: release-candidate
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Verify tag version
+        run: |
+          echo "Verifying tag version from ${GITHUB_REF_NAME}"
+
+      - name: Credential-free deploy smoke
+        run: |
+          mkdir -p staging-repo
+          ./mvnw -fae clean deploy \
+            -DaltDeploymentRepository=local-staging::default::file:$(pwd)/staging-repo

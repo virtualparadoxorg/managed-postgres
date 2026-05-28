@@ -12,6 +12,7 @@ import eu.virtualparadox.managedpostgres.cli.command.StatusCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StopCommand;
 import eu.virtualparadox.managedpostgres.cli.command.CleanupCommand;
 import eu.virtualparadox.managedpostgres.cli.command.DestroyCommand;
+import eu.virtualparadox.managedpostgres.cli.command.lifecycle.RestartCommand;
 import eu.virtualparadox.managedpostgres.cli.config.CliManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.cli.config.CliYamlConfigurationLoader;
 import java.io.ByteArrayOutputStream;
@@ -66,6 +67,19 @@ public final class CliCommandTestSupport {
                 new CliYamlConfigurationLoader());
 
         return run(factory, arguments);
+    }
+
+    public static CliRun runRestart(final TestManagedPostgres postgres, final String... arguments) {
+        final AtomicReference<CliManagedPostgresConfiguration> configuration = new AtomicReference<>();
+        final CommandFactory factory = outputWriter -> new RestartCommand(
+                outputWriter,
+                value -> {
+                    configuration.set(value);
+                    return postgres;
+                },
+                new CliYamlConfigurationLoader());
+
+        return run(factory, configuration, arguments);
     }
 
     public static CliRun runBackup(final TestManagedPostgres postgres, final String... arguments) {
