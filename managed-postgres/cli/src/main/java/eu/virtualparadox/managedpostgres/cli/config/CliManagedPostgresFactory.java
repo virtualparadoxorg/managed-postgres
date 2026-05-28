@@ -1,0 +1,39 @@
+package eu.virtualparadox.managedpostgres.cli.config;
+
+import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.config.Storage;
+import java.util.Objects;
+
+/**
+ * Creates managed PostgreSQL instances from effective CLI configuration.
+ */
+public final class CliManagedPostgresFactory {
+
+    /**
+     * Creates a CLI managed PostgreSQL factory.
+     */
+    public CliManagedPostgresFactory() {
+    }
+
+    /**
+     * Creates a managed PostgreSQL instance through the public fluent API.
+     *
+     * @param configuration effective CLI configuration
+     * @return managed PostgreSQL instance
+     */
+    public ManagedPostgres create(final CliManagedPostgresConfiguration configuration) {
+        final CliManagedPostgresConfiguration checkedConfiguration =
+                Objects.requireNonNull(configuration, "configuration");
+
+        return ManagedPostgres.local()
+                .name(checkedConfiguration.name())
+                .version(checkedConfiguration.postgresqlVersion())
+                .storage(Storage.projectLocal(checkedConfiguration.storagePath()))
+                .runtime(checkedConfiguration.runtimeSource())
+                .configuration(checkedConfiguration.postgresConfiguration())
+                .network(ignored -> checkedConfiguration.network())
+                .attachPolicy(checkedConfiguration.attachPolicy())
+                .stopPolicy(checkedConfiguration.stopPolicy())
+                .build();
+    }
+}
