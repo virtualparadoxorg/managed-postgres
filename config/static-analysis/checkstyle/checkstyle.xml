@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <module name="SuppressionFilter">
+        <property name="file" value="${checkstyle.suppressions.file}"/>
+    </module>
+    <module name="FileTabCharacter"/>
+    <module name="NewlineAtEndOfFile"/>
+    <module name="LineLength">
+        <property name="max" value="140"/>
+        <property name="ignorePattern" value="^import |^package |https?://"/>
+    </module>
+    <module name="TreeWalker">
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+        <module name="RedundantImport"/>
+        <module name="OneStatementPerLine"/>
+        <module name="MultipleVariableDeclarations"/>
+        <module name="NeedBraces"/>
+        <module name="FinalParameters"/>
+        <module name="FinalLocalVariable"/>
+        <module name="FallThrough"/>
+        <module name="UpperEll"/>
+        <module name="NoFinalizer"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="ParameterName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="TypeName"/>
+        <module name="ConstantName"/>
+        <module name="JavadocType">
+            <property name="scope" value="protected"/>
+            <property name="allowUnknownTags" value="false"/>
+        </module>
+        <module name="JavadocMethod">
+            <property name="accessModifiers" value="public, protected"/>
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
+            <property name="allowedAnnotations" value="Override, Test, BeforeEach, AfterEach, BeforeAll, AfterAll"/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="System\.(out|err)\."/>
+            <property name="message" value="Use SLF4J logging instead of console output."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="printStackTrace\s*\("/>
+            <property name="message" value="Do not call printStackTrace directly."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="@Setter|@Data|@Value|@SneakyThrows"/>
+            <property name="message" value="This Lombok annotation violates the immutable production-code policy."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="@Autowired"/>
+            <property name="message" value="Use constructor injection, not field injection."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="return null\s*;"/>
+            <property name="message" value="Never return null. Use Optional, throw, or return an immutable empty collection."/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="format" value="\byield\b"/>
+            <property name="message" value="Do not use switch yield; extract case logic into named methods."/>
+        </module>
+    </module>
+</module>

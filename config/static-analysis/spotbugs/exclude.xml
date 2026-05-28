@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Source name="~.*generated-sources/.*"/>
+    </Match>
+    <!-- CommandRunner intentionally uses ProcessBuilder(List<String>) with pre-split arguments; no shell string is built. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner"/>
+        <Method name="startProcess"/>
+        <Bug pattern="COMMAND_INJECTION"/>
+    </Match>
+    <!-- PortAllocator briefly binds loopback to select a candidate port; it does not transport application data. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocator"/>
+        <Method name="selectAvailablePort"/>
+        <Bug pattern="UNENCRYPTED_SERVER_SOCKET"/>
+    </Match>
+    <!-- Managed filesystem temp directories are created under a normalized managed storage root, not from archive entries. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal"/>
+        <Method name="createTemporaryDirectory"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+    <!-- PortAllocatorTest uses plain loopback sockets to verify port reservation semantics. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocatorTest"/>
+        <Bug pattern="UNENCRYPTED_SERVER_SOCKET"/>
+    </Match>
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocatorTest"/>
+        <Bug pattern="UNENCRYPTED_SOCKET"/>
+    </Match>
+</FindBugsFilter>

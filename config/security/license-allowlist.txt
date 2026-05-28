@@ -1,0 +1,16 @@
+Apache License, Version 2.0
+Apache-2.0
+BSD
+BSD-2-Clause
+BSD 2-Clause License
+BSD 3-Clause License
+Eclipse Public License - v 2.0
+Eclipse Public License 2.0
+Eclipse Public License v2.0
+MIT
+MIT License
+The Apache License, Version 2.0
+The Apache Software License, version 2.0
+The Apache Software License, Version 2.0
+The MIT License
+The PostgreSQL License

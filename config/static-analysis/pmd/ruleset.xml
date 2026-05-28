@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Managed Postgres Strict PMD"
+         xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.github.io/schema/ruleset_2_0_0.xsd">
+    <description>Hard-fail clean-code, SOLID, complexity, immutability, and Law of Demeter rules.</description>
+
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
+        <properties>
+            <property name="methodReportLevel" value="8"/>
+            <property name="classReportLevel" value="40"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/CognitiveComplexity"/>
+    <rule ref="category/java/design.xml/NPathComplexity">
+        <properties>
+            <property name="reportLevel" value="120"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/LawOfDemeter"/>
+    <rule ref="category/java/design.xml/TooManyFields">
+        <properties>
+            <property name="maxfields" value="12"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="18"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/ExcessiveParameterList">
+        <properties>
+            <property name="minimum" value="6"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/CouplingBetweenObjects">
+        <properties>
+            <property name="threshold" value="10"/>
+        </properties>
+    </rule>
+    <rule ref="category/java/design.xml/ClassWithOnlyPrivateConstructorsShouldBeFinal"/>
+    <rule ref="category/java/design.xml/ImmutableField"/>
+    <rule ref="category/java/design.xml/SingularField"/>
+
+    <rule ref="category/java/codestyle.xml/AtLeastOneConstructor"/>
+    <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"/>
+    <rule ref="category/java/codestyle.xml/OnlyOneReturn"/>
+    <rule ref="category/java/codestyle.xml/UseDiamondOperator"/>
+    <rule ref="category/java/codestyle.xml/UnnecessaryImport"/>
+
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
+    <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
+    <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
+    <rule ref="category/java/bestpractices.xml/PreserveStackTrace"/>
+    <rule ref="category/java/bestpractices.xml/UseCollectionIsEmpty"/>
+    <rule ref="category/java/bestpractices.xml/MissingOverride"/>
+    <rule ref="category/java/bestpractices.xml/SystemPrintln"/>
+
+    <rule ref="category/java/errorprone.xml/ReturnEmptyCollectionRatherThanNull"/>
+    <rule ref="category/java/errorprone.xml/ReturnFromFinallyBlock"/>
+    <rule ref="category/java/errorprone.xml/EmptyCatchBlock"/>
+    <rule ref="category/java/errorprone.xml/AvoidCatchingGenericException"/>
+    <rule ref="category/java/errorprone.xml/CloseResource"/>
+    <rule ref="category/java/errorprone.xml/CompareObjectsWithEquals"/>
+    <rule ref="category/java/errorprone.xml/DoNotThrowExceptionInFinally"/>
+</ruleset>

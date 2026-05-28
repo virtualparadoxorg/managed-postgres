@@ -1,0 +1,192 @@
+package eu.virtualparadox.managedpostgres;
+
+import eu.virtualparadox.managedpostgres.config.AttachPolicy;
+import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.config.Credentials;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
+import eu.virtualparadox.managedpostgres.config.RuntimeSource;
+import eu.virtualparadox.managedpostgres.config.StopPolicy;
+import eu.virtualparadox.managedpostgres.config.Storage;
+import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
+import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
+import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
+import java.util.function.UnaryOperator;
+
+/**
+ * Immutable builder for managed PostgreSQL instances.
+ */
+@SuppressWarnings("PMD.TooManyMethods")
+public interface ManagedPostgresBuilder {
+
+    /**
+     * Creates a persistent local PostgreSQL builder.
+     *
+     * @return persistent local builder
+     */
+    public static ManagedPostgresBuilder builder() {
+        return new DefaultManagedPostgresBuilder(ManagedPostgresMode.PERSISTENT_LOCAL);
+    }
+
+    /**
+     * Creates a persistent local PostgreSQL builder.
+     *
+     * @return persistent local builder
+     */
+    public static ManagedPostgresBuilder local() {
+        return new DefaultManagedPostgresBuilder(ManagedPostgresMode.PERSISTENT_LOCAL);
+    }
+
+    /**
+     * Creates a temporary PostgreSQL builder.
+     *
+     * @return temporary builder
+     */
+    public static ManagedPostgresBuilder temporary() {
+        return new DefaultManagedPostgresBuilder(ManagedPostgresMode.TEMPORARY);
+    }
+
+    /**
+     * Returns a builder with the configured instance name.
+     *
+     * @param name PostgreSQL instance name
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder name(String name);
+
+    /**
+     * Returns a builder with the configured PostgreSQL version.
+     *
+     * @param postgresqlVersion PostgreSQL version
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder version(String postgresqlVersion);
+
+    /**
+     * Returns a builder with the configured storage.
+     *
+     * @param storage storage configuration
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder storage(Storage storage);
+
+    /**
+     * Returns a builder with the configured runtime source.
+     *
+     * @param runtimeSource runtime source
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder runtime(RuntimeSource runtimeSource);
+
+    /**
+     * Returns a builder with the configured credentials.
+     *
+     * @param credentials credentials
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder credentials(Credentials credentials);
+
+    /**
+     * Returns a builder with customized localhost network and port selection.
+     *
+     * @param customizer network configuration customizer
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder network(UnaryOperator<Network> customizer);
+
+    /**
+     * Returns a builder with a customized primary application database bootstrap configuration.
+     *
+     * @param customizer cluster bootstrap customizer
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder cluster(UnaryOperator<ClusterBootstrap> customizer);
+
+    /**
+     * Returns a builder with the configured PostgreSQL server settings.
+     *
+     * @param configuration PostgreSQL server settings
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder configuration(PostgresConfiguration configuration);
+
+    /**
+     * Returns a builder with customized PostgreSQL server settings.
+     *
+     * @param customizer PostgreSQL server settings customizer
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder configuration(UnaryOperator<PostgresConfiguration> customizer);
+
+    /**
+     * Returns a builder that may reuse an existing compatible managed PostgreSQL instance.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder reuseExisting();
+
+    /**
+     * Returns a builder with the configured attach policy.
+     *
+     * @param attachPolicy attach policy
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder attachPolicy(AttachPolicy attachPolicy);
+
+    /**
+     * Returns a builder with the configured stop policy.
+     *
+     * @param stopPolicy stop policy
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder stopPolicy(StopPolicy stopPolicy);
+
+    /**
+     * Returns a builder with the configured upgrade policy.
+     *
+     * @param upgradePolicy upgrade policy
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder upgradePolicy(UpgradePolicy upgradePolicy);
+
+    /**
+     * Returns a builder with the configured config drift policy.
+     *
+     * @param configDriftPolicy config drift policy
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder configDriftPolicy(ConfigDriftPolicy configDriftPolicy);
+
+    /**
+     * Returns a builder with the configured cleanup and retention policy.
+     *
+     * @param cleanupPolicy cleanup and retention policy
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder cleanupPolicy(CleanupPolicy cleanupPolicy);
+
+    /**
+     * Returns a builder with customized PostgreSQL process log handling.
+     *
+     * @param customizer log handling customizer
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder logs(UnaryOperator<PostgresLogs> customizer);
+
+    /**
+     * Builds a managed PostgreSQL instance.
+     *
+     * @return managed PostgreSQL instance
+     */
+    public ManagedPostgres build();
+
+    /**
+     * Builds and starts a managed PostgreSQL instance.
+     *
+     * @return running PostgreSQL handle
+     */
+    public RunningPostgres start();
+}

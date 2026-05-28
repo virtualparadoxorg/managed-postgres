@@ -1,0 +1,20 @@
+# Console output must go through SLF4J.
+java.lang.System#out
+java.lang.System#err
+
+# Application code must not terminate the host JVM.
+java.lang.System#exit(int)
+java.lang.Runtime#exit(int)
+java.lang.Runtime#halt(int)
+
+# Process execution must stay behind the approved process boundary.
+java.lang.Runtime#exec(java.lang.String)
+java.lang.Runtime#exec(java.lang.String[])
+java.lang.Runtime#exec(java.lang.String,java.lang.String[])
+java.lang.Runtime#exec(java.lang.String,java.lang.String[],java.io.File)
+java.lang.Runtime#exec(java.lang.String[],java.lang.String[])
+java.lang.Runtime#exec(java.lang.String[],java.lang.String[],java.io.File)
+
+# Tests and production code must use explicit time abstractions instead of sleeps.
+java.lang.Thread#sleep(long)
+java.lang.Thread#sleep(long,int)
