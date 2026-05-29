@@ -45,7 +45,17 @@ final class SourceBuildExecutorTest {
         assertThat(installTree.resolve("bin/postgres")).exists();
         assertThat(installTree.resolve("lib")).exists();
         assertThat(installTree.resolve("share")).exists();
-        assertThat(buildDirectory.resolve("configure.args")).hasContent("--prefix=" + installTree);
+        assertThat(buildDirectory.resolve("configure.args"))
+                .hasContent(String.join(
+                        "\n",
+                        "--prefix=" + installTree,
+                        "--without-readline",
+                        "--without-zlib",
+                        "--without-icu",
+                        "--without-ldap",
+                        "--without-gssapi",
+                        "--without-pam",
+                        "--without-llvm"));
         assertThat(buildDirectory.resolve("make.jobs")).hasContent("-j3");
         assertThat(buildDirectory.resolve("make.install")).hasContent("install-world-bin");
     }
@@ -86,7 +96,7 @@ final class SourceBuildExecutorTest {
                 """
                 #!/bin/sh
                 set -eu
-                printf '%s' "$1" > "$PWD/configure.args"
+                printf '%s\n' "$@" > "$PWD/configure.args"
                 """,
                 StandardCharsets.UTF_8);
         makeExecutable(configure);
@@ -104,7 +114,7 @@ final class SourceBuildExecutorTest {
                 set -eu
                 if [ "$1" = "install-world-bin" ]; then
                   printf '%s' "$1" > "$PWD/make.install"
-                  prefix="$(cut -d= -f2- "$PWD/configure.args")"
+                  prefix="$(head -n 1 "$PWD/configure.args" | cut -d= -f2-)"
                   mkdir -p "$prefix/bin" "$prefix/lib" "$prefix/share"
                   : > "$prefix/bin/postgres"
                   exit 0

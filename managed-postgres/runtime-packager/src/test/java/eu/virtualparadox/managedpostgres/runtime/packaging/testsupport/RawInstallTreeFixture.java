@@ -25,19 +25,25 @@ public final class RawInstallTreeFixture {
      */
     public static Path create(final Path root) throws IOException {
         final Path rawInstallTree = root.resolve("raw-install");
-        final Path postgresBinary = rawInstallTree.resolve("bin/postgres");
-        Files.createDirectories(Objects.requireNonNull(postgresBinary.getParent(), "postgresBinary.parent"));
-        Files.writeString(postgresBinary, "#!/bin/sh\nexit 0\n", StandardCharsets.UTF_8);
+        final Path binDirectory = rawInstallTree.resolve("bin");
+        Files.createDirectories(Objects.requireNonNull(binDirectory, "binDirectory"));
+        writeExecutable(binDirectory.resolve("postgres"));
+        writeExecutable(binDirectory.resolve("pg_ctl"));
+        writeExecutable(binDirectory.resolve("psql"));
         Files.createDirectories(rawInstallTree.resolve("share"));
         Files.writeString(rawInstallTree.resolve("share/extension.sql"), "-- extension\n", StandardCharsets.UTF_8);
         Files.createDirectories(rawInstallTree.resolve("lib"));
         Files.writeString(rawInstallTree.resolve("lib/libpq.a"), "archive", StandardCharsets.UTF_8);
+        return rawInstallTree;
+    }
+
+    private static void writeExecutable(final Path binaryPath) throws IOException {
+        Files.writeString(binaryPath, "#!/bin/sh\nexit 0\n", StandardCharsets.UTF_8);
         Files.setPosixFilePermissions(
-                postgresBinary,
+                binaryPath,
                 Set.of(
                         PosixFilePermission.OWNER_READ,
                         PosixFilePermission.OWNER_WRITE,
                         PosixFilePermission.OWNER_EXECUTE));
-        return rawInstallTree;
     }
 }

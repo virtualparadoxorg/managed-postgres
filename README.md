@@ -86,6 +86,22 @@ DIST_DIR=dist/macos-aarch64 \
 ./scripts/runtime-packaging/build-phase1.sh
 ```
 
+For a fast hosted-runner smoke pass, dispatch the workflow with `smoke_mode=true`.
+Locally, the same path can be exercised with:
+
+```bash
+TARGET_PLATFORM=macos-aarch64 \
+RAW_INSTALL_TREE="$PWD/target/runtime-packaging-smoke/raw-install" \
+./scripts/runtime-packaging/create-smoke-install-tree.sh
+
+POSTGRES_VERSION=16.14 \
+PACKAGING_REVISION=r1 \
+TARGET_PLATFORM=macos-aarch64 \
+DIST_DIR=dist/smoke-macos-aarch64 \
+RAW_INSTALL_TREE="$PWD/target/runtime-packaging-smoke/raw-install" \
+./scripts/runtime-packaging/build-phase1.sh
+```
+
 ## Real Runtime Validation
 
 The real-runtime scenarios require an explicit PostgreSQL installation path.

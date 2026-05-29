@@ -1,6 +1,8 @@
 package eu.virtualparadox.managedpostgres.runtime.packaging.build;
 
 import eu.virtualparadox.managedpostgres.runtime.packaging.TargetPlatform;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -33,6 +35,25 @@ public sealed interface PlatformBuildDriver
      * @return runtime bundle target
      */
     TargetPlatform targetPlatform();
+
+    /**
+     * Returns deterministic configure arguments for Unix source builds.
+     *
+     * @param installDirectory staged installation prefix
+     * @return configure command arguments
+     */
+    default List<String> configureArguments(final Path installDirectory) {
+        final Path validatedInstallDirectory = Objects.requireNonNull(installDirectory, "installDirectory");
+        return List.of(
+                "--prefix=" + validatedInstallDirectory,
+                "--without-readline",
+                "--without-zlib",
+                "--without-icu",
+                "--without-ldap",
+                "--without-gssapi",
+                "--without-pam",
+                "--without-llvm");
+    }
 
     /**
      * Returns the rollout phase for the target handled by this driver.
