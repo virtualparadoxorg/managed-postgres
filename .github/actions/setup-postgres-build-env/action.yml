@@ -24,6 +24,7 @@ runs:
       run: |
         set -euo pipefail
         xcode-select -p >/dev/null
+        brew list make >/dev/null 2>&1 || brew install make
         perl -v >/dev/null
 
     - name: Prepare Windows build dependencies

@@ -61,6 +61,32 @@ final class SourceBuildExecutorTest {
     }
 
     @Test
+    void buildsUnixInstallTreeWhenConfigureIsNotExecutable() throws IOException {
+        final Path sourceTree = createSourceTree();
+        final Path configure = sourceTree.resolve("configure");
+        Files.setPosixFilePermissions(
+                configure,
+                EnumSet.of(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE));
+        final Path toolDirectory = createToolDirectory();
+        final Path buildDirectory = tempDir.resolve("build-non-executable-configure");
+        final SourceBuildExecutor executor = new SourceBuildExecutor(
+                Map.of("PATH", toolDirectory + ":" + System.getenv("PATH")),
+                2,
+                List.of(toolDirectory.resolve("make").toString()));
+
+        final Path installTree = executor.build(
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                new PostgresRelease(16, "16.14", URI.create("file:///tmp/postgresql-16.14.tar.gz"), "abc123"),
+                sourceTree,
+                buildDirectory);
+
+        assertThat(installTree.resolve("bin/postgres")).exists();
+        assertThat(buildDirectory.resolve("configure.args")).exists();
+    }
+
+    @Test
     void rejectsWindowsUntilMsvcBuildPathExists() {
         final SourceBuildExecutor executor = new SourceBuildExecutor();
 
