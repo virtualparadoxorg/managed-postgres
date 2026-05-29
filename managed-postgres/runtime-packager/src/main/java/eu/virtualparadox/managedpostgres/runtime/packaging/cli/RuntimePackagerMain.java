@@ -1,14 +1,12 @@
 package eu.virtualparadox.managedpostgres.runtime.packaging.cli;
 
 import java.io.BufferedWriter;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.ParameterException;
@@ -18,8 +16,6 @@ import picocli.CommandLine.ParameterException;
  */
 @Command(name = "runtime-packager", mixinStandardHelpOptions = true, sortOptions = false)
 public final class RuntimePackagerMain implements Callable<Integer> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RuntimePackagerMain.class);
 
     private final PrintWriter output;
     private final PrintWriter errorOutput;
@@ -73,8 +69,8 @@ public final class RuntimePackagerMain implements Callable<Integer> {
     public static void main(final String[] args) {
         final int exitCode = execute(
                 args,
-                loggerPrintWriter(LOGGER::info),
-                loggerPrintWriter(LOGGER::error));
+                standardPrintWriter(FileDescriptor.out),
+                standardPrintWriter(FileDescriptor.err));
         if (exitCode != 0) {
             throw new MainExecutionException(exitCode);
         }
@@ -99,8 +95,13 @@ public final class RuntimePackagerMain implements Callable<Integer> {
         return commandLine;
     }
 
-    private static PrintWriter loggerPrintWriter(final Consumer<String> sink) {
-        return new PrintWriter(new BufferedWriter(new LoggerWriter(sink, StandardCharsets.UTF_8)), true);
+    private static PrintWriter standardPrintWriter(final FileDescriptor fileDescriptor) {
+        return new PrintWriter(
+                new BufferedWriter(
+                        new java.io.OutputStreamWriter(
+                                new FileOutputStream(Objects.requireNonNull(fileDescriptor, "fileDescriptor")),
+                                StandardCharsets.UTF_8)),
+                true);
     }
 
     private static final class MainExecutionException extends RuntimeException {
@@ -114,46 +115,6 @@ public final class RuntimePackagerMain implements Callable<Integer> {
         @Override
         public synchronized Throwable fillInStackTrace() {
             return this;
-        }
-    }
-
-    private static final class LoggerWriter extends Writer {
-
-        private final Consumer<String> sink;
-        private final StringBuilder buffer;
-
-        LoggerWriter(final Consumer<String> sink, final java.nio.charset.Charset charset) {
-            this.sink = Objects.requireNonNull(sink, "sink");
-            Objects.requireNonNull(charset, "charset");
-            this.buffer = new StringBuilder();
-        }
-
-        @Override
-        public void write(final char[] cbuf, final int off, final int len) {
-            buffer.append(cbuf, off, len);
-            flushCompleteLines();
-        }
-
-        @Override
-        public void flush() {
-            if (!buffer.isEmpty()) {
-                sink.accept(buffer.toString());
-                buffer.setLength(0);
-            }
-        }
-
-        @Override
-        public void close() {
-            flush();
-        }
-
-        private void flushCompleteLines() {
-            int newlineIndex = buffer.indexOf(System.lineSeparator());
-            while (newlineIndex >= 0) {
-                sink.accept(buffer.substring(0, newlineIndex));
-                buffer.delete(0, newlineIndex + System.lineSeparator().length());
-                newlineIndex = buffer.indexOf(System.lineSeparator());
-            }
         }
     }
 }
