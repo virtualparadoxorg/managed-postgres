@@ -1,11 +1,17 @@
 name: Setup PostgreSQL Build Environment
 description: Install Phase 1 runtime packaging prerequisites on GitHub-hosted runners.
 
+inputs:
+  skip-install:
+    description: Skip runner dependency installation for smoke-mode packaging.
+    required: false
+    default: "false"
+
 runs:
   using: composite
   steps:
     - name: Prepare Linux build dependencies
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' && inputs.skip-install != 'true'
       shell: bash
       run: |
         set -euo pipefail
@@ -13,7 +19,7 @@ runs:
         sudo apt-get install -y build-essential perl
 
     - name: Prepare macOS build dependencies
-      if: runner.os == 'macOS'
+      if: runner.os == 'macOS' && inputs.skip-install != 'true'
       shell: bash
       run: |
         set -euo pipefail
@@ -21,7 +27,7 @@ runs:
         perl -v >/dev/null
 
     - name: Prepare Windows build dependencies
-      if: runner.os == 'Windows'
+      if: runner.os == 'Windows' && inputs.skip-install != 'true'
       shell: powershell
       run: |
         $ErrorActionPreference = "Stop"

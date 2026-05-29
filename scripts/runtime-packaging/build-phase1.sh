@@ -39,11 +39,19 @@ if [[ "${PATH_SEPARATOR}" == ";" ]]; then
   RUNTIME_PACKAGER_CLASSPATH="${TARGET_DIR}/classes;$(cat "${CLASSPATH_FILE}")"
 fi
 
+runtime_packager_args=(
+  package
+  --postgres-version "${POSTGRES_VERSION}"
+  --target "${TARGET_PLATFORM}"
+  --revision "${PACKAGING_REVISION}"
+  --output "${ROOT_DIR}/${DIST_DIR}"
+  --work-root "${WORK_ROOT}"
+)
+
+if [[ -n "${RAW_INSTALL_TREE:-}" ]]; then
+  runtime_packager_args+=(--raw-install-tree "${RAW_INSTALL_TREE}")
+fi
+
 java -cp "${RUNTIME_PACKAGER_CLASSPATH}" \
   eu.virtualparadox.managedpostgres.runtime.packaging.cli.RuntimePackagerMain \
-  package \
-  --postgres-version "${POSTGRES_VERSION}" \
-  --target "${TARGET_PLATFORM}" \
-  --revision "${PACKAGING_REVISION}" \
-  --output "${ROOT_DIR}/${DIST_DIR}" \
-  --work-root "${WORK_ROOT}"
+  "${runtime_packager_args[@]}"

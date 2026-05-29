@@ -2,6 +2,8 @@ package eu.virtualparadox.managedpostgres.runtime.packaging.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.runtime.RuntimeValidator;
+import eu.virtualparadox.managedpostgres.runtime.archive.RuntimeArchiveExtractor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.TargetPlatform;
 import eu.virtualparadox.managedpostgres.runtime.packaging.build.BuildExecutor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.build.PlatformBuildDriver;
@@ -42,6 +44,11 @@ final class PackageRuntimeCommandTest {
     }
 
     @Test
+    void exposesProcessEntryPointForJavaInvocation() {
+        RuntimePackagerMain.main(new String[] {"--help"});
+    }
+
+    @Test
     void packagesRuntimeFromRawInstallTree() throws IOException {
         final Path rawInstallTree = RawInstallTreeFixture.create(tempDir);
         final Path outputDirectory = tempDir.resolve("dist");
@@ -69,9 +76,12 @@ final class PackageRuntimeCommandTest {
                 new PrintWriter(error, true));
 
         assertThat(exitCode).isZero();
-        assertThat(outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip")).exists();
+        final Path bundle = outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip");
+        assertThat(bundle).exists();
         assertThat(outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip.sha256")).exists();
         assertThat(outputDirectory.resolve("manifest.json")).exists();
+        final Path extracted = new RuntimeArchiveExtractor().extract(bundle, tempDir.resolve("extracted-raw"));
+        assertThat(RuntimeValidator.requireUsableRuntimeDirectory(extracted)).isEqualTo(extracted);
     }
 
     @Test
@@ -126,8 +136,11 @@ final class PackageRuntimeCommandTest {
         final int exitCode = command.call();
 
         assertThat(exitCode).isZero();
-        assertThat(outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip")).exists();
+        final Path bundle = outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip");
+        assertThat(bundle).exists();
         assertThat(error.toString()).isEmpty();
+        final Path extracted = new RuntimeArchiveExtractor().extract(bundle, tempDir.resolve("extracted-source"));
+        assertThat(RuntimeValidator.requireUsableRuntimeDirectory(extracted)).isEqualTo(extracted);
     }
 
     @Test

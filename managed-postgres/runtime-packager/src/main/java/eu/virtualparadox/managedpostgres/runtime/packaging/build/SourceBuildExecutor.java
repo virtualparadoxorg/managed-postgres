@@ -70,9 +70,10 @@ public final class SourceBuildExecutor implements BuildExecutor {
 
         final Path installDirectory = validatedBuildDirectory.resolve("install");
         createDirectories(validatedBuildDirectory, installDirectory);
-        runCommand(
-                List.of(validatedSourceTree.resolve("configure").toString(), "--prefix=" + installDirectory),
-                validatedBuildDirectory);
+        final List<String> configureCommand = new ArrayList<>();
+        configureCommand.add(validatedSourceTree.resolve("configure").toString());
+        configureCommand.addAll(validatedDriver.configureArguments(installDirectory));
+        runCommand(configureCommand, validatedBuildDirectory);
         runCommand(commandWithArguments("-j" + parallelJobs), validatedBuildDirectory);
         runCommand(commandWithArguments("install-world-bin"), validatedBuildDirectory);
         return installDirectory;
