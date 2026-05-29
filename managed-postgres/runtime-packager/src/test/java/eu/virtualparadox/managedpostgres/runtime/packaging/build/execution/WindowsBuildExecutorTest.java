@@ -90,7 +90,7 @@ final class WindowsBuildExecutorTest {
     private Path createWindowsSourceTree() throws IOException {
         final Path msvcDirectory = tempDir.resolve("source").resolve("src").resolve("tools").resolve("msvc");
         Files.createDirectories(msvcDirectory);
-        final Path buildScript = msvcDirectory.resolve("build");
+        final Path buildScript = msvcDirectory.resolve("build.bat");
         Files.writeString(
                 buildScript,
                 """
@@ -100,7 +100,7 @@ final class WindowsBuildExecutorTest {
                 """,
                 StandardCharsets.UTF_8);
         makeExecutable(buildScript);
-        final Path installScript = msvcDirectory.resolve("install");
+        final Path installScript = msvcDirectory.resolve("install.bat");
         Files.writeString(
                 installScript,
                 """
@@ -135,6 +135,8 @@ final class WindowsBuildExecutorTest {
                   *)
                     if [ -x "$PWD/$first" ]; then
                       first="$PWD/$first"
+                    elif [ -x "$PWD/$first.bat" ]; then
+                      first="$PWD/$first.bat"
                     fi
                     ;;
                 esac

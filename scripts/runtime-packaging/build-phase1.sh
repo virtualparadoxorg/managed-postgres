@@ -14,6 +14,22 @@ require_env PACKAGING_REVISION
 require_env TARGET_PLATFORM
 require_env DIST_DIR
 
+prefer_gnu_make_on_macos() {
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    return
+  fi
+
+  local brew_make_prefix=""
+  if command -v brew >/dev/null 2>&1; then
+    brew_make_prefix="$(brew --prefix make 2>/dev/null || true)"
+  fi
+  if [[ -n "${brew_make_prefix}" && -d "${brew_make_prefix}/libexec/gnubin" ]]; then
+    export PATH="${brew_make_prefix}/libexec/gnubin:${PATH}"
+  fi
+}
+
+prefer_gnu_make_on_macos
+
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 MODULE_DIR="${ROOT_DIR}/managed-postgres/runtime-packager"
 TARGET_DIR="${MODULE_DIR}/target"

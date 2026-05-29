@@ -71,6 +71,7 @@ public final class SourceBuildExecutor implements BuildExecutor {
         final Path installDirectory = validatedBuildDirectory.resolve("install");
         createDirectories(validatedBuildDirectory, installDirectory);
         final List<String> configureCommand = new ArrayList<>();
+        configureCommand.add("/bin/sh");
         configureCommand.add(validatedSourceTree.resolve("configure").toString());
         configureCommand.addAll(validatedDriver.configureArguments(installDirectory));
         runCommand(configureCommand, validatedBuildDirectory);
