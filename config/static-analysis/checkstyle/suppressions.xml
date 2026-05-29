@@ -4,4 +4,16 @@
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
     <suppress checks=".*" files=".*/target/generated-sources/.*"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/runtime-packager/src/main/java/eu/virtualparadox/managedpostgres/runtime/packaging/build/SourceBuildExecutor\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/runtime-packager/src/main/java/eu/virtualparadox/managedpostgres/runtime/packaging/build/execution/WindowsBuildExecutor\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/runtime-packager/src/main/java/eu/virtualparadox/managedpostgres/runtime/packaging/build/execution/PlatformBuildExecutor\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/spring-boot-4/src/main/java/eu/virtualparadox/managedpostgres/spring/boot4/bootstrap/ManagedPostgresBootstrapInitializer\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/cli/src/main/java/eu/virtualparadox/managedpostgres/cli/config/CliYamlConfigurationLoader\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/cli/src/main/java/eu/virtualparadox/managedpostgres/cli/CliExceptionHandler\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/core/src/main/java/eu/virtualparadox/managedpostgres/filesystem/ManagedFilePermissions\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/core/src/test/java/eu/virtualparadox/managedpostgres/lifecycle/testsupport/start/StartedPostgresMetadata\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/core/src/main/java/eu/virtualparadox/managedpostgres/security/Secret\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/core/src/main/java/eu/virtualparadox/managedpostgres/lifecycle/start/StartPostgresWorkflow\.java"/>
+    <suppress id="forbidInstanceof" files=".*/managed-postgres/core/src/main/java/eu/virtualparadox/managedpostgres/lifecycle/PostgresStartupDiagnostics\.java"/>
+    <suppress id="forbidInstanceof" files=".*/scenario-tests/fake-runtime-it/src/test/java/eu/virtualparadox/managedpostgres/scenario/FakeRuntimeCrashRecoveryIT\.java"/>
 </suppressions>

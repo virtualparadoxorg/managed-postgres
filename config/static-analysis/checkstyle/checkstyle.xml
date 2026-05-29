@@ -66,5 +66,10 @@
             <property name="format" value="\byield\b"/>
             <property name="message" value="Do not use switch yield; extract case logic into named methods."/>
         </module>
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="forbidInstanceof"/>
+            <property name="format" value="\binstanceof\b"/>
+            <property name="message" value="Do not use instanceof. Refactor to polymorphism or a dedicated dispatch boundary."/>
+        </module>
     </module>
 </module>
