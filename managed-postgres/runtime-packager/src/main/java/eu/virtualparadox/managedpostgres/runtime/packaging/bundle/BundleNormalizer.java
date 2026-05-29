@@ -36,11 +36,12 @@ public final class BundleNormalizer {
         final Path validatedOutputDirectory = Objects.requireNonNull(outputDirectory, "outputDirectory");
         final BundleManifest validatedManifest = Objects.requireNonNull(manifest, "manifest");
         requirePostgresExecutable(validatedRawInstallTree);
-        final Path runtimeRoot = validatedOutputDirectory.resolve("runtime");
         try {
-            Files.createDirectories(runtimeRoot);
+            Files.createDirectories(validatedOutputDirectory);
             for (String payloadDirectory : PAYLOAD_DIRECTORIES) {
-                copyPayloadDirectory(validatedRawInstallTree.resolve(payloadDirectory), runtimeRoot.resolve(payloadDirectory));
+                copyPayloadDirectory(
+                        validatedRawInstallTree.resolve(payloadDirectory),
+                        validatedOutputDirectory.resolve(payloadDirectory));
             }
             Files.writeString(
                     validatedOutputDirectory.resolve("manifest.json"),

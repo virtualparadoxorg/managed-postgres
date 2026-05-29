@@ -65,6 +65,27 @@ If tests already ran and you only want the report:
 The aggregated report is written to
 `target/site/allure-report-aggregate/index.html`.
 
+## Runtime Packaging
+
+The repository contains a source-build-first runtime packaging workflow for PostgreSQL 16, 17, and 18.
+
+Phase 1 packaging targets:
+
+- macOS x86_64
+- macOS aarch64
+- Linux x86_64 glibc
+- Windows x86_64
+
+Trigger the GitHub Actions workflow manually from the Actions tab, or prepare bundles locally with:
+
+```bash
+POSTGRES_VERSION=16.14 \
+PACKAGING_REVISION=r1 \
+TARGET_PLATFORM=macos-aarch64 \
+DIST_DIR=dist/macos-aarch64 \
+./scripts/runtime-packaging/build-phase1.sh
+```
+
 ## Real Runtime Validation
 
 The real-runtime scenarios require an explicit PostgreSQL installation path.

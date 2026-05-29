@@ -1,0 +1,30 @@
+name: Setup PostgreSQL Build Environment
+description: Install Phase 1 runtime packaging prerequisites on GitHub-hosted runners.
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare Linux build dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y build-essential perl
+
+    - name: Prepare macOS build dependencies
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        set -euo pipefail
+        xcode-select -p >/dev/null
+        perl -v >/dev/null
+
+    - name: Prepare Windows build dependencies
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        $ErrorActionPreference = "Stop"
+        choco install strawberryperl -y --no-progress
+        refreshenv
+        perl -v | Out-Null

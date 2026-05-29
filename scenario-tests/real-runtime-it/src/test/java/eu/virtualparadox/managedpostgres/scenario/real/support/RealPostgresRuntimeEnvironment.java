@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.scenario.real.support;
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -140,19 +141,20 @@ public final class RealPostgresRuntimeEnvironment {
             throw new AssertionError("Configured PostgreSQL runtime from %s does not contain bin/: %s"
                     .formatted(source, runtimeRoot));
         }
-        REQUIRED_EXECUTABLES.forEach(executable -> requireExecutable(runtimeRoot.resolve("bin").resolve(executable), source));
+        REQUIRED_EXECUTABLES.forEach(executable -> requireExecutable(runtimeRoot, executable, source));
     }
 
-    private static void requireExecutable(final Path executable, final String source) {
+    private static void requireExecutable(final Path runtimeRoot, final String executableName, final String source) {
+        final Path executable = RuntimeBinaryLocator.resolveBinary(runtimeRoot, executableName);
         if (!Files.isRegularFile(executable)) {
             throw new AssertionError("PostgreSQL runtime from %s is missing required executable: %s"
-                    .formatted(source, executable));
+                    .formatted(source, runtimeRoot.resolve("bin").resolve(executableName)));
         }
     }
 
     private String postgresqlVersion(final Path runtimeRoot) {
         final RuntimeCommandResult result = commandRunner.apply(List.of(
-                runtimeRoot.resolve("bin").resolve("postgres").toString(),
+                RuntimeBinaryLocator.resolveBinary(runtimeRoot, "postgres").toString(),
                 "--version"));
         if (!result.successful()) {
             throw new AssertionError("Could not run postgres --version for runtime: " + runtimeRoot);
@@ -189,9 +191,24 @@ public final class RealPostgresRuntimeEnvironment {
             executable = Arrays.stream(pathValue.split(File.pathSeparator))
                     .filter(StringUtils::isNotBlank)
                     .map(Path::of)
-                    .map(path -> path.toAbsolutePath().normalize().resolve(executableName))
-                    .filter(Files::isRegularFile)
+                    .map(path -> path.toAbsolutePath().normalize())
+                    .flatMap(path -> resolvePathExecutable(path, executableName).stream())
                     .findFirst();
+        }
+
+        return executable;
+    }
+
+    private static Optional<Path> resolvePathExecutable(final Path directory, final String executableName) {
+        final Path plainExecutable = directory.resolve(executableName);
+        final Path windowsExecutable = directory.resolve(executableName + ".exe");
+        final Optional<Path> executable;
+        if (Files.isRegularFile(plainExecutable)) {
+            executable = Optional.of(plainExecutable);
+        } else if (Files.isRegularFile(windowsExecutable)) {
+            executable = Optional.of(windowsExecutable);
+        } else {
+            executable = Optional.empty();
         }
 
         return executable;

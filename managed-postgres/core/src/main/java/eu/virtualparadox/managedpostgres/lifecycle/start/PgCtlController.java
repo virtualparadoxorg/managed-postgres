@@ -1,5 +1,6 @@
 package eu.virtualparadox.managedpostgres.lifecycle.start;
 
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -72,6 +73,6 @@ public final class PgCtlController {
     }
 
     private Path pgCtlBinary() {
-        return runtimeDirectory.resolve("bin").resolve("pg_ctl");
+        return RuntimeBinaryLocator.resolveBinary(runtimeDirectory, "pg_ctl");
     }
 }

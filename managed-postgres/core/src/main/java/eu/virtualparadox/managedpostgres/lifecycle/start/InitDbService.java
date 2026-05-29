@@ -5,6 +5,7 @@ import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public final class InitDbService {
         final Path checkedPasswordFile = Objects.requireNonNull(passwordFile, "passwordFile");
 
         return List.of(
-                runtimeDirectory.resolve("bin").resolve("initdb").toString(),
+                RuntimeBinaryLocator.resolveBinary(runtimeDirectory, "initdb").toString(),
                 "-D",
                 checkedDataDirectory.toString(),
                 "-U",

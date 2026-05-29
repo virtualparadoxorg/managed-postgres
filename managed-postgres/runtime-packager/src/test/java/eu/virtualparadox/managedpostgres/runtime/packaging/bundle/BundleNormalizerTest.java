@@ -28,10 +28,10 @@ final class BundleNormalizerTest {
 
         final Path normalized = normalizer.normalize(rawInstallTree, tempDir.resolve("normalized"), manifest());
 
-        assertThat(normalized.resolve("runtime/bin/postgres")).exists();
-        assertThat(normalized.resolve("runtime/share/extension.sql")).exists();
+        assertThat(normalized.resolve("bin/postgres")).exists();
+        assertThat(normalized.resolve("share/extension.sql")).exists();
         assertThat(normalized.resolve("manifest.json")).exists();
-        assertThat(Files.isExecutable(normalized.resolve("runtime/bin/postgres"))).isTrue();
+        assertThat(Files.isExecutable(normalized.resolve("bin/postgres"))).isTrue();
     }
 
     @Test

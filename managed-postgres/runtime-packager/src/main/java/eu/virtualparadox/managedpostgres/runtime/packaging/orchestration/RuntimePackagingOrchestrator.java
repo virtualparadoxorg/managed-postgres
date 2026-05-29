@@ -1,7 +1,7 @@
 package eu.virtualparadox.managedpostgres.runtime.packaging.orchestration;
 
 import eu.virtualparadox.managedpostgres.runtime.packaging.build.BuildExecutor;
-import eu.virtualparadox.managedpostgres.runtime.packaging.build.SourceBuildExecutor;
+import eu.virtualparadox.managedpostgres.runtime.packaging.build.execution.PlatformBuildExecutor;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ public final class RuntimePackagingOrchestrator {
     public RuntimePackagingOrchestrator() {
         this(
                 new SourceWorkspacePreparer(),
-                new SourceBuildExecutor(),
+                new PlatformBuildExecutor(),
                 new BundlePublicationWorkflow());
     }
 

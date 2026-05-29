@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import eu.virtualparadox.managedpostgres.runtime.packaging.TargetPlatform;
 import eu.virtualparadox.managedpostgres.runtime.packaging.build.BuildExecutor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.build.PlatformBuildDriver;
+import eu.virtualparadox.managedpostgres.runtime.packaging.build.UnsupportedBuildExecutor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.orchestration.RuntimePackagingOrchestrator;
 import eu.virtualparadox.managedpostgres.runtime.packaging.source.PostgresSourceCatalog;
 import eu.virtualparadox.managedpostgres.runtime.packaging.testsupport.RawInstallTreeFixture;
@@ -85,7 +86,7 @@ final class PackageRuntimeCommandTest {
                 output,
                 error,
                 sourceArchive,
-                new RuntimePackagingOrchestrator(),
+                new RuntimePackagingOrchestrator(new UnsupportedBuildExecutor()),
                 outputDirectory)
                 .withRequiredOptions("16.14", "windows-x86_64", "r1", outputDirectory)
                 .withSourceBuildDirectories(sourceCache, workRoot);

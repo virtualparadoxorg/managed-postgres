@@ -146,6 +146,31 @@ final class RealPostgresRuntimeEnvironmentTest {
                 .hasMessageContaining("pg_restore");
     }
 
+    @Test
+    void acceptsWindowsStyleExecutablesForExplicitRuntime() throws IOException {
+        final Path runtime = temporaryDirectory.resolve("windows-runtime");
+        final Path bin = runtime.resolve("bin");
+        Files.createDirectories(bin);
+        Files.writeString(bin.resolve("pg_ctl.exe"), "fake");
+        Files.writeString(bin.resolve("initdb.exe"), "fake");
+        Files.writeString(bin.resolve("postgres.exe"), "fake-16.4");
+        Files.writeString(bin.resolve("pg_isready.exe"), "fake");
+        Files.writeString(bin.resolve("psql.exe"), "fake");
+        Files.writeString(bin.resolve("pg_dump.exe"), "fake");
+        Files.writeString(bin.resolve("pg_restore.exe"), "fake");
+        final RealPostgresRuntimeEnvironment environment = new RealPostgresRuntimeEnvironment(
+                runtime::toString,
+                () -> "",
+                () -> "",
+                () -> "false",
+                invocation -> commandResultFor(invocation, runtime, "16.4"));
+
+        final RealPostgresRuntime resolved = environment.resolve().orElseThrow();
+
+        assertThat(resolved.runtimeDirectory()).isEqualTo(runtime);
+        assertThat(resolved.postgresqlVersion()).isEqualTo("16.4");
+    }
+
     private RealPostgresRuntimeEnvironment environment(
             final String propertyRuntime,
             final String environmentRuntime,
