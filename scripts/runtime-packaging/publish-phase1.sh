@@ -19,6 +19,15 @@ ARTIFACT_DIR="${ROOT_DIR}/${DIST_DIR}"
 ARTIFACT_NAME="runtime-pg${POSTGRES_VERSION}-${TARGET_PLATFORM}-${PACKAGING_REVISION}"
 RELEASE_TAG="pg${POSTGRES_VERSION}-${PACKAGING_REVISION}"
 
+normalize_artifact_path() {
+  local artifact_path="$1"
+  if [[ "${TARGET_PLATFORM}" == windows-* ]] && command -v cygpath >/dev/null 2>&1; then
+    cygpath -w "${artifact_path}"
+    return
+  fi
+  printf '%s\n' "${artifact_path}"
+}
+
 if [[ ! -d "${ARTIFACT_DIR}" ]]; then
   echo "artifact directory does not exist: ${ARTIFACT_DIR}" >&2
   exit 1
@@ -33,9 +42,10 @@ if [[ "${#artifact_files[@]}" -eq 0 ]]; then
 fi
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  NORMALIZED_ARTIFACT_PATH="$(normalize_artifact_path "${ARTIFACT_DIR}")"
   {
     echo "artifact_name=${ARTIFACT_NAME}"
-    echo "artifact_path=${ARTIFACT_DIR}"
+    echo "artifact_path=${NORMALIZED_ARTIFACT_PATH}"
   } >> "${GITHUB_OUTPUT}"
 fi
 
