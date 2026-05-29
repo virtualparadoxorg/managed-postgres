@@ -55,8 +55,9 @@ public final class BundleNormalizer {
 
     private static void requirePostgresExecutable(final Path rawInstallTree) {
         final Path postgres = rawInstallTree.resolve("bin/postgres");
-        if (!Files.isRegularFile(postgres)) {
-            throw new IllegalArgumentException("raw install tree must contain bin/postgres");
+        final Path windowsPostgres = rawInstallTree.resolve("bin/postgres.exe");
+        if (!Files.isRegularFile(postgres) && !Files.isRegularFile(windowsPostgres)) {
+            throw new IllegalArgumentException("raw install tree must contain bin/postgres or bin/postgres.exe");
         }
     }
 
