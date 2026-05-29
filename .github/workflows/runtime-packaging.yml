@@ -90,7 +90,7 @@ jobs:
         run: ./scripts/runtime-packaging/publish-phase1.sh
 
       - name: Upload workflow artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.publish.outputs.artifact_name }}
           path: ${{ steps.publish.outputs.artifact_path }}
