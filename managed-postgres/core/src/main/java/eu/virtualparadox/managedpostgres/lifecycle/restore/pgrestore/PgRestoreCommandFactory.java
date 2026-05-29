@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,7 +26,9 @@ public final class PgRestoreCommandFactory {
      * @param timeout timeout value
      */
     public PgRestoreCommandFactory(final Path runtimeDirectory, final Duration timeout) {
-        this.pgRestore = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory").resolve("bin").resolve("pg_restore");
+        this.pgRestore = RuntimeBinaryLocator.resolveBinary(
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"),
+                "pg_restore");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 

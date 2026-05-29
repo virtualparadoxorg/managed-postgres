@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.runtime.packaging.build;
 
+import eu.virtualparadox.managedpostgres.runtime.packaging.build.execution.ProcessCommandExecutor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.PostgresRelease;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,18 +19,27 @@ public final class SourceBuildExecutor implements BuildExecutor {
     private final Map<String, String> environmentOverrides;
     private final int parallelJobs;
     private final List<String> makeCommand;
+    private final ProcessCommandExecutor processCommandExecutor;
 
     /**
      * Creates a source build executor using the process environment and detected CPU parallelism.
      */
     public SourceBuildExecutor() {
-        this(Map.of(), Runtime.getRuntime().availableProcessors(), List.of("make"));
+        this(Map.of(), Runtime.getRuntime().availableProcessors(), List.of("make"), new ProcessCommandExecutor());
     }
 
     SourceBuildExecutor(
             final Map<String, String> environmentOverrides,
             final int parallelJobs,
             final List<String> makeCommand) {
+        this(environmentOverrides, parallelJobs, makeCommand, new ProcessCommandExecutor());
+    }
+
+    SourceBuildExecutor(
+            final Map<String, String> environmentOverrides,
+            final int parallelJobs,
+            final List<String> makeCommand,
+            final ProcessCommandExecutor processCommandExecutor) {
         this.environmentOverrides = Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides"));
         if (parallelJobs <= 0) {
             throw new IllegalArgumentException("parallelJobs must be positive");
@@ -40,6 +49,7 @@ public final class SourceBuildExecutor implements BuildExecutor {
         if (this.makeCommand.isEmpty()) {
             throw new IllegalArgumentException("makeCommand must not be empty");
         }
+        this.processCommandExecutor = Objects.requireNonNull(processCommandExecutor, "processCommandExecutor");
     }
 
     @Override
@@ -75,26 +85,11 @@ public final class SourceBuildExecutor implements BuildExecutor {
     }
 
     private void runCommand(final List<String> command, final Path workingDirectory) {
-        final ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(workingDirectory.toFile());
-        processBuilder.redirectErrorStream(true);
-        processBuilder.environment().putAll(environmentOverrides);
-        try {
-            final Process process = processBuilder.start();
-            final String output;
-            try (var inputStream = process.getInputStream()) {
-                output = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            }
-            final int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new IllegalStateException("command failed: " + String.join(" ", command) + "\n" + output);
-            }
-        } catch (IOException exception) {
-            throw new UncheckedIOException("failed to execute source-build command", exception);
-        } catch (InterruptedException exception) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("source-build command was interrupted", exception);
-        }
+        processCommandExecutor.runCommand(
+                command,
+                workingDirectory,
+                environmentOverrides,
+                "failed to execute source-build command");
     }
 
     private static void createDirectories(final Path buildDirectory, final Path installDirectory) {

@@ -23,9 +23,9 @@ public final class RuntimeValidator {
                 .toAbsolutePath()
                 .normalize();
         requireDirectory(normalizedRuntimeDirectory, "runtimeDirectory");
-        requireRegularFile(normalizedRuntimeDirectory.resolve("bin").resolve("pg_ctl"), "pg_ctl");
-        requireRegularFile(normalizedRuntimeDirectory.resolve("bin").resolve("psql"), "psql");
-        requireRegularFile(normalizedRuntimeDirectory.resolve("bin").resolve("postgres"), "postgres");
+        RuntimeBinaryLocator.requireBinary(normalizedRuntimeDirectory, "pg_ctl");
+        RuntimeBinaryLocator.requireBinary(normalizedRuntimeDirectory, "psql");
+        RuntimeBinaryLocator.requireBinary(normalizedRuntimeDirectory, "postgres");
 
         return normalizedRuntimeDirectory;
     }
@@ -33,12 +33,6 @@ public final class RuntimeValidator {
     private static void requireDirectory(final Path path, final String label) {
         if (!Files.isDirectory(path)) {
             throw new IllegalArgumentException(label + " must be an existing directory: " + path);
-        }
-    }
-
-    private static void requireRegularFile(final Path path, final String binaryName) {
-        if (!Files.isRegularFile(path)) {
-            throw new IllegalArgumentException("runtime directory requires bin/" + binaryName + ": " + path);
         }
     }
 }

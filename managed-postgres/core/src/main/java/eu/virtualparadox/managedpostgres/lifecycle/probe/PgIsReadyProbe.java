@@ -4,7 +4,7 @@ import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
-import java.nio.file.Files;
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
@@ -93,14 +93,6 @@ public final class PgIsReadyProbe {
     }
 
     private static Path pgIsReadyExecutable(final Path runtimeDirectory) {
-        final Path binDirectory = runtimeDirectory.resolve("bin");
-        final Path plainExecutable = binDirectory.resolve("pg_isready");
-        final Path windowsExecutable = binDirectory.resolve("pg_isready.exe");
-        Path executable = plainExecutable;
-        if (!Files.exists(plainExecutable) && Files.exists(windowsExecutable)) {
-            executable = windowsExecutable;
-        }
-
-        return executable;
+        return RuntimeBinaryLocator.resolveBinary(runtimeDirectory, "pg_isready");
     }
 }

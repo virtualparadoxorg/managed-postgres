@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -25,7 +26,9 @@ public final class PgDumpCommandFactory {
      * @param timeout timeout value
      */
     public PgDumpCommandFactory(final Path runtimeDirectory, final Duration timeout) {
-        this.pgDump = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory").resolve("bin").resolve("pg_dump");
+        this.pgDump = RuntimeBinaryLocator.resolveBinary(
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"),
+                "pg_dump");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 

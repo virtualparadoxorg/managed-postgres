@@ -2,6 +2,8 @@ package eu.virtualparadox.managedpostgres.runtime.packaging.bundle;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.runtime.RuntimeValidator;
+import eu.virtualparadox.managedpostgres.runtime.archive.RuntimeArchiveExtractor;
 import eu.virtualparadox.managedpostgres.runtime.packaging.BundleManifest;
 import eu.virtualparadox.managedpostgres.runtime.packaging.TargetPlatform;
 import java.io.IOException;
@@ -33,14 +35,19 @@ final class BundlePublisherTest {
         assertThat(result.bundleChecksum()).exists();
         assertThat(result.manifest()).exists();
         assertThat(Files.readString(result.bundleChecksum())).contains(bundleFileName.toString());
+        final Path extracted = new RuntimeArchiveExtractor().extract(result.bundle(), tempDir.resolve("extracted"));
+        assertThat(RuntimeValidator.requireUsableRuntimeDirectory(extracted))
+                .isEqualTo(extracted.toAbsolutePath().normalize());
     }
 
     private Path createNormalizedBundle() throws IOException {
         final Path normalized = tempDir.resolve("normalized");
-        Files.createDirectories(normalized.resolve("runtime/bin"));
-        Files.writeString(normalized.resolve("runtime/bin/postgres"), "binary", StandardCharsets.UTF_8);
-        Files.createDirectories(normalized.resolve("runtime/share"));
-        Files.writeString(normalized.resolve("runtime/share/extension.sql"), "share", StandardCharsets.UTF_8);
+        Files.createDirectories(normalized.resolve("bin"));
+        Files.writeString(normalized.resolve("bin/postgres"), "binary", StandardCharsets.UTF_8);
+        Files.writeString(normalized.resolve("bin/pg_ctl"), "binary", StandardCharsets.UTF_8);
+        Files.writeString(normalized.resolve("bin/psql"), "binary", StandardCharsets.UTF_8);
+        Files.createDirectories(normalized.resolve("share"));
+        Files.writeString(normalized.resolve("share/extension.sql"), "share", StandardCharsets.UTF_8);
         Files.writeString(normalized.resolve("manifest.json"), "{\"postgresVersion\":\"16.14\"}", StandardCharsets.UTF_8);
         return normalized;
     }
