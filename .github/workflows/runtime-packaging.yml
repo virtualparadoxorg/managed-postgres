@@ -44,10 +44,10 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -90,7 +90,7 @@ jobs:
         run: ./scripts/runtime-packaging/publish-phase1.sh
 
       - name: Upload workflow artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.publish.outputs.artifact_name }}
           path: ${{ steps.publish.outputs.artifact_path }}
