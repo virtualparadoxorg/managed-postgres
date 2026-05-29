@@ -57,6 +57,7 @@
         <module>managed-postgres/bom</module>
         <module>postgres-runtime/bom</module>
         <module>postgres-runtime/api</module>
+        <module>managed-postgres/runtime-packager</module>
         <module>managed-postgres/core</module>
         <module>managed-postgres/cli</module>
         <module>managed-postgres/spring-boot-4</module>
