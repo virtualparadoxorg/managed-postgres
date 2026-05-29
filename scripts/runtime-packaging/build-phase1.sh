@@ -20,10 +20,20 @@ TARGET_DIR="${MODULE_DIR}/target"
 WORK_ROOT="${ROOT_DIR}/target/runtime-packaging-work/${TARGET_PLATFORM}"
 CLASSPATH_FILE="${TARGET_DIR}/runtime-packager.classpath"
 PATH_SEPARATOR=":"
+JAVA_CLASSES_DIR="${TARGET_DIR}/classes"
+JAVA_DIST_DIR="${ROOT_DIR}/${DIST_DIR}"
+JAVA_WORK_ROOT="${WORK_ROOT}"
+JAVA_RAW_INSTALL_TREE="${RAW_INSTALL_TREE:-}"
 
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*)
     PATH_SEPARATOR=";"
+    JAVA_CLASSES_DIR="$(cygpath -w "${TARGET_DIR}/classes")"
+    JAVA_DIST_DIR="$(cygpath -w "${ROOT_DIR}/${DIST_DIR}")"
+    JAVA_WORK_ROOT="$(cygpath -w "${WORK_ROOT}")"
+    if [[ -n "${JAVA_RAW_INSTALL_TREE}" ]]; then
+      JAVA_RAW_INSTALL_TREE="$(cygpath -w "${JAVA_RAW_INSTALL_TREE}")"
+    fi
     ;;
 esac
 
@@ -34,9 +44,9 @@ cd "${ROOT_DIR}"
   -Dmdep.outputFile="${CLASSPATH_FILE}" \
   -Dmdep.pathSeparator="${PATH_SEPARATOR}"
 
-RUNTIME_PACKAGER_CLASSPATH="${TARGET_DIR}/classes:$(cat "${CLASSPATH_FILE}")"
+RUNTIME_PACKAGER_CLASSPATH="${JAVA_CLASSES_DIR}:$(cat "${CLASSPATH_FILE}")"
 if [[ "${PATH_SEPARATOR}" == ";" ]]; then
-  RUNTIME_PACKAGER_CLASSPATH="${TARGET_DIR}/classes;$(cat "${CLASSPATH_FILE}")"
+  RUNTIME_PACKAGER_CLASSPATH="${JAVA_CLASSES_DIR};$(cat "${CLASSPATH_FILE}")"
 fi
 
 runtime_packager_args=(
@@ -44,12 +54,12 @@ runtime_packager_args=(
   --postgres-version "${POSTGRES_VERSION}"
   --target "${TARGET_PLATFORM}"
   --revision "${PACKAGING_REVISION}"
-  --output "${ROOT_DIR}/${DIST_DIR}"
-  --work-root "${WORK_ROOT}"
+  --output "${JAVA_DIST_DIR}"
+  --work-root "${JAVA_WORK_ROOT}"
 )
 
-if [[ -n "${RAW_INSTALL_TREE:-}" ]]; then
-  runtime_packager_args+=(--raw-install-tree "${RAW_INSTALL_TREE}")
+if [[ -n "${JAVA_RAW_INSTALL_TREE}" ]]; then
+  runtime_packager_args+=(--raw-install-tree "${JAVA_RAW_INSTALL_TREE}")
 fi
 
 java -cp "${RUNTIME_PACKAGER_CLASSPATH}" \
