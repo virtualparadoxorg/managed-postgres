@@ -6,6 +6,7 @@ import eu.virtualparadox.managedpostgres.runtime.packaging.build.WindowsBuildDri
 import eu.virtualparadox.managedpostgres.runtime.packaging.PostgresRelease;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,6 +19,13 @@ import java.util.Objects;
  * Executes PostgreSQL source builds through the upstream MSVC helper scripts.
  */
 public final class WindowsBuildExecutor implements BuildExecutor {
+
+    private static final String WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME =
+            "MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS";
+    private static final String WINDOWS_DIAGNOSTICS_SCRIPT_NAME =
+            "managed-postgres-windows-env-probe.cmd";
+    private static final String WINDOWS_DIAGNOSTICS_OUTPUT_NAME =
+            "managed-postgres-windows-env-probe.txt";
 
     private final Map<String, String> environmentOverrides;
     private final List<String> commandPrefix;
@@ -89,6 +97,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         final Path installDirectory = validatedBuildDirectory.resolve("install");
         final Path msvcDirectory = validatedSourceTree.resolve("src").resolve("tools").resolve("msvc");
         createDirectories(validatedBuildDirectory, installDirectory, msvcDirectory);
+        maybeCaptureWindowsDiagnostics(validatedBuildDirectory, msvcDirectory);
         runCommand(command("build"), msvcDirectory);
         runCommand(command("install", installDirectory.toString()), msvcDirectory);
         return installDirectory;
@@ -102,6 +111,16 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         final List<String> command = new ArrayList<>(commandPrefix);
         command.addAll(List.of(arguments));
         return command;
+    }
+
+    private void maybeCaptureWindowsDiagnostics(final Path buildDirectory, final Path msvcDirectory) {
+        if (!diagnosticsEnabled(environmentOverrides)) {
+            return;
+        }
+        final Path diagnosticsScript = buildDirectory.resolve(WINDOWS_DIAGNOSTICS_SCRIPT_NAME);
+        final Path diagnosticsOutput = buildDirectory.resolve(WINDOWS_DIAGNOSTICS_OUTPUT_NAME);
+        writeWindowsDiagnosticsScript(diagnosticsScript, diagnosticsOutput);
+        runCommand(command(diagnosticsScript.toString()), msvcDirectory);
     }
 
     private void runCommand(final List<String> command, final Path workingDirectory) {
@@ -124,6 +143,46 @@ public final class WindowsBuildExecutor implements BuildExecutor {
             }
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to prepare Windows source-build workspace", exception);
+        }
+    }
+
+    static boolean diagnosticsEnabled(final Map<String, String> environmentOverrides) {
+        final String configuredValue =
+                Objects.requireNonNull(environmentOverrides, "environmentOverrides")
+                        .get(WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME);
+        final boolean enabled = "1".equals(configuredValue);
+        return enabled;
+    }
+
+    static String windowsDiagnosticsScriptContent(final String diagnosticsOutputPath) {
+        Objects.requireNonNull(diagnosticsOutputPath, "diagnosticsOutputPath");
+        return String.format(
+                Locale.ROOT,
+                "@echo off%n"
+                        + "setlocal%n"
+                        + "(%n"
+                        + "echo PATH=%%PATH%%%n"
+                        + "echo Path=%%Path%%%n"
+                        + "echo PATHEXT=%%PATHEXT%%%n"
+                        + "where msbuild 2^>^&1%n"
+                        + "where cl 2^>^&1%n"
+                        + "where link 2^>^&1%n"
+                        + ") > \"%s\"%n",
+                diagnosticsOutputPath);
+    }
+
+    private static void writeWindowsDiagnosticsScript(
+            final Path diagnosticsScriptPath,
+            final Path diagnosticsOutputPath) {
+        try {
+            Files.createDirectories(
+                    Objects.requireNonNull(diagnosticsScriptPath.getParent(), "diagnosticsScriptPath.parent"));
+            Files.writeString(
+                    diagnosticsScriptPath,
+                    windowsDiagnosticsScriptContent(diagnosticsOutputPath.toString()),
+                    StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to write Windows diagnostics script", exception);
         }
     }
 }
