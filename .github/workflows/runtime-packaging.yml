@@ -74,6 +74,7 @@ jobs:
           TARGET_PLATFORM: ${{ matrix.target }}
           DIST_DIR: dist/${{ matrix.target }}
           RAW_INSTALL_TREE: ${{ inputs.smoke_mode && format('{0}/target/runtime-packaging-smoke/{1}/raw-install', github.workspace, matrix.target) || '' }}
+          MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS: ${{ !inputs.smoke_mode && runner.os == 'Windows' && '1' || '' }}
         run: ./scripts/runtime-packaging/build-phase1.sh
 
       - name: Diagnose Unix source-build failure
@@ -110,6 +111,11 @@ jobs:
         shell: bash
         run: |
           set -x
+          diagnostics_file="${GITHUB_WORKSPACE}/target/runtime-packaging-work/windows-x86_64/build/windows-x86_64/managed-postgres-windows-env-probe.txt"
+          if [[ -f "${diagnostics_file}" ]]; then
+            echo "=== ${diagnostics_file}"
+            cat "${diagnostics_file}"
+          fi
           where.exe msbuild || true
           where.exe cl || true
           where.exe link || true
