@@ -24,7 +24,7 @@ cat > "${FAKE_BIN_DIR}/cmd.exe" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 cat <<'EOT'
-PATH=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32
+Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32
 INCLUDE=C:\VS\Include
 LIB=C:\VS\Lib
 LIBPATH=C:\VS\LibPath
@@ -43,6 +43,7 @@ ProgramFiles="${PROGRAM_FILES_DIR}" \
 source "${OUTPUT_FILE}"
 
 [[ "${PATH}" == 'C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' ]]
+[[ "${Path}" == 'C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' ]]
 [[ "${INCLUDE}" == 'C:\VS\Include' ]]
 [[ "${LIB}" == 'C:\VS\Lib' ]]
 [[ "${LIBPATH}" == 'C:\VS\LibPath' ]]
