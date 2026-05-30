@@ -28,9 +28,21 @@ prefer_gnu_make_on_macos() {
   fi
 }
 
+apply_windows_build_environment() {
+  case "$(uname -s)" in
+    CYGWIN*|MINGW*|MSYS*)
+      if [[ "${TARGET_PLATFORM}" == "windows-x86_64" ]]; then
+        # Keep the VS toolchain in the same shell that launches Java and build.pl.
+        eval "$("${ROOT_DIR}/scripts/runtime-packaging/print-windows-build-env.sh")"
+      fi
+      ;;
+  esac
+}
+
 prefer_gnu_make_on_macos
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+apply_windows_build_environment
 MODULE_DIR="${ROOT_DIR}/managed-postgres/runtime-packager"
 TARGET_DIR="${MODULE_DIR}/target"
 WORK_ROOT="${ROOT_DIR}/target/runtime-packaging-work/${TARGET_PLATFORM}"
