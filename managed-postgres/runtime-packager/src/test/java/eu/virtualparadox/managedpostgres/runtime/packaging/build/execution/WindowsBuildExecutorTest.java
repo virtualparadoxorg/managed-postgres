@@ -111,6 +111,50 @@ final class WindowsBuildExecutorTest {
                 .containsEntry("PATH", "C:\\VS\\Tools;C:\\VS\\MSBuild");
     }
 
+    @Test
+    void leavesDistinctPathVariantsUntouchedWhenBothArePresent() {
+        final Map<String, String> normalized = WindowsBuildExecutor.normalizeEnvironmentOverrides(Map.of(
+                "PATH", "C:\\Git\\usr\\bin;C:\\Windows\\System32",
+                "Path", "C:\\VS\\Tools;C:\\VS\\MSBuild"));
+
+        assertThat(normalized)
+                .containsEntry("PATH", "C:\\Git\\usr\\bin;C:\\Windows\\System32")
+                .containsEntry("Path", "C:\\VS\\Tools;C:\\VS\\MSBuild");
+    }
+
+    @Test
+    void enablesWindowsDiagnosticsForExplicitOptInValue() {
+        assertThat(WindowsBuildExecutor.diagnosticsEnabled(Map.of(
+                        "MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS", "1")))
+                .isTrue();
+    }
+
+    @Test
+    void disablesWindowsDiagnosticsForMissingOrNonOptInValues() {
+        assertThat(WindowsBuildExecutor.diagnosticsEnabled(Map.of())).isFalse();
+        assertThat(WindowsBuildExecutor.diagnosticsEnabled(Map.of(
+                        "MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS", "0")))
+                .isFalse();
+        assertThat(WindowsBuildExecutor.diagnosticsEnabled(Map.of(
+                        "MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS", "true")))
+                .isFalse();
+    }
+
+    @Test
+    void windowsDiagnosticsScriptCapturesPathAndMsbuildResolution() {
+        final String script = WindowsBuildExecutor.windowsDiagnosticsScriptContent("C:\\work\\windows-env.txt");
+
+        assertThat(script)
+                .contains("@echo off")
+                .contains("echo PATH=%PATH%")
+                .contains("echo Path=%Path%")
+                .contains("echo PATHEXT=%PATHEXT%")
+                .contains("where msbuild")
+                .contains("where cl")
+                .contains("where link")
+                .contains("C:\\work\\windows-env.txt");
+    }
+
     private Path createWindowsSourceTree() throws IOException {
         final Path msvcDirectory = tempDir.resolve("source").resolve("src").resolve("tools").resolve("msvc");
         Files.createDirectories(msvcDirectory);
