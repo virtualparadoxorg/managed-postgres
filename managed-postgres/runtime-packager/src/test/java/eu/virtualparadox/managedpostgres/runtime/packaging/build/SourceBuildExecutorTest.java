@@ -87,6 +87,32 @@ final class SourceBuildExecutorTest {
     }
 
     @Test
+    void seedsGeneratedLwlockSourcesIntoBuildTreeBeforeMake() throws IOException {
+        final Path sourceTree = createSourceTree();
+        final Path lmgrDirectory = sourceTree.resolve("src/backend/storage/lmgr");
+        Files.createDirectories(lmgrDirectory);
+        Files.writeString(lmgrDirectory.resolve("lwlocknames.c"), "const char *const IndividualLWLockNames[] = {};\n");
+        Files.writeString(lmgrDirectory.resolve("lwlocknames.h"), "#define NUM_INDIVIDUAL_LWLOCKS 0\n");
+        final Path toolDirectory = createToolDirectory();
+        final Path buildDirectory = tempDir.resolve("build-seeded-generated-sources");
+        final SourceBuildExecutor executor = new SourceBuildExecutor(
+                Map.of("PATH", toolDirectory + ":" + System.getenv("PATH")),
+                1,
+                List.of(toolDirectory.resolve("make").toString()));
+
+        executor.build(
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                new PostgresRelease(16, "16.14", URI.create("file:///tmp/postgresql-16.14.tar.gz"), "abc123"),
+                sourceTree,
+                buildDirectory);
+
+        assertThat(buildDirectory.resolve("src/backend/storage/lmgr/lwlocknames.c"))
+                .hasContent("const char *const IndividualLWLockNames[] = {};\n");
+        assertThat(buildDirectory.resolve("src/backend/storage/lmgr/lwlocknames.h"))
+                .hasContent("#define NUM_INDIVIDUAL_LWLOCKS 0\n");
+    }
+
+    @Test
     void rejectsWindowsUntilMsvcBuildPathExists() {
         final SourceBuildExecutor executor = new SourceBuildExecutor();
 

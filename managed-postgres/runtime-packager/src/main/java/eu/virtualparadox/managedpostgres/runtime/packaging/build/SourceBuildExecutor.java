@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,7 @@ public final class SourceBuildExecutor implements BuildExecutor {
         configureCommand.add(validatedSourceTree.resolve("configure").toString());
         configureCommand.addAll(validatedDriver.configureArguments(installDirectory));
         runCommand(configureCommand, validatedBuildDirectory);
+        seedGeneratedBuildInputs(validatedSourceTree, validatedBuildDirectory);
         runCommand(commandWithArguments("-j" + parallelJobs), validatedBuildDirectory);
         runCommand(commandWithArguments("install-world-bin"), validatedBuildDirectory);
         return installDirectory;
@@ -104,6 +106,27 @@ public final class SourceBuildExecutor implements BuildExecutor {
             Files.createDirectories(installDirectory);
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to prepare source-build workspace", exception);
+        }
+    }
+
+    private static void seedGeneratedBuildInputs(final Path sourceTree, final Path buildDirectory) {
+        copyGeneratedFile(
+                sourceTree.resolve("src/backend/storage/lmgr/lwlocknames.c"),
+                buildDirectory.resolve("src/backend/storage/lmgr/lwlocknames.c"));
+        copyGeneratedFile(
+                sourceTree.resolve("src/backend/storage/lmgr/lwlocknames.h"),
+                buildDirectory.resolve("src/backend/storage/lmgr/lwlocknames.h"));
+    }
+
+    private static void copyGeneratedFile(final Path sourceFile, final Path targetFile) {
+        if (!Files.exists(sourceFile)) {
+            return;
+        }
+        try {
+            Files.createDirectories(Objects.requireNonNull(targetFile.getParent(), "targetFile.parent"));
+            Files.copy(sourceFile, targetFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to seed generated source-build inputs", exception);
         }
     }
 }
