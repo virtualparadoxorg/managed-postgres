@@ -35,3 +35,8 @@ runs:
         choco install strawberryperl -y --no-progress
         refreshenv
         perl -v | Out-Null
+
+    - name: Export Windows build environment
+      if: runner.os == 'Windows' && inputs.skip-install != 'true'
+      shell: bash
+      run: ./scripts/runtime-packaging/export-windows-build-env.sh
