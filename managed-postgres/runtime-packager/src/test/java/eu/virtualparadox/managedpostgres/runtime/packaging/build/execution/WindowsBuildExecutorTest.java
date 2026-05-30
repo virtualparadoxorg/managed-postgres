@@ -154,12 +154,13 @@ final class WindowsBuildExecutorTest {
 
         assertThat(script)
                 .contains("@echo off")
-                .contains("echo PATH=%PATH%")
-                .contains("echo Path=%Path%")
-                .contains("echo PATHEXT=%PATHEXT%")
-                .contains("where msbuild")
-                .contains("where cl")
-                .contains("where link")
+                .doesNotContain("(\n")
+                .contains("> \"C:\\work\\windows-env.txt\" echo PATH=%PATH%")
+                .contains(">> \"C:\\work\\windows-env.txt\" echo Path=%Path%")
+                .contains(">> \"C:\\work\\windows-env.txt\" echo PATHEXT=%PATHEXT%")
+                .contains(">> \"C:\\work\\windows-env.txt\" where msbuild 2^>^&1")
+                .contains(">> \"C:\\work\\windows-env.txt\" where cl 2^>^&1")
+                .contains(">> \"C:\\work\\windows-env.txt\" where link 2^>^&1")
                 .contains("C:\\work\\windows-env.txt");
     }
 
