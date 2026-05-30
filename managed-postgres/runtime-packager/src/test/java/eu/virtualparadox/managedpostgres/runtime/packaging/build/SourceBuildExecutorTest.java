@@ -100,6 +100,11 @@ final class SourceBuildExecutorTest {
     }
 
     @Test
+    void usesSingleJobByDefaultForDeterministicSourceBuilds() {
+        assertThat(SourceBuildExecutor.defaultParallelJobs()).isEqualTo(1);
+    }
+
+    @Test
     void rejectsNonPositiveParallelJobs() {
         assertThatThrownBy(() -> new SourceBuildExecutor(Map.of(), 0, List.of("make")))
                 .isInstanceOf(IllegalArgumentException.class)
