@@ -179,14 +179,12 @@ public final class WindowsBuildExecutor implements BuildExecutor {
                 Locale.ROOT,
                 "@echo off%n"
                         + "setlocal%n"
-                        + "(%n"
-                        + "echo PATH=%%PATH%%%n"
-                        + "echo Path=%%Path%%%n"
-                        + "echo PATHEXT=%%PATHEXT%%%n"
-                        + "where msbuild 2^>^&1%n"
-                        + "where cl 2^>^&1%n"
-                        + "where link 2^>^&1%n"
-                        + ") > \"%s\"%n",
+                        + "> \"%1$s\" echo PATH=%%PATH%%%n"
+                        + ">> \"%1$s\" echo Path=%%Path%%%n"
+                        + ">> \"%1$s\" echo PATHEXT=%%PATHEXT%%%n"
+                        + ">> \"%1$s\" where msbuild 2^>^&1%n"
+                        + ">> \"%1$s\" where cl 2^>^&1%n"
+                        + ">> \"%1$s\" where link 2^>^&1%n",
                 diagnosticsOutputPath);
     }
 
