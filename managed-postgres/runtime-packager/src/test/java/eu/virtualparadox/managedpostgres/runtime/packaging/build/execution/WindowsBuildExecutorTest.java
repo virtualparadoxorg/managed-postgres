@@ -141,6 +141,14 @@ final class WindowsBuildExecutorTest {
     }
 
     @Test
+    void enablesWindowsDiagnosticsFromProcessEnvironmentWhenOverridesDoNotOptIn() {
+        assertThat(WindowsBuildExecutor.diagnosticsEnabled(
+                        Map.of(),
+                        Map.of("MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS", "1")))
+                .isTrue();
+    }
+
+    @Test
     void windowsDiagnosticsScriptCapturesPathAndMsbuildResolution() {
         final String script = WindowsBuildExecutor.windowsDiagnosticsScriptContent("C:\\work\\windows-env.txt");
 

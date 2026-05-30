@@ -28,6 +28,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
             "managed-postgres-windows-env-probe.txt";
 
     private final Map<String, String> environmentOverrides;
+    private final Map<String, String> processEnvironment;
     private final List<String> commandPrefix;
     private final String operatingSystemName;
     private final ProcessCommandExecutor processCommandExecutor;
@@ -36,22 +37,29 @@ public final class WindowsBuildExecutor implements BuildExecutor {
      * Creates a Windows build executor using the current process environment.
      */
     public WindowsBuildExecutor() {
-        this(Map.of(), List.of("cmd.exe", "/c"), System.getProperty("os.name", ""), new ProcessCommandExecutor());
+        this(
+                Map.of(),
+                System.getenv(),
+                List.of("cmd.exe", "/c"),
+                System.getProperty("os.name", ""),
+                new ProcessCommandExecutor());
     }
 
     WindowsBuildExecutor(
             final Map<String, String> environmentOverrides,
             final List<String> commandPrefix,
             final String operatingSystemName) {
-        this(environmentOverrides, commandPrefix, operatingSystemName, new ProcessCommandExecutor());
+        this(environmentOverrides, System.getenv(), commandPrefix, operatingSystemName, new ProcessCommandExecutor());
     }
 
     WindowsBuildExecutor(
             final Map<String, String> environmentOverrides,
+            final Map<String, String> processEnvironment,
             final List<String> commandPrefix,
             final String operatingSystemName,
             final ProcessCommandExecutor processCommandExecutor) {
         this.environmentOverrides = normalizeEnvironmentOverrides(environmentOverrides);
+        this.processEnvironment = Map.copyOf(Objects.requireNonNull(processEnvironment, "processEnvironment"));
         this.commandPrefix = List.copyOf(Objects.requireNonNull(commandPrefix, "commandPrefix"));
         if (this.commandPrefix.isEmpty()) {
             throw new IllegalArgumentException("commandPrefix must not be empty");
@@ -114,7 +122,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
     }
 
     private void maybeCaptureWindowsDiagnostics(final Path buildDirectory, final Path msvcDirectory) {
-        if (!diagnosticsEnabled(environmentOverrides)) {
+        if (!diagnosticsEnabled(environmentOverrides, processEnvironment)) {
             return;
         }
         final Path diagnosticsScript = buildDirectory.resolve(WINDOWS_DIAGNOSTICS_SCRIPT_NAME);
@@ -147,9 +155,20 @@ public final class WindowsBuildExecutor implements BuildExecutor {
     }
 
     static boolean diagnosticsEnabled(final Map<String, String> environmentOverrides) {
-        final String configuredValue =
-                Objects.requireNonNull(environmentOverrides, "environmentOverrides")
-                        .get(WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME);
+        return diagnosticsEnabled(environmentOverrides, Map.of());
+    }
+
+    static boolean diagnosticsEnabled(
+            final Map<String, String> environmentOverrides,
+            final Map<String, String> processEnvironment) {
+        final Map<String, String> validatedOverrides =
+                Objects.requireNonNull(environmentOverrides, "environmentOverrides");
+        final Map<String, String> validatedProcessEnvironment =
+                Objects.requireNonNull(processEnvironment, "processEnvironment");
+        final String overrideValue = validatedOverrides.get(WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME);
+        final String configuredValue = overrideValue != null
+                ? overrideValue
+                : validatedProcessEnvironment.get(WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME);
         final boolean enabled = "1".equals(configuredValue);
         return enabled;
     }
