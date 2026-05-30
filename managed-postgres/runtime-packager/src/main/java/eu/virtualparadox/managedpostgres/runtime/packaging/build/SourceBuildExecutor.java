@@ -22,10 +22,14 @@ public final class SourceBuildExecutor implements BuildExecutor {
     private final ProcessCommandExecutor processCommandExecutor;
 
     /**
-     * Creates a source build executor using the process environment and detected CPU parallelism.
+     * Creates a source build executor using the process environment and conservative parallelism.
      */
     public SourceBuildExecutor() {
-        this(Map.of(), Runtime.getRuntime().availableProcessors(), List.of("make"), new ProcessCommandExecutor());
+        this(Map.of(), defaultParallelJobs(), List.of("make"), new ProcessCommandExecutor());
+    }
+
+    static int defaultParallelJobs() {
+        return 1;
     }
 
     SourceBuildExecutor(
