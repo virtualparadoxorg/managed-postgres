@@ -43,13 +43,27 @@ public final class WindowsBuildExecutor implements BuildExecutor {
             final List<String> commandPrefix,
             final String operatingSystemName,
             final ProcessCommandExecutor processCommandExecutor) {
-        this.environmentOverrides = Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides"));
+        this.environmentOverrides = normalizeEnvironmentOverrides(environmentOverrides);
         this.commandPrefix = List.copyOf(Objects.requireNonNull(commandPrefix, "commandPrefix"));
         if (this.commandPrefix.isEmpty()) {
             throw new IllegalArgumentException("commandPrefix must not be empty");
         }
         this.operatingSystemName = Objects.requireNonNull(operatingSystemName, "operatingSystemName");
         this.processCommandExecutor = Objects.requireNonNull(processCommandExecutor, "processCommandExecutor");
+    }
+
+    static Map<String, String> normalizeEnvironmentOverrides(final Map<String, String> environmentOverrides) {
+        final Map<String, String> normalizedOverrides =
+                new java.util.LinkedHashMap<>(Objects.requireNonNull(environmentOverrides, "environmentOverrides"));
+        final String upperPath = normalizedOverrides.get("PATH");
+        final String windowsPath = normalizedOverrides.get("Path");
+        if (upperPath != null && windowsPath == null) {
+            normalizedOverrides.put("Path", upperPath);
+        }
+        if (windowsPath != null && upperPath == null) {
+            normalizedOverrides.put("PATH", windowsPath);
+        }
+        return Map.copyOf(normalizedOverrides);
     }
 
     @Override

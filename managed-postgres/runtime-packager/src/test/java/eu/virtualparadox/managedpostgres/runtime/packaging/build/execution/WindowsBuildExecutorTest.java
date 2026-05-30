@@ -87,6 +87,30 @@ final class WindowsBuildExecutorTest {
         assertThat(sourceTree.resolve("src/tools/msvc/install.invocation")).hasContent(installTree.toString());
     }
 
+    @Test
+    void mirrorsPathOverrideIntoWindowsPathAlias() {
+        final Map<String, String> normalized = WindowsBuildExecutor.normalizeEnvironmentOverrides(Map.of(
+                "PATH", "C:\\VS\\Tools;C:\\VS\\MSBuild",
+                "INCLUDE", "C:\\VS\\Include",
+                "LIB", "C:\\VS\\Lib"));
+
+        assertThat(normalized)
+                .containsEntry("PATH", "C:\\VS\\Tools;C:\\VS\\MSBuild")
+                .containsEntry("Path", "C:\\VS\\Tools;C:\\VS\\MSBuild")
+                .containsEntry("INCLUDE", "C:\\VS\\Include")
+                .containsEntry("LIB", "C:\\VS\\Lib");
+    }
+
+    @Test
+    void mirrorsWindowsPathAliasIntoUppercasePath() {
+        final Map<String, String> normalized = WindowsBuildExecutor.normalizeEnvironmentOverrides(Map.of(
+                "Path", "C:\\VS\\Tools;C:\\VS\\MSBuild"));
+
+        assertThat(normalized)
+                .containsEntry("Path", "C:\\VS\\Tools;C:\\VS\\MSBuild")
+                .containsEntry("PATH", "C:\\VS\\Tools;C:\\VS\\MSBuild");
+    }
+
     private Path createWindowsSourceTree() throws IOException {
         final Path msvcDirectory = tempDir.resolve("source").resolve("src").resolve("tools").resolve("msvc");
         Files.createDirectories(msvcDirectory);
