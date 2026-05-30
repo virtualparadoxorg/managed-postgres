@@ -76,6 +76,48 @@ jobs:
           RAW_INSTALL_TREE: ${{ inputs.smoke_mode && format('{0}/target/runtime-packaging-smoke/{1}/raw-install', github.workspace, matrix.target) || '' }}
         run: ./scripts/runtime-packaging/build-phase1.sh
 
+      - name: Diagnose Unix source-build failure
+        if: ${{ failure() && !inputs.smoke_mode && runner.os != 'Windows' }}
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target }}
+        run: |
+          set -x
+          work_root="${GITHUB_WORKSPACE}/target/runtime-packaging-work/${TARGET_PLATFORM}"
+          build_lmgr="${work_root}/build/${TARGET_PLATFORM}/src/backend/storage/lmgr"
+          source_lmgr="${work_root}/source/${TARGET_PLATFORM}"/postgresql-*/src/backend/storage/lmgr
+          ls -la "${build_lmgr}" || true
+          ls -la ${source_lmgr} || true
+          find "${work_root}" -name 'lwlocknames.c' -o -name 'lwlocknames.h' -o -name 'lwlocknames.o' | sort || true
+          for file in "${build_lmgr}/lwlocknames.o" ${source_lmgr}/lwlocknames.c ${source_lmgr}/lwlocknames.h; do
+            if [[ -f "${file}" ]]; then
+              echo "=== ${file}"
+              wc -c "${file}" || true
+            fi
+          done
+          if [[ -f "${build_lmgr}/lwlocknames.o" ]]; then
+            nm "${build_lmgr}/lwlocknames.o" | rg 'IndividualLWLockNames| U ' || true
+          fi
+          if [[ -f "${build_lmgr}/lwlock.o" ]]; then
+            nm "${build_lmgr}/lwlock.o" | rg 'IndividualLWLockNames|GetLWLockIdentifier|GetLWTrancheName' || true
+          fi
+          if ls ${source_lmgr}/lwlocknames.c >/dev/null 2>&1; then
+            sed -n '1,40p' ${source_lmgr}/lwlocknames.c || true
+          fi
+
+      - name: Diagnose Windows source-build failure
+        if: ${{ failure() && !inputs.smoke_mode && runner.os == 'Windows' }}
+        shell: bash
+        run: |
+          set -x
+          where.exe msbuild || true
+          where.exe cl || true
+          where.exe link || true
+          where.exe perl || true
+          ls -la "/c/Program Files/Microsoft Visual Studio" || true
+          find "${GITHUB_WORKSPACE}/target/runtime-packaging-work/windows-x86_64" -maxdepth 6 \
+            \( -name build.pl -o -name Solution.pm -o -name lwlocknames.c -o -name lwlocknames.h \) | sort || true
+
       - name: Publish runtime bundle metadata
         id: publish
         shell: bash
