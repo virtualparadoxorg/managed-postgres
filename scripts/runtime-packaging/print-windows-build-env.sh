@@ -51,6 +51,12 @@ print_export_statement() {
   printf "export %s=%q\n" "${name}" "${value}"
 }
 
+print_path_exports() {
+  local value="$1"
+  print_export_statement "PATH" "${value}"
+  print_export_statement "Path" "${value}"
+}
+
 require_command cmd.exe
 
 vswhere_path="$(locate_vswhere)"
@@ -75,6 +81,10 @@ selected_environment_names=(
 
 selected_name=""
 while IFS='=' read -r environment_name environment_value; do
+  if [[ "${environment_name}" == "PATH" || "${environment_name}" == "Path" ]]; then
+    print_path_exports "${environment_value}"
+    continue
+  fi
   for selected_name in "${selected_environment_names[@]}"; do
     if [[ "${environment_name}" == "${selected_name}" ]]; then
       print_export_statement "${environment_name}" "${environment_value}"

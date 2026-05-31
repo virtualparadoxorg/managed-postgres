@@ -29,7 +29,7 @@ set -euo pipefail
 printf '%s\n' "$*" > "${CMD_ARGS_FILE}"
 printf '%s\n' "${MSYS2_ARG_CONV_EXCL:-}" > "${CMD_ENV_FILE}"
 cat <<'EOT'
-PATH=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32
+Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32
 INCLUDE=C:\VS\Include
 LIB=C:\VS\Lib
 LIBPATH=C:\VS\LibPath
@@ -51,6 +51,7 @@ grep -Fx 'INCLUDE=C:\VS\Include' "${GITHUB_ENV_FILE}" >/dev/null
 grep -Fx 'LIB=C:\VS\Lib' "${GITHUB_ENV_FILE}" >/dev/null
 grep -Fx 'LIBPATH=C:\VS\LibPath' "${GITHUB_ENV_FILE}" >/dev/null
 grep -Fx 'PATH=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
+grep -Fx 'Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
 grep -Fx 'VCToolsInstallDir=C:\VS\VC\Tools\MSVC\14.44.35207\' "${GITHUB_ENV_FILE}" >/dev/null
 grep -Fx 'WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10\' "${GITHUB_ENV_FILE}" >/dev/null
 

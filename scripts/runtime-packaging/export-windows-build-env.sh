@@ -76,6 +76,13 @@ append_env_value() {
   printf '%s=%s\n' "${name}" "${value}" >> "${github_env_file}"
 }
 
+append_path_env_values() {
+  local value="$1"
+  local github_env_file="$2"
+  append_env_value "PATH" "${value}" "${github_env_file}"
+  append_env_value "Path" "${value}" "${github_env_file}"
+}
+
 require_env_file GITHUB_ENV
 require_env_file GITHUB_PATH
 require_command cmd.exe
@@ -101,9 +108,10 @@ selected_environment_names=(
 
 selected_name=""
 while IFS='=' read -r environment_name environment_value; do
-  if [[ "${environment_name}" == "PATH" ]]; then
-    append_env_value "${environment_name}" "${environment_value}" "${GITHUB_ENV}"
+  if [[ "${environment_name}" == "PATH" || "${environment_name}" == "Path" ]]; then
+    append_path_env_values "${environment_value}" "${GITHUB_ENV}"
     append_path_entries "${environment_value}" "${GITHUB_PATH}"
+    continue
   fi
   for selected_name in "${selected_environment_names[@]}"; do
     if [[ "${environment_name}" == "${selected_name}" ]]; then
