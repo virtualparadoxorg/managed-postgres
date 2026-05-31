@@ -1,95 +1,62 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-require_env() {
-  local name="$1"
-  if [[ -z "${!name:-}" ]]; then
-    echo "missing required environment variable: ${name}" >&2
-    exit 2
-  fi
-}
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+INNER_SCRIPT="${ROOT_DIR}/scripts/runtime-packaging/build-phase1-inner.sh"
 
-require_env POSTGRES_VERSION
-require_env PACKAGING_REVISION
-require_env TARGET_PLATFORM
-require_env DIST_DIR
-
-prefer_gnu_make_on_macos() {
-  if [[ "$(uname -s)" != "Darwin" ]]; then
+locate_vswhere() {
+  if command -v vswhere.exe >/dev/null 2>&1; then
+    command -v vswhere.exe
     return
   fi
-
-  local brew_make_prefix=""
-  if command -v brew >/dev/null 2>&1; then
-    brew_make_prefix="$(brew --prefix make 2>/dev/null || true)"
+  local program_files="${ProgramFiles:-/c/Program Files}"
+  local candidate="${program_files}/Microsoft Visual Studio/Installer/vswhere.exe"
+  if [[ -x "${candidate}" ]]; then
+    printf '%s\n' "${candidate}"
+    return
   fi
-  if [[ -n "${brew_make_prefix}" && -d "${brew_make_prefix}/libexec/gnubin" ]]; then
-    export PATH="${brew_make_prefix}/libexec/gnubin:${PATH}"
-  fi
+  echo "unable to locate vswhere.exe" >&2
+  exit 1
 }
 
-apply_windows_build_environment() {
-  case "$(uname -s)" in
-    CYGWIN*|MINGW*|MSYS*)
-      if [[ "${TARGET_PLATFORM}" == "windows-x86_64" ]]; then
-        # Keep the VS toolchain in the same shell that launches Java and build.pl.
-        eval "$("${ROOT_DIR}/scripts/runtime-packaging/print-windows-build-env.sh")"
-      fi
-      ;;
-  esac
+locate_vs_dev_cmd() {
+  local vswhere_path="$1"
+  local installation_path
+  installation_path="$("${vswhere_path}" -latest -products '*' -requires Microsoft.Component.MSBuild -property installationPath)"
+  if [[ -z "${installation_path}" ]]; then
+    echo "vswhere.exe did not return a Visual Studio installation path" >&2
+    exit 1
+  fi
+  local dev_cmd_path="${installation_path}/Common7/Tools/VsDevCmd.bat"
+  if [[ ! -f "${dev_cmd_path}" ]]; then
+    echo "VsDevCmd.bat not found at ${dev_cmd_path}" >&2
+    exit 1
+  fi
+  printf '%s\n' "${dev_cmd_path}"
 }
 
-prefer_gnu_make_on_macos
+normalize_for_cmd() {
+  local path_value="$1"
+  printf '%s\n' "${path_value//\//\\}"
+}
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-apply_windows_build_environment
-MODULE_DIR="${ROOT_DIR}/managed-postgres/runtime-packager"
-TARGET_DIR="${MODULE_DIR}/target"
-WORK_ROOT="${ROOT_DIR}/target/runtime-packaging-work/${TARGET_PLATFORM}"
-CLASSPATH_FILE="${TARGET_DIR}/runtime-packager.classpath"
-PATH_SEPARATOR=":"
-JAVA_CLASSES_DIR="${TARGET_DIR}/classes"
-JAVA_DIST_DIR="${ROOT_DIR}/${DIST_DIR}"
-JAVA_WORK_ROOT="${WORK_ROOT}"
-JAVA_RAW_INSTALL_TREE="${RAW_INSTALL_TREE:-}"
+run_windows_build_in_vsdevcmd() {
+  local vswhere_path vs_dev_cmd_path cmd_vs_dev_cmd_path root_dir_windows
+  vswhere_path="$(locate_vswhere)"
+  vs_dev_cmd_path="$(locate_vs_dev_cmd "${vswhere_path}")"
+  cmd_vs_dev_cmd_path="$(normalize_for_cmd "${vs_dev_cmd_path}")"
+  root_dir_windows="$(cygpath -w "${ROOT_DIR}")"
+  MSYS2_ARG_CONV_EXCL='*' \
+    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && bash -lc './scripts/runtime-packaging/build-phase1-inner.sh'"
+}
 
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*)
-    PATH_SEPARATOR=";"
-    JAVA_CLASSES_DIR="$(cygpath -w "${TARGET_DIR}/classes")"
-    JAVA_DIST_DIR="$(cygpath -w "${ROOT_DIR}/${DIST_DIR}")"
-    JAVA_WORK_ROOT="$(cygpath -w "${WORK_ROOT}")"
-    if [[ -n "${JAVA_RAW_INSTALL_TREE}" ]]; then
-      JAVA_RAW_INSTALL_TREE="$(cygpath -w "${JAVA_RAW_INSTALL_TREE}")"
+    if [[ "${TARGET_PLATFORM:-}" == "windows-x86_64" && "${MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE:-}" != "1" ]]; then
+      run_windows_build_in_vsdevcmd
+      exit 0
     fi
     ;;
 esac
 
-mkdir -p "${ROOT_DIR}/${DIST_DIR}" "${WORK_ROOT}"
-
-cd "${ROOT_DIR}"
-./mvnw -fae -pl managed-postgres/runtime-packager -am -DskipTests package dependency:build-classpath \
-  -Dmdep.outputFile="${CLASSPATH_FILE}" \
-  -Dmdep.pathSeparator="${PATH_SEPARATOR}"
-
-RUNTIME_PACKAGER_CLASSPATH="${JAVA_CLASSES_DIR}:$(cat "${CLASSPATH_FILE}")"
-if [[ "${PATH_SEPARATOR}" == ";" ]]; then
-  RUNTIME_PACKAGER_CLASSPATH="${JAVA_CLASSES_DIR};$(cat "${CLASSPATH_FILE}")"
-fi
-
-runtime_packager_args=(
-  package
-  --postgres-version "${POSTGRES_VERSION}"
-  --target "${TARGET_PLATFORM}"
-  --revision "${PACKAGING_REVISION}"
-  --output "${JAVA_DIST_DIR}"
-  --work-root "${JAVA_WORK_ROOT}"
-)
-
-if [[ -n "${JAVA_RAW_INSTALL_TREE}" ]]; then
-  runtime_packager_args+=(--raw-install-tree "${JAVA_RAW_INSTALL_TREE}")
-fi
-
-java -cp "${RUNTIME_PACKAGER_CLASSPATH}" \
-  eu.virtualparadox.managedpostgres.runtime.packaging.cli.RuntimePackagerMain \
-  "${runtime_packager_args[@]}"
+"${INNER_SCRIPT}"

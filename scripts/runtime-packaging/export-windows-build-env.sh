@@ -91,7 +91,7 @@ vswhere_path="$(locate_vswhere)"
 vs_dev_cmd_path="$(locate_vs_dev_cmd "${vswhere_path}")"
 cmd_vs_dev_cmd_path="$(normalize_for_cmd "${vs_dev_cmd_path}")"
 environment_dump="$(
-  MSYS2_ARG_CONV_EXCL='*' cmd.exe //s //c "\"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set"
+  MSYS2_ARG_CONV_EXCL='*' cmd.exe //s //c "call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set"
 )"
 
 selected_environment_names=(

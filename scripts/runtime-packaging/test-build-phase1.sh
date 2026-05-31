@@ -3,17 +3,23 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 GREP_BIN="$(command -v grep)"
-TEST_ROOT="${ROOT_DIR}/target/runtime-packaging-script-tests/print-windows-build-env"
+TEST_ROOT="${ROOT_DIR}/target/runtime-packaging-script-tests/build-phase1"
 FAKE_BIN_DIR="${TEST_ROOT}/fake-bin"
 PROGRAM_FILES_DIR="${TEST_ROOT}/Program Files"
 VS_INSTALLATION_PATH="${PROGRAM_FILES_DIR}/Microsoft Visual Studio/2022/BuildTools"
 VS_DEV_CMD_PATH="${VS_INSTALLATION_PATH}/Common7/Tools/VsDevCmd.bat"
-OUTPUT_FILE="${TEST_ROOT}/exports.sh"
 CMD_ARGS_FILE="${TEST_ROOT}/cmd-args.txt"
 
 rm -rf "${TEST_ROOT}"
 mkdir -p "${FAKE_BIN_DIR}" "$(dirname "${VS_DEV_CMD_PATH}")"
 touch "${VS_DEV_CMD_PATH}"
+
+cat > "${FAKE_BIN_DIR}/uname" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' 'MINGW64_NT-10.0'
+EOF
+chmod +x "${FAKE_BIN_DIR}/uname"
 
 cat > "${FAKE_BIN_DIR}/vswhere.exe" <<EOF
 #!/usr/bin/env bash
@@ -22,35 +28,33 @@ printf '%s\n' "${VS_INSTALLATION_PATH}"
 EOF
 chmod +x "${FAKE_BIN_DIR}/vswhere.exe"
 
+cat > "${FAKE_BIN_DIR}/cygpath" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$1" == "-w" ]]; then
+  printf '%s\n' "$2"
+  exit 0
+fi
+exit 2
+EOF
+chmod +x "${FAKE_BIN_DIR}/cygpath"
+
 cat > "${FAKE_BIN_DIR}/cmd.exe" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "$*" > "${CMD_ARGS_FILE}"
-cat <<'EOT'
-Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32
-INCLUDE=C:\VS\Include
-LIB=C:\VS\Lib
-LIBPATH=C:\VS\LibPath
-VCToolsInstallDir=C:\VS\VC\Tools\MSVC\14.44.35207\
-WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10\
-EOT
 EOF
 chmod +x "${FAKE_BIN_DIR}/cmd.exe"
 
 PATH="${FAKE_BIN_DIR}:${PATH}" \
 CMD_ARGS_FILE="${CMD_ARGS_FILE}" \
 ProgramFiles="${PROGRAM_FILES_DIR}" \
-"${ROOT_DIR}/scripts/runtime-packaging/print-windows-build-env.sh" \
-  > "${OUTPUT_FILE}"
+POSTGRES_VERSION=16.14 \
+PACKAGING_REVISION=r1 \
+TARGET_PLATFORM=windows-x86_64 \
+DIST_DIR=dist/windows-x86_64 \
+"${ROOT_DIR}/scripts/runtime-packaging/build-phase1.sh"
 
-# shellcheck disable=SC1090
-source "${OUTPUT_FILE}"
-
-[[ "${PATH}" == 'C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' ]]
-[[ "${Path}" == 'C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' ]]
-[[ "${INCLUDE}" == 'C:\VS\Include' ]]
-[[ "${LIB}" == 'C:\VS\Lib' ]]
-[[ "${LIBPATH}" == 'C:\VS\LibPath' ]]
-[[ "${VCToolsInstallDir}" == 'C:\VS\VC\Tools\MSVC\14.44.35207\' ]]
-[[ "${WindowsSdkDir}" == 'C:\Program Files (x86)\Windows Kits\10\' ]]
 "${GREP_BIN}" -F 'call "' "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -F 'set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1' "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -F "bash -lc './scripts/runtime-packaging/build-phase1-inner.sh'" "${CMD_ARGS_FILE}" >/dev/null

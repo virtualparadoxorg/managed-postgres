@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+GREP_BIN="$(command -v grep)"
 TEST_ROOT="${ROOT_DIR}/target/runtime-packaging-script-tests/export-windows-build-env"
 FAKE_BIN_DIR="${TEST_ROOT}/fake-bin"
 GITHUB_ENV_FILE="${TEST_ROOT}/github-env.txt"
@@ -47,21 +48,22 @@ GITHUB_ENV="${GITHUB_ENV_FILE}" \
 GITHUB_PATH="${GITHUB_PATH_FILE}" \
 "${ROOT_DIR}/scripts/runtime-packaging/export-windows-build-env.sh"
 
-grep -Fx 'INCLUDE=C:\VS\Include' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'LIB=C:\VS\Lib' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'LIBPATH=C:\VS\LibPath' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'PATH=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'VCToolsInstallDir=C:\VS\VC\Tools\MSVC\14.44.35207\' "${GITHUB_ENV_FILE}" >/dev/null
-grep -Fx 'WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10\' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'INCLUDE=C:\VS\Include' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'LIB=C:\VS\Lib' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'LIBPATH=C:\VS\LibPath' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'PATH=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'Path=C:\VS\Tools;C:\VS\MSBuild;C:\Windows\System32' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'VCToolsInstallDir=C:\VS\VC\Tools\MSVC\14.44.35207\' "${GITHUB_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'WindowsSdkDir=C:\Program Files (x86)\Windows Kits\10\' "${GITHUB_ENV_FILE}" >/dev/null
 
-grep -Fx 'C:\VS\Tools' "${GITHUB_PATH_FILE}" >/dev/null
-grep -Fx 'C:\VS\MSBuild' "${GITHUB_PATH_FILE}" >/dev/null
-grep -Fx 'C:\Windows\System32' "${GITHUB_PATH_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'C:\VS\Tools' "${GITHUB_PATH_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'C:\VS\MSBuild' "${GITHUB_PATH_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'C:\Windows\System32' "${GITHUB_PATH_FILE}" >/dev/null
 
-grep -F 'VsDevCmd.bat' "${CMD_ARGS_FILE}" >/dev/null
-if grep -F '/Common7/Tools/' "${CMD_ARGS_FILE}" >/dev/null; then
+"${GREP_BIN}" -F 'VsDevCmd.bat' "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -F 'call "' "${CMD_ARGS_FILE}" >/dev/null
+if "${GREP_BIN}" -F '/Common7/Tools/' "${CMD_ARGS_FILE}" >/dev/null; then
   echo "expected cmd.exe invocation to use Windows-style path separators" >&2
   exit 1
 fi
-grep -Fx '*' "${CMD_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx '*' "${CMD_ENV_FILE}" >/dev/null
