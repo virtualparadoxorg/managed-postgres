@@ -46,8 +46,8 @@ run_windows_build_in_vsdevcmd() {
   vs_dev_cmd_path="$(locate_vs_dev_cmd "${vswhere_path}")"
   cmd_vs_dev_cmd_path="$(normalize_for_cmd "${vs_dev_cmd_path}")"
   root_dir_windows="$(cygpath -w "${ROOT_DIR}")"
-  MSYS2_ARG_CONV_EXCL='*' \
-    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && bash -lc './scripts/runtime-packaging/build-phase1-inner.sh'"
+  MSYS2_ARG_CONV_EXCL='*' MSYS2_PATH_TYPE='inherit' \
+    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && bash -c './scripts/runtime-packaging/build-phase1-inner.sh'"
 }
 
 case "$(uname -s)" in

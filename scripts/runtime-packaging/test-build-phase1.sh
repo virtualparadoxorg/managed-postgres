@@ -9,6 +9,7 @@ PROGRAM_FILES_DIR="${TEST_ROOT}/Program Files"
 VS_INSTALLATION_PATH="${PROGRAM_FILES_DIR}/Microsoft Visual Studio/2022/BuildTools"
 VS_DEV_CMD_PATH="${VS_INSTALLATION_PATH}/Common7/Tools/VsDevCmd.bat"
 CMD_ARGS_FILE="${TEST_ROOT}/cmd-args.txt"
+CMD_ENV_FILE="${TEST_ROOT}/cmd-env.txt"
 
 rm -rf "${TEST_ROOT}"
 mkdir -p "${FAKE_BIN_DIR}" "$(dirname "${VS_DEV_CMD_PATH}")"
@@ -43,11 +44,16 @@ cat > "${FAKE_BIN_DIR}/cmd.exe" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "$*" > "${CMD_ARGS_FILE}"
+{
+  printf 'MSYS2_ARG_CONV_EXCL=%s\n' "${MSYS2_ARG_CONV_EXCL:-}"
+  printf 'MSYS2_PATH_TYPE=%s\n' "${MSYS2_PATH_TYPE:-}"
+} > "${CMD_ENV_FILE}"
 EOF
 chmod +x "${FAKE_BIN_DIR}/cmd.exe"
 
 PATH="${FAKE_BIN_DIR}:${PATH}" \
 CMD_ARGS_FILE="${CMD_ARGS_FILE}" \
+CMD_ENV_FILE="${CMD_ENV_FILE}" \
 ProgramFiles="${PROGRAM_FILES_DIR}" \
 POSTGRES_VERSION=16.14 \
 PACKAGING_REVISION=r1 \
@@ -57,4 +63,6 @@ DIST_DIR=dist/windows-x86_64 \
 
 "${GREP_BIN}" -F 'call "' "${CMD_ARGS_FILE}" >/dev/null
 "${GREP_BIN}" -F 'set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1' "${CMD_ARGS_FILE}" >/dev/null
-"${GREP_BIN}" -F "bash -lc './scripts/runtime-packaging/build-phase1-inner.sh'" "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -F "bash -c './scripts/runtime-packaging/build-phase1-inner.sh'" "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'MSYS2_ARG_CONV_EXCL=*' "${CMD_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'MSYS2_PATH_TYPE=inherit' "${CMD_ENV_FILE}" >/dev/null
