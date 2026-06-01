@@ -14,6 +14,26 @@ require_env PACKAGING_REVISION
 require_env TARGET_PLATFORM
 require_env DIST_DIR
 
+locate_maven_command() {
+  if [[ -n "${BUILD_PHASE1_MAVEN_CMD:-}" ]]; then
+    printf '%s\n' "${BUILD_PHASE1_MAVEN_CMD}"
+    return
+  fi
+  case "$(uname -s)" in
+    CYGWIN*|MINGW*|MSYS*)
+      if command -v mvn.cmd >/dev/null 2>&1; then
+        printf '%s\n' "mvn.cmd"
+        return
+      fi
+      ;;
+  esac
+  if command -v mvn >/dev/null 2>&1; then
+    printf '%s\n' "mvn"
+    return
+  fi
+  printf '%s\n' "./mvnw"
+}
+
 prefer_gnu_make_on_macos() {
   if [[ "$(uname -s)" != "Darwin" ]]; then
     return
@@ -40,6 +60,8 @@ JAVA_CLASSES_DIR="${TARGET_DIR}/classes"
 JAVA_DIST_DIR="${ROOT_DIR}/${DIST_DIR}"
 JAVA_WORK_ROOT="${WORK_ROOT}"
 JAVA_RAW_INSTALL_TREE="${RAW_INSTALL_TREE:-}"
+MAVEN_CMD="$(locate_maven_command)"
+JAVA_CMD="${BUILD_PHASE1_JAVA_CMD:-java}"
 
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*)
@@ -56,7 +78,7 @@ esac
 mkdir -p "${ROOT_DIR}/${DIST_DIR}" "${WORK_ROOT}"
 
 cd "${ROOT_DIR}"
-./mvnw -fae -pl managed-postgres/runtime-packager -am -DskipTests package dependency:build-classpath \
+"${MAVEN_CMD}" -fae -pl managed-postgres/runtime-packager -am -DskipTests package dependency:build-classpath \
   -Dmdep.outputFile="${CLASSPATH_FILE}" \
   -Dmdep.pathSeparator="${PATH_SEPARATOR}"
 
@@ -78,6 +100,6 @@ if [[ -n "${JAVA_RAW_INSTALL_TREE}" ]]; then
   runtime_packager_args+=(--raw-install-tree "${JAVA_RAW_INSTALL_TREE}")
 fi
 
-java -cp "${RUNTIME_PACKAGER_CLASSPATH}" \
+"${JAVA_CMD}" -cp "${RUNTIME_PACKAGER_CLASSPATH}" \
   eu.virtualparadox.managedpostgres.runtime.packaging.cli.RuntimePackagerMain \
   "${runtime_packager_args[@]}"
