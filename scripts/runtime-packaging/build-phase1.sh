@@ -3,6 +3,17 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 INNER_SCRIPT="${ROOT_DIR}/scripts/runtime-packaging/build-phase1-inner.sh"
+BASH_BIN="${BUILD_PHASE1_BASH_BIN:-bash}"
+
+trace_enabled() {
+  [[ -n "${BUILD_PHASE1_TRACE_FILE:-}" ]]
+}
+
+trace_line() {
+  if trace_enabled; then
+    printf '%s\n' "$1" >> "${BUILD_PHASE1_TRACE_FILE}"
+  fi
+}
 
 locate_vswhere() {
   if command -v vswhere.exe >/dev/null 2>&1; then
@@ -41,6 +52,10 @@ normalize_for_cmd() {
 }
 
 locate_windows_bash() {
+  if [[ -n "${BUILD_PHASE1_WINDOWS_BASH_BIN:-}" ]]; then
+    printf '%s\n' "${BUILD_PHASE1_WINDOWS_BASH_BIN}"
+    return
+  fi
   local bash_path
   bash_path="$(command -v bash.exe 2>/dev/null || true)"
   if [[ -n "${bash_path}" ]]; then
@@ -54,6 +69,7 @@ locate_windows_bash() {
 run_windows_build_in_vsdevcmd() {
   local vswhere_path vs_dev_cmd_path cmd_vs_dev_cmd_path root_dir_windows
   local windows_bash_path cmd_windows_bash_path inner_script_windows
+  local command_string
   vswhere_path="$(locate_vswhere)"
   vs_dev_cmd_path="$(locate_vs_dev_cmd "${vswhere_path}")"
   cmd_vs_dev_cmd_path="$(normalize_for_cmd "${vs_dev_cmd_path}")"
@@ -61,8 +77,29 @@ run_windows_build_in_vsdevcmd() {
   cmd_windows_bash_path="$(normalize_for_cmd "$(cygpath -w "${windows_bash_path}")")"
   root_dir_windows="$(cygpath -w "${ROOT_DIR}")"
   inner_script_windows="$(cygpath -w "${INNER_SCRIPT}")"
+  command_string="cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && \"${cmd_windows_bash_path}\" --noprofile --norc -e -o pipefail \"${inner_script_windows}\""
+  trace_line "mode=windows-wrapper"
+  trace_line "root_dir_windows=${root_dir_windows}"
+  trace_line "vs_dev_cmd=${cmd_vs_dev_cmd_path}"
+  trace_line "windows_bash=${cmd_windows_bash_path}"
+  trace_line "inner_script=${inner_script_windows}"
+  trace_line "command=${command_string}"
+  if [[ "${BUILD_PHASE1_DRY_RUN:-}" == "1" ]]; then
+    printf '%s\n' "${command_string}"
+    return 0
+  fi
   MSYS2_ARG_CONV_EXCL='*' MSYS2_PATH_TYPE='inherit' \
-    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && \"${cmd_windows_bash_path}\" --noprofile --norc -e -o pipefail \"${inner_script_windows}\""
+    cmd.exe //s //c "${command_string}"
+}
+
+run_inner_script() {
+  trace_line "mode=direct-bash"
+  trace_line "inner_script=${INNER_SCRIPT}"
+  if [[ "${BUILD_PHASE1_DRY_RUN:-}" == "1" ]]; then
+    printf 'bash %s\n' "${INNER_SCRIPT}"
+    return 0
+  fi
+  "${BASH_BIN}" "${INNER_SCRIPT}"
 }
 
 case "$(uname -s)" in
@@ -74,4 +111,4 @@ case "$(uname -s)" in
     ;;
 esac
 
-bash "${INNER_SCRIPT}"
+run_inner_script
