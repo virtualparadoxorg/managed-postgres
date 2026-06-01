@@ -11,6 +11,7 @@ VS_DEV_CMD_PATH="${VS_INSTALLATION_PATH}/Common7/Tools/VsDevCmd.bat"
 CMD_ARGS_FILE="${TEST_ROOT}/cmd-args.txt"
 CMD_ENV_FILE="${TEST_ROOT}/cmd-env.txt"
 FAKE_BASH_EXE="${FAKE_BIN_DIR}/bash.exe"
+TRACE_FILE="${TEST_ROOT}/trace.txt"
 
 rm -rf "${TEST_ROOT}"
 mkdir -p "${FAKE_BIN_DIR}" "$(dirname "${VS_DEV_CMD_PATH}")"
@@ -62,6 +63,8 @@ chmod +x "${FAKE_BASH_EXE}"
 PATH="${FAKE_BIN_DIR}:${PATH}" \
 CMD_ARGS_FILE="${CMD_ARGS_FILE}" \
 CMD_ENV_FILE="${CMD_ENV_FILE}" \
+BUILD_PHASE1_TRACE_FILE="${TRACE_FILE}" \
+BUILD_PHASE1_WINDOWS_BASH_BIN="${FAKE_BASH_EXE}" \
 ProgramFiles="${PROGRAM_FILES_DIR}" \
 POSTGRES_VERSION=16.14 \
 PACKAGING_REVISION=r1 \
@@ -75,3 +78,5 @@ DIST_DIR=dist/windows-x86_64 \
 "${GREP_BIN}" -F 'build-phase1-inner.sh"' "${CMD_ARGS_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_ARG_CONV_EXCL=*' "${CMD_ENV_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_PATH_TYPE=inherit' "${CMD_ENV_FILE}" >/dev/null
+"${GREP_BIN}" -Fx 'mode=windows-wrapper' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'command=cd /d "' "${TRACE_FILE}" >/dev/null
