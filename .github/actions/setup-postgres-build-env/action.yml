@@ -33,5 +33,28 @@ runs:
       run: |
         $ErrorActionPreference = "Stop"
         choco install strawberryperl -y --no-progress
+        choco install winflexbison3 -y --no-progress
         refreshenv
         perl -v | Out-Null
+
+        $shimDir = Join-Path $env:RUNNER_TEMP "managed-postgres-winflexbison"
+        New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
+
+        $winBison = (Get-Command win_bison.exe -ErrorAction Stop).Source
+        $winFlex = (Get-Command win_flex.exe -ErrorAction Stop).Source
+
+        @(
+          @{
+            Name = "bison.cmd"
+            Target = $winBison
+          },
+          @{
+            Name = "flex.cmd"
+            Target = $winFlex
+          }
+        ) | ForEach-Object {
+          $shimPath = Join-Path $shimDir $_.Name
+          "@echo off`r`n""$($_.Target)"" %*`r`n" | Set-Content -Path $shimPath -Encoding ascii
+        }
+
+        $shimDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
