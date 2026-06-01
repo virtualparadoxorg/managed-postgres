@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.StringTokenizer;
 
 /**
  * Executes PostgreSQL source builds through the upstream MSVC helper scripts.
@@ -26,6 +28,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
             "managed-postgres-windows-env-probe.cmd";
     private static final String WINDOWS_DIAGNOSTICS_OUTPUT_NAME =
             "managed-postgres-windows-env-probe.txt";
+    private static final String WINDOWS_BUILDENV_FILE_NAME = "buildenv.pl";
 
     private final Map<String, String> environmentOverrides;
     private final Map<String, String> processEnvironment;
@@ -105,6 +108,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         final Path installDirectory = validatedBuildDirectory.resolve("install");
         final Path msvcDirectory = validatedSourceTree.resolve("src").resolve("tools").resolve("msvc");
         createDirectories(validatedBuildDirectory, installDirectory, msvcDirectory);
+        writeBuildEnvironment(msvcDirectory);
         maybeCaptureWindowsDiagnostics(validatedBuildDirectory, msvcDirectory);
         runCommand(command("build"), msvcDirectory);
         runCommand(command("install", installDirectory.toString()), msvcDirectory);
@@ -137,6 +141,17 @@ public final class WindowsBuildExecutor implements BuildExecutor {
                 workingDirectory,
                 environmentOverrides,
                 "failed to execute Windows source-build command");
+    }
+
+    private void writeBuildEnvironment(final Path msvcDirectory) {
+        final Optional<Path> msbuildExecutable = resolveExecutableOnPath("MSBuild.exe");
+        if (msbuildExecutable.isEmpty()) {
+            return;
+        }
+        final Path msbuildDirectory =
+                Objects.requireNonNull(msbuildExecutable.orElseThrow().getParent(), "msbuildExecutable.parent");
+        final Path buildEnvironmentFile = msvcDirectory.resolve(WINDOWS_BUILDENV_FILE_NAME);
+        writeBuildEnvironmentFile(buildEnvironmentFile, msbuildDirectory);
     }
 
     private static void createDirectories(
@@ -173,6 +188,49 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         return enabled;
     }
 
+    private Optional<Path> resolveExecutableOnPath(final String executableName) {
+        Objects.requireNonNull(executableName, "executableName");
+        final Optional<String> configuredPath = resolvedPath();
+        if (configuredPath.isEmpty() || configuredPath.orElseThrow().isBlank()) {
+            return Optional.empty();
+        }
+        final StringTokenizer pathEntries = new StringTokenizer(configuredPath.orElseThrow(), ";");
+        while (pathEntries.hasMoreTokens()) {
+            final String pathEntry = pathEntries.nextToken();
+            final String trimmedEntry = pathEntry.trim();
+            if (trimmedEntry.isEmpty()) {
+                continue;
+            }
+            final Path candidate = Path.of(trimmedEntry, executableName);
+            if (Files.isRegularFile(candidate)) {
+                return Optional.of(candidate);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private Optional<String> resolvedPath() {
+        final String overrideWindowsPath = environmentOverrides.get("Path");
+        if (overrideWindowsPath != null) {
+            return Optional.of(overrideWindowsPath);
+        }
+        final String overrideUpperPath = environmentOverrides.get("PATH");
+        if (overrideUpperPath != null) {
+            return Optional.of(overrideUpperPath);
+        }
+        final String processWindowsPath = processEnvironment.get("Path");
+        if (processWindowsPath != null) {
+            return Optional.of(processWindowsPath);
+        }
+        return Optional.ofNullable(processEnvironment.get("PATH"));
+    }
+
+    static String buildEnvironmentScriptContent(final String msbuildDirectory) {
+        final String normalizedDirectory =
+                Objects.requireNonNull(msbuildDirectory, "msbuildDirectory").replace("\\", "/");
+        return String.format(Locale.ROOT, "$ENV{PATH} = \"%s;$ENV{PATH}\";%n", normalizedDirectory);
+    }
+
     static String windowsDiagnosticsScriptContent(final String diagnosticsOutputPath) {
         Objects.requireNonNull(diagnosticsOutputPath, "diagnosticsOutputPath");
         return String.format(
@@ -200,6 +258,17 @@ public final class WindowsBuildExecutor implements BuildExecutor {
                     StandardCharsets.UTF_8);
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to write Windows diagnostics script", exception);
+        }
+    }
+
+    private static void writeBuildEnvironmentFile(final Path buildEnvironmentFile, final Path msbuildDirectory) {
+        try {
+            Files.writeString(
+                    buildEnvironmentFile,
+                    buildEnvironmentScriptContent(msbuildDirectory.toString()),
+                    StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to write Windows build environment file", exception);
         }
     }
 }
