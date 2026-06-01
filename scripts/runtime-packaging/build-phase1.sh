@@ -100,7 +100,7 @@ EOF
     return 0
   fi
   MSYS2_ARG_CONV_EXCL='*' MSYS2_PATH_TYPE='inherit' \
-    cmd.exe //s //c "${wrapper_script_windows}"
+    cmd.exe /d /s /c "\"${wrapper_script_windows}\""
 }
 
 run_inner_script() {
