@@ -55,6 +55,7 @@ MODULE_DIR="${ROOT_DIR}/managed-postgres/runtime-packager"
 TARGET_DIR="${MODULE_DIR}/target"
 WORK_ROOT="${ROOT_DIR}/target/runtime-packaging-work/${TARGET_PLATFORM}"
 CLASSPATH_FILE="${TARGET_DIR}/runtime-packager.classpath"
+MAVEN_CLASSPATH_FILE="${CLASSPATH_FILE}"
 PATH_SEPARATOR=":"
 JAVA_CLASSES_DIR="${TARGET_DIR}/classes"
 JAVA_DIST_DIR="${ROOT_DIR}/${DIST_DIR}"
@@ -66,6 +67,7 @@ JAVA_CMD="${BUILD_PHASE1_JAVA_CMD:-java}"
 case "$(uname -s)" in
   CYGWIN*|MINGW*|MSYS*)
     PATH_SEPARATOR=";"
+    MAVEN_CLASSPATH_FILE="$(cygpath -w "${CLASSPATH_FILE}")"
     JAVA_CLASSES_DIR="$(cygpath -w "${TARGET_DIR}/classes")"
     JAVA_DIST_DIR="$(cygpath -w "${ROOT_DIR}/${DIST_DIR}")"
     JAVA_WORK_ROOT="$(cygpath -w "${WORK_ROOT}")"
@@ -79,7 +81,7 @@ mkdir -p "${ROOT_DIR}/${DIST_DIR}" "${WORK_ROOT}"
 
 cd "${ROOT_DIR}"
 "${MAVEN_CMD}" -fae -pl managed-postgres/runtime-packager -am -DskipTests package dependency:build-classpath \
-  -Dmdep.outputFile="${CLASSPATH_FILE}" \
+  -Dmdep.outputFile="${MAVEN_CLASSPATH_FILE}" \
   -Dmdep.pathSeparator="${PATH_SEPARATOR}"
 
 RUNTIME_PACKAGER_CLASSPATH="${JAVA_CLASSES_DIR}:$(cat "${CLASSPATH_FILE}")"
