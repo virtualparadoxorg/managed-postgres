@@ -19,6 +19,14 @@ locate_maven_command() {
     printf '%s\n' "${BUILD_PHASE1_MAVEN_CMD}"
     return
   fi
+  case "$(uname -s)" in
+    CYGWIN*|MINGW*|MSYS*)
+      if command -v mvn.cmd >/dev/null 2>&1; then
+        printf '%s\n' "mvn.cmd"
+        return
+      fi
+      ;;
+  esac
   if command -v mvn >/dev/null 2>&1; then
     printf '%s\n' "mvn"
     return
