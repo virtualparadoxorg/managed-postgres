@@ -45,16 +45,16 @@ runs:
 
         @(
           @{
-            Name = "bison.cmd"
+            Name = "bison.exe"
             Target = $winBison
           },
           @{
-            Name = "flex.cmd"
+            Name = "flex.exe"
             Target = $winFlex
           }
         ) | ForEach-Object {
           $shimPath = Join-Path $shimDir $_.Name
-          "@echo off`r`n""$($_.Target)"" %*`r`n" | Set-Content -Path $shimPath -Encoding ascii
+          Copy-Item -Path $_.Target -Destination $shimPath -Force
         }
 
         $shimDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
