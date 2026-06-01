@@ -70,7 +70,12 @@ final class WindowsBuildExecutorTest {
         final Path sourceTree = createWindowsSourceTree();
         final Path toolDirectory = createToolDirectory();
         final Path buildDirectory = tempDir.resolve("build");
-        final String toolPath = toolDirectory + ";" + System.getenv("PATH");
+        final String toolPath = String.join(
+                ";",
+                toolDirectory.resolve("Git/usr/bin").toString(),
+                toolDirectory.resolve("Strawberry/perl/bin").toString(),
+                toolDirectory.toString(),
+                System.getenv("PATH"));
         final WindowsBuildExecutor executor = new WindowsBuildExecutor(
                 Map.of("PATH", toolPath),
                 List.of(toolDirectory.resolve("cmd.exe").toString(), "/c"),
@@ -86,6 +91,8 @@ final class WindowsBuildExecutorTest {
         assertThat(installTree.resolve("bin/postgres.exe")).exists();
         assertThat(sourceTree.resolve("src/tools/msvc/build.invocation")).hasContent("build");
         assertThat(sourceTree.resolve("src/tools/msvc/install.invocation")).hasContent(installTree.toString());
+        assertThat(sourceTree.resolve("src/tools/msvc/perl.invocation"))
+                .hasContent(toolDirectory.resolve("Strawberry/perl/bin/perl.exe").toString());
         assertThat(sourceTree.resolve("src/tools/msvc/buildenv.pl"))
                 .hasContent("$ENV{PATH} = \"" + toolDirectory.toString().replace("\\", "/") + ";$ENV{PATH}\";\n");
     }
@@ -176,7 +183,7 @@ final class WindowsBuildExecutorTest {
     private Path createWindowsSourceTree() throws IOException {
         final Path msvcDirectory = tempDir.resolve("source").resolve("src").resolve("tools").resolve("msvc");
         Files.createDirectories(msvcDirectory);
-        final Path buildScript = msvcDirectory.resolve("build.bat");
+        final Path buildScript = msvcDirectory.resolve("build.pl");
         Files.writeString(
                 buildScript,
                 """
@@ -186,7 +193,7 @@ final class WindowsBuildExecutorTest {
                 """,
                 StandardCharsets.UTF_8);
         makeExecutable(buildScript);
-        final Path installScript = msvcDirectory.resolve("install.bat");
+        final Path installScript = msvcDirectory.resolve("install.pl");
         Files.writeString(
                 installScript,
                 """
@@ -206,6 +213,40 @@ final class WindowsBuildExecutorTest {
         Files.createDirectories(toolDirectory);
         final Path msbuildExecutable = toolDirectory.resolve("MSBuild.exe");
         Files.writeString(msbuildExecutable, "", StandardCharsets.UTF_8);
+        final Path gitPerlDirectory = Files.createDirectories(toolDirectory.resolve("Git/usr/bin"));
+        final Path gitPerlExecutable = gitPerlDirectory.resolve("perl.exe");
+        Files.writeString(
+                gitPerlExecutable,
+                """
+                #!/bin/sh
+                set -eu
+                echo "git-perl-should-not-run" >&2
+                exit 17
+                """,
+                StandardCharsets.UTF_8);
+        makeExecutable(gitPerlExecutable);
+        final Path strawberryPerlDirectory = Files.createDirectories(toolDirectory.resolve("Strawberry/perl/bin"));
+        final Path strawberryPerlExecutable = strawberryPerlDirectory.resolve("perl.exe");
+        Files.writeString(
+                strawberryPerlExecutable,
+                """
+                #!/bin/sh
+                set -eu
+                printf '%s' "$0" > "$PWD/perl.invocation"
+                first="$1"
+                shift
+                case "$first" in
+                  /*) ;;
+                  *)
+                    if [ -x "$PWD/$first" ]; then
+                      first="$PWD/$first"
+                    fi
+                    ;;
+                esac
+                exec "$first" "$@"
+                """,
+                StandardCharsets.UTF_8);
+        makeExecutable(strawberryPerlExecutable);
         final Path commandShell = toolDirectory.resolve("cmd.exe");
         Files.writeString(
                 commandShell,
