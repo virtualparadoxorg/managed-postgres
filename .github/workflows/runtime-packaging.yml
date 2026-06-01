@@ -119,6 +119,8 @@ jobs:
           fi
           where.exe msbuild || true
           where.exe cl || true
+          where.exe mvn || true
+          where.exe mvn.cmd || true
           where.exe link || true
           where.exe perl || true
           ls -la "/c/Program Files/Microsoft Visual Studio" || true
