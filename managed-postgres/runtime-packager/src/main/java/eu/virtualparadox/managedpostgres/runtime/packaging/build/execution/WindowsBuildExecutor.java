@@ -15,7 +15,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.StringTokenizer;
 
 /**
  * Executes PostgreSQL source builds through the upstream MSVC helper scripts.
@@ -29,12 +28,15 @@ public final class WindowsBuildExecutor implements BuildExecutor {
     private static final String WINDOWS_DIAGNOSTICS_OUTPUT_NAME =
             "managed-postgres-windows-env-probe.txt";
     private static final String WINDOWS_BUILDENV_FILE_NAME = "buildenv.pl";
+    private static final String WINDOWS_BUILD_SCRIPT_NAME = "build.pl";
+    private static final String WINDOWS_INSTALL_SCRIPT_NAME = "install.pl";
 
     private final Map<String, String> environmentOverrides;
     private final Map<String, String> processEnvironment;
     private final List<String> commandPrefix;
     private final String operatingSystemName;
     private final ProcessCommandExecutor processCommandExecutor;
+    private final WindowsPathToolResolver windowsPathToolResolver;
 
     /**
      * Creates a Windows build executor using the current process environment.
@@ -52,7 +54,12 @@ public final class WindowsBuildExecutor implements BuildExecutor {
             final Map<String, String> environmentOverrides,
             final List<String> commandPrefix,
             final String operatingSystemName) {
-        this(environmentOverrides, System.getenv(), commandPrefix, operatingSystemName, new ProcessCommandExecutor());
+        this(
+                environmentOverrides,
+                System.getenv(),
+                commandPrefix,
+                operatingSystemName,
+                new ProcessCommandExecutor());
     }
 
     WindowsBuildExecutor(
@@ -69,6 +76,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         }
         this.operatingSystemName = Objects.requireNonNull(operatingSystemName, "operatingSystemName");
         this.processCommandExecutor = Objects.requireNonNull(processCommandExecutor, "processCommandExecutor");
+        this.windowsPathToolResolver = new WindowsPathToolResolver(this.environmentOverrides, this.processEnvironment);
     }
 
     static Map<String, String> normalizeEnvironmentOverrides(final Map<String, String> environmentOverrides) {
@@ -110,8 +118,12 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         createDirectories(validatedBuildDirectory, installDirectory, msvcDirectory);
         writeBuildEnvironment(msvcDirectory);
         maybeCaptureWindowsDiagnostics(validatedBuildDirectory, msvcDirectory);
-        runCommand(command("build"), msvcDirectory);
-        runCommand(command("install", installDirectory.toString()), msvcDirectory);
+        final Path perlExecutable = windowsPathToolResolver.resolvePreferredPerlExecutable()
+                .orElseThrow(() -> new IllegalStateException("unable to resolve a Windows perl.exe from PATH"));
+        runCommand(command(perlExecutable.toString(), WINDOWS_BUILD_SCRIPT_NAME), msvcDirectory);
+        runCommand(
+                command(perlExecutable.toString(), WINDOWS_INSTALL_SCRIPT_NAME, installDirectory.toString()),
+                msvcDirectory);
         return installDirectory;
     }
 
@@ -144,7 +156,7 @@ public final class WindowsBuildExecutor implements BuildExecutor {
     }
 
     private void writeBuildEnvironment(final Path msvcDirectory) {
-        final Optional<Path> msbuildExecutable = resolveExecutableOnPath("MSBuild.exe");
+        final Optional<Path> msbuildExecutable = windowsPathToolResolver.resolveExecutableOnPath("MSBuild.exe");
         if (msbuildExecutable.isEmpty()) {
             return;
         }
@@ -186,43 +198,6 @@ public final class WindowsBuildExecutor implements BuildExecutor {
                 : validatedProcessEnvironment.get(WINDOWS_DIAGNOSTICS_ENVIRONMENT_NAME);
         final boolean enabled = "1".equals(configuredValue);
         return enabled;
-    }
-
-    private Optional<Path> resolveExecutableOnPath(final String executableName) {
-        Objects.requireNonNull(executableName, "executableName");
-        final Optional<String> configuredPath = resolvedPath();
-        if (configuredPath.isEmpty() || configuredPath.orElseThrow().isBlank()) {
-            return Optional.empty();
-        }
-        final StringTokenizer pathEntries = new StringTokenizer(configuredPath.orElseThrow(), ";");
-        while (pathEntries.hasMoreTokens()) {
-            final String pathEntry = pathEntries.nextToken();
-            final String trimmedEntry = pathEntry.trim();
-            if (trimmedEntry.isEmpty()) {
-                continue;
-            }
-            final Path candidate = Path.of(trimmedEntry, executableName);
-            if (Files.isRegularFile(candidate)) {
-                return Optional.of(candidate);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private Optional<String> resolvedPath() {
-        final String overrideWindowsPath = environmentOverrides.get("Path");
-        if (overrideWindowsPath != null) {
-            return Optional.of(overrideWindowsPath);
-        }
-        final String overrideUpperPath = environmentOverrides.get("PATH");
-        if (overrideUpperPath != null) {
-            return Optional.of(overrideUpperPath);
-        }
-        final String processWindowsPath = processEnvironment.get("Path");
-        if (processWindowsPath != null) {
-            return Optional.of(processWindowsPath);
-        }
-        return Optional.ofNullable(processEnvironment.get("PATH"));
     }
 
     static String buildEnvironmentScriptContent(final String msbuildDirectory) {
