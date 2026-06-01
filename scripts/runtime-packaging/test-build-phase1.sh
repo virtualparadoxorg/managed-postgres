@@ -79,7 +79,7 @@ TARGET_PLATFORM=windows-x86_64 \
 DIST_DIR=dist/windows-x86_64 \
 "${ROOT_DIR}/scripts/runtime-packaging/build-phase1.sh"
 
-"${GREP_BIN}" -Fx "/d /s /c \"${WRAPPER_FILE}\"" "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -Fx "/d /s /c ${WRAPPER_FILE}" "${CMD_ARGS_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_ARG_CONV_EXCL=*' "${CMD_ENV_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_PATH_TYPE=inherit' "${CMD_ENV_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'mode=windows-wrapper' "${TRACE_FILE}" >/dev/null
