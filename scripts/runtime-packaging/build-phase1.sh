@@ -40,14 +40,29 @@ normalize_for_cmd() {
   printf '%s\n' "${path_value//\//\\}"
 }
 
+locate_windows_bash() {
+  local bash_path
+  bash_path="$(command -v bash.exe 2>/dev/null || true)"
+  if [[ -n "${bash_path}" ]]; then
+    printf '%s\n' "${bash_path}"
+    return
+  fi
+  bash_path="$(command -v bash)"
+  printf '%s\n' "${bash_path}"
+}
+
 run_windows_build_in_vsdevcmd() {
   local vswhere_path vs_dev_cmd_path cmd_vs_dev_cmd_path root_dir_windows
+  local windows_bash_path cmd_windows_bash_path inner_script_windows
   vswhere_path="$(locate_vswhere)"
   vs_dev_cmd_path="$(locate_vs_dev_cmd "${vswhere_path}")"
   cmd_vs_dev_cmd_path="$(normalize_for_cmd "${vs_dev_cmd_path}")"
+  windows_bash_path="$(locate_windows_bash)"
+  cmd_windows_bash_path="$(normalize_for_cmd "$(cygpath -w "${windows_bash_path}")")"
   root_dir_windows="$(cygpath -w "${ROOT_DIR}")"
+  inner_script_windows="$(cygpath -w "${INNER_SCRIPT}")"
   MSYS2_ARG_CONV_EXCL='*' MSYS2_PATH_TYPE='inherit' \
-    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && bash -c './scripts/runtime-packaging/build-phase1-inner.sh'"
+    cmd.exe //s //c "cd /d \"${root_dir_windows}\" && call \"${cmd_vs_dev_cmd_path}\" -arch=x64 -host_arch=x64 >nul && set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1 && \"${cmd_windows_bash_path}\" --noprofile --norc -e -o pipefail \"${inner_script_windows}\""
 }
 
 case "$(uname -s)" in
@@ -59,4 +74,4 @@ case "$(uname -s)" in
     ;;
 esac
 
-"${INNER_SCRIPT}"
+bash "${INNER_SCRIPT}"
