@@ -12,6 +12,7 @@ CMD_ARGS_FILE="${TEST_ROOT}/cmd-args.txt"
 CMD_ENV_FILE="${TEST_ROOT}/cmd-env.txt"
 FAKE_BASH_EXE="${FAKE_BIN_DIR}/bash.exe"
 TRACE_FILE="${TEST_ROOT}/trace.txt"
+WRAPPER_FILE="${TEST_ROOT}/build-phase1-wrapper.cmd"
 
 rm -rf "${TEST_ROOT}"
 mkdir -p "${FAKE_BIN_DIR}" "$(dirname "${VS_DEV_CMD_PATH}")"
@@ -35,7 +36,11 @@ cat > "${FAKE_BIN_DIR}/cygpath" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "$1" == "-w" ]]; then
-  printf '%s\n' "$2"
+  if [[ "$2" == *"target/runtime-packaging-work/windows-wrapper/build-phase1-wrapper.cmd" ]]; then
+    printf '%s\n' "${WRAPPER_FILE}"
+  else
+    printf '%s\n' "$2"
+  fi
   exit 0
 fi
 exit 2
@@ -65,6 +70,8 @@ CMD_ARGS_FILE="${CMD_ARGS_FILE}" \
 CMD_ENV_FILE="${CMD_ENV_FILE}" \
 BUILD_PHASE1_TRACE_FILE="${TRACE_FILE}" \
 BUILD_PHASE1_WINDOWS_BASH_BIN="${FAKE_BASH_EXE}" \
+BUILD_PHASE1_WINDOWS_WRAPPER_FILE="${WRAPPER_FILE}" \
+WRAPPER_FILE="${WRAPPER_FILE}" \
 ProgramFiles="${PROGRAM_FILES_DIR}" \
 POSTGRES_VERSION=16.14 \
 PACKAGING_REVISION=r1 \
@@ -72,11 +79,13 @@ TARGET_PLATFORM=windows-x86_64 \
 DIST_DIR=dist/windows-x86_64 \
 "${ROOT_DIR}/scripts/runtime-packaging/build-phase1.sh"
 
-"${GREP_BIN}" -F 'call "' "${CMD_ARGS_FILE}" >/dev/null
-"${GREP_BIN}" -F 'set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1' "${CMD_ARGS_FILE}" >/dev/null
-"${GREP_BIN}" -F 'bash.exe" --noprofile --norc -e -o pipefail "' "${CMD_ARGS_FILE}" >/dev/null
-"${GREP_BIN}" -F 'build-phase1-inner.sh"' "${CMD_ARGS_FILE}" >/dev/null
+"${GREP_BIN}" -F "${WRAPPER_FILE}" "${CMD_ARGS_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_ARG_CONV_EXCL=*' "${CMD_ENV_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'MSYS2_PATH_TYPE=inherit' "${CMD_ENV_FILE}" >/dev/null
 "${GREP_BIN}" -Fx 'mode=windows-wrapper' "${TRACE_FILE}" >/dev/null
-"${GREP_BIN}" -F 'command=cd /d "' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F "wrapper_script=${WRAPPER_FILE}" "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'wrapper_contents=@echo off|cd /d "' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'call "' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'set MANAGED_POSTGRES_WINDOWS_VSDEV_ACTIVE=1' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'bash.exe" --noprofile --norc -e -o pipefail "' "${TRACE_FILE}" >/dev/null
+"${GREP_BIN}" -F 'call "' "${WRAPPER_FILE}" >/dev/null
