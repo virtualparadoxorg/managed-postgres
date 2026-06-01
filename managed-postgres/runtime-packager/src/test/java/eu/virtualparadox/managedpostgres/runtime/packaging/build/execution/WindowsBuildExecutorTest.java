@@ -70,8 +70,9 @@ final class WindowsBuildExecutorTest {
         final Path sourceTree = createWindowsSourceTree();
         final Path toolDirectory = createToolDirectory();
         final Path buildDirectory = tempDir.resolve("build");
+        final String toolPath = toolDirectory + ";" + System.getenv("PATH");
         final WindowsBuildExecutor executor = new WindowsBuildExecutor(
-                Map.of("PATH", toolDirectory + ":" + System.getenv("PATH")),
+                Map.of("PATH", toolPath),
                 List.of(toolDirectory.resolve("cmd.exe").toString(), "/c"),
                 "Windows 11");
 
@@ -85,6 +86,8 @@ final class WindowsBuildExecutorTest {
         assertThat(installTree.resolve("bin/postgres.exe")).exists();
         assertThat(sourceTree.resolve("src/tools/msvc/build.invocation")).hasContent("build");
         assertThat(sourceTree.resolve("src/tools/msvc/install.invocation")).hasContent(installTree.toString());
+        assertThat(sourceTree.resolve("src/tools/msvc/buildenv.pl"))
+                .hasContent("$ENV{PATH} = \"" + toolDirectory.toString().replace("\\", "/") + ";$ENV{PATH}\";\n");
     }
 
     @Test
@@ -164,6 +167,12 @@ final class WindowsBuildExecutorTest {
                 .contains("C:\\work\\windows-env.txt");
     }
 
+    @Test
+    void buildEnvironmentScriptPrependsResolvedMsbuildDirectory() {
+        assertThat(WindowsBuildExecutor.buildEnvironmentScriptContent("C:\\VS\\MSBuild\\Current\\Bin\\amd64"))
+                .isEqualTo("$ENV{PATH} = \"C:/VS/MSBuild/Current/Bin/amd64;$ENV{PATH}\";\n");
+    }
+
     private Path createWindowsSourceTree() throws IOException {
         final Path msvcDirectory = tempDir.resolve("source").resolve("src").resolve("tools").resolve("msvc");
         Files.createDirectories(msvcDirectory);
@@ -195,6 +204,8 @@ final class WindowsBuildExecutorTest {
     private Path createToolDirectory() throws IOException {
         final Path toolDirectory = tempDir.resolve("tools");
         Files.createDirectories(toolDirectory);
+        final Path msbuildExecutable = toolDirectory.resolve("MSBuild.exe");
+        Files.writeString(msbuildExecutable, "", StandardCharsets.UTF_8);
         final Path commandShell = toolDirectory.resolve("cmd.exe");
         Files.writeString(
                 commandShell,
