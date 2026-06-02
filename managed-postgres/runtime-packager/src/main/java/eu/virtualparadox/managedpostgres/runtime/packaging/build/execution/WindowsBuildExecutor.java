@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Executes PostgreSQL source builds through the upstream MSVC helper scripts.
@@ -116,10 +116,10 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         final Path installDirectory = validatedBuildDirectory.resolve("install");
         final Path msvcDirectory = validatedSourceTree.resolve("src").resolve("tools").resolve("msvc");
         createDirectories(validatedBuildDirectory, installDirectory, msvcDirectory);
-        writeBuildEnvironment(msvcDirectory);
-        maybeCaptureWindowsDiagnostics(validatedBuildDirectory, msvcDirectory);
         final Path perlExecutable = windowsPathToolResolver.resolvePreferredPerlExecutable()
                 .orElseThrow(() -> new IllegalStateException("unable to resolve a Windows perl.exe from PATH"));
+        writeBuildEnvironment(msvcDirectory, perlExecutable);
+        maybeCaptureWindowsDiagnostics(validatedBuildDirectory, msvcDirectory);
         runCommand(command(perlExecutable.toString(), WINDOWS_BUILD_SCRIPT_NAME), msvcDirectory);
         runCommand(
                 command(perlExecutable.toString(), WINDOWS_INSTALL_SCRIPT_NAME, installDirectory.toString()),
@@ -155,15 +155,21 @@ public final class WindowsBuildExecutor implements BuildExecutor {
                 "failed to execute Windows source-build command");
     }
 
-    private void writeBuildEnvironment(final Path msvcDirectory) {
-        final Optional<Path> msbuildExecutable = windowsPathToolResolver.resolveExecutableOnPath("MSBuild.exe");
-        if (msbuildExecutable.isEmpty()) {
-            return;
-        }
-        final Path msbuildDirectory =
-                Objects.requireNonNull(msbuildExecutable.orElseThrow().getParent(), "msbuildExecutable.parent");
+    private void writeBuildEnvironment(final Path msvcDirectory, final Path perlExecutable) {
+        final List<String> prependedDirectories = new ArrayList<>();
+        // Place the native Windows perl directory first so the nested `perl` invocations
+        // emitted into the generated MSVC project files (gendef.pl, pgbison.pl, pgflex.pl)
+        // resolve to Strawberry perl rather than Git's MSYS perl, whose system() routes
+        // through /bin/sh and strips backslashes from Windows paths (e.g. turning the
+        // tempdir "Release\postgres" into "Releasepostgres").
+        final Path perlDirectory = Objects.requireNonNull(perlExecutable.getParent(), "perlExecutable.parent");
+        prependedDirectories.add(perlDirectory.toString());
+        windowsPathToolResolver.resolveExecutableOnPath("MSBuild.exe")
+                .map(Path::getParent)
+                .map(Path::toString)
+                .ifPresent(prependedDirectories::add);
         final Path buildEnvironmentFile = msvcDirectory.resolve(WINDOWS_BUILDENV_FILE_NAME);
-        writeBuildEnvironmentFile(buildEnvironmentFile, msbuildDirectory);
+        writeBuildEnvironmentFile(buildEnvironmentFile, prependedDirectories);
     }
 
     private static void createDirectories(
@@ -200,10 +206,12 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         return enabled;
     }
 
-    static String buildEnvironmentScriptContent(final String msbuildDirectory) {
-        final String normalizedDirectory =
-                Objects.requireNonNull(msbuildDirectory, "msbuildDirectory").replace("\\", "/");
-        return String.format(Locale.ROOT, "$ENV{PATH} = \"%s;$ENV{PATH}\";%n", normalizedDirectory);
+    static String buildEnvironmentScriptContent(final List<String> prependedDirectories) {
+        final String joinedDirectories =
+                Objects.requireNonNull(prependedDirectories, "prependedDirectories").stream()
+                        .map(directory -> Objects.requireNonNull(directory, "directory").replace("\\", "/"))
+                        .collect(Collectors.joining(";"));
+        return String.format(Locale.ROOT, "$ENV{PATH} = \"%s;$ENV{PATH}\";%n", joinedDirectories);
     }
 
     static String windowsDiagnosticsScriptContent(final String diagnosticsOutputPath) {
@@ -236,11 +244,12 @@ public final class WindowsBuildExecutor implements BuildExecutor {
         }
     }
 
-    private static void writeBuildEnvironmentFile(final Path buildEnvironmentFile, final Path msbuildDirectory) {
+    private static void writeBuildEnvironmentFile(
+            final Path buildEnvironmentFile, final List<String> prependedDirectories) {
         try {
             Files.writeString(
                     buildEnvironmentFile,
-                    buildEnvironmentScriptContent(msbuildDirectory.toString()),
+                    buildEnvironmentScriptContent(prependedDirectories),
                     StandardCharsets.UTF_8);
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to write Windows build environment file", exception);

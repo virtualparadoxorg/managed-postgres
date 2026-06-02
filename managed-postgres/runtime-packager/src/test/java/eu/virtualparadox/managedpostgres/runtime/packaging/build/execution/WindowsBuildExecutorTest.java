@@ -93,8 +93,11 @@ final class WindowsBuildExecutorTest {
         assertThat(sourceTree.resolve("src/tools/msvc/install.invocation")).hasContent(installTree.toString());
         assertThat(sourceTree.resolve("src/tools/msvc/perl.invocation"))
                 .hasContent(toolDirectory.resolve("Strawberry/perl/bin/perl.exe").toString());
+        final String strawberryPerlDirectory =
+                toolDirectory.resolve("Strawberry/perl/bin").toString().replace("\\", "/");
+        final String msbuildDirectory = toolDirectory.toString().replace("\\", "/");
         assertThat(sourceTree.resolve("src/tools/msvc/buildenv.pl"))
-                .hasContent("$ENV{PATH} = \"" + toolDirectory.toString().replace("\\", "/") + ";$ENV{PATH}\";\n");
+                .hasContent("$ENV{PATH} = \"" + strawberryPerlDirectory + ";" + msbuildDirectory + ";$ENV{PATH}\";\n");
     }
 
     @Test
@@ -175,9 +178,10 @@ final class WindowsBuildExecutorTest {
     }
 
     @Test
-    void buildEnvironmentScriptPrependsResolvedMsbuildDirectory() {
-        assertThat(WindowsBuildExecutor.buildEnvironmentScriptContent("C:\\VS\\MSBuild\\Current\\Bin\\amd64"))
-                .isEqualTo("$ENV{PATH} = \"C:/VS/MSBuild/Current/Bin/amd64;$ENV{PATH}\";\n");
+    void buildEnvironmentScriptPrependsResolvedPerlAndMsbuildDirectories() {
+        assertThat(WindowsBuildExecutor.buildEnvironmentScriptContent(
+                        List.of("C:\\Strawberry\\perl\\bin", "C:\\VS\\MSBuild\\Current\\Bin\\amd64")))
+                .isEqualTo("$ENV{PATH} = \"C:/Strawberry/perl/bin;C:/VS/MSBuild/Current/Bin/amd64;$ENV{PATH}\";\n");
     }
 
     private Path createWindowsSourceTree() throws IOException {

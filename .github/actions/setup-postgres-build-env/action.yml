@@ -37,24 +37,27 @@ runs:
         refreshenv
         perl -v | Out-Null
 
-        $shimDir = Join-Path $env:RUNNER_TEMP "managed-postgres-winflexbison"
-        New-Item -ItemType Directory -Path $shimDir -Force | Out-Null
+        # PostgreSQL's MSVC build invokes bare `bison`/`flex`, but winflexbison ships
+        # the tools as `win_bison.exe`/`win_flex.exe`. We create PostgreSQL-compatible
+        # aliases *inside* the winflexbison tools directory so the bundled `data`
+        # skeleton directory stays adjacent (win_bison resolves its skeletons relative
+        # to the executable), then expose that directory on PATH.
+        #
+        # We deliberately resolve the real binaries rather than copying the Chocolatey
+        # shim returned by (Get-Command ...).Source: the shim launches the real binary
+        # through a path relative to its own location, so copying it elsewhere yields
+        # "Cannot find file ... This usually indicates a missing or moved file".
+        $winBisonShim = (Get-Command win_bison.exe -ErrorAction Stop).Source
+        $chocolateyRoot = Split-Path -Parent (Split-Path -Parent $winBisonShim)
+        $toolsDir = Join-Path $chocolateyRoot "lib\winflexbison3\tools"
 
-        $winBison = (Get-Command win_bison.exe -ErrorAction Stop).Source
-        $winFlex = (Get-Command win_flex.exe -ErrorAction Stop).Source
-
-        @(
-          @{
-            Name = "bison.exe"
-            Target = $winBison
-          },
-          @{
-            Name = "flex.exe"
-            Target = $winFlex
-          }
-        ) | ForEach-Object {
-          $shimPath = Join-Path $shimDir $_.Name
-          Copy-Item -Path $_.Target -Destination $shimPath -Force
+        $realBison = Join-Path $toolsDir "win_bison.exe"
+        $realFlex = Join-Path $toolsDir "win_flex.exe"
+        if (-not (Test-Path $realBison) -or -not (Test-Path $realFlex)) {
+          throw "winflexbison tools not found under $toolsDir"
         }
 
-        $shimDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Copy-Item -Path $realBison -Destination (Join-Path $toolsDir "bison.exe") -Force
+        Copy-Item -Path $realFlex -Destination (Join-Path $toolsDir "flex.exe") -Force
+
+        $toolsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
