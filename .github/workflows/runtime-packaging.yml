@@ -41,6 +41,16 @@ jobs:
             target: linux-x86_64-glibc
           - runner: windows-2025
             target: windows-x86_64
+          - runner: ubuntu-24.04-arm
+            target: linux-aarch64-glibc
+          - runner: ubuntu-24.04
+            target: linux-x86_64-musl
+            container_image: alpine:3.21
+            docker_platform: linux/amd64
+          - runner: ubuntu-24.04-arm
+            target: linux-aarch64-musl
+            container_image: alpine:3.21
+            docker_platform: linux/arm64
 
     steps:
       - name: Check out repository
@@ -56,7 +66,9 @@ jobs:
       - name: Prepare runner build prerequisites
         uses: ./.github/actions/setup-postgres-build-env
         with:
-          skip-install: ${{ inputs.smoke_mode }}
+          # musl targets build inside an Alpine container (deps installed there via apk),
+          # so the host runner needs no toolchain install — only Docker, which is preinstalled.
+          skip-install: ${{ (inputs.smoke_mode || matrix.container_image != '') && 'true' || 'false' }}
 
       - name: Create smoke install tree
         if: ${{ inputs.smoke_mode }}
@@ -75,7 +87,19 @@ jobs:
           DIST_DIR: dist/${{ matrix.target }}
           RAW_INSTALL_TREE: ${{ inputs.smoke_mode && format('{0}/target/runtime-packaging-smoke/{1}/raw-install', github.workspace, matrix.target) || '' }}
           MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS: ${{ !inputs.smoke_mode && runner.os == 'Windows' && '1' || '' }}
-        run: ./scripts/runtime-packaging/build-phase1.sh
+          SMOKE_MODE: ${{ inputs.smoke_mode }}
+          MUSL_CONTAINER_IMAGE: ${{ matrix.container_image }}
+          MUSL_DOCKER_PLATFORM: ${{ matrix.docker_platform }}
+          # Some hosted-runner images ship Maven below the enforced minimum (e.g. the
+          # ubuntu-24.04-arm image has 3.9.12). Use the pinned wrapper on host-built Linux
+          # targets. macOS/Windows keep their preinstalled mvn; musl runs the wrapper in-container.
+          BUILD_PHASE1_MAVEN_CMD: ${{ (runner.os == 'Linux' && matrix.container_image == '') && './mvnw' || '' }}
+        run: |
+          if [[ -n "${MUSL_CONTAINER_IMAGE:-}" && "${SMOKE_MODE}" != "true" ]]; then
+            ./scripts/runtime-packaging/build-phase1-musl.sh
+          else
+            ./scripts/runtime-packaging/build-phase1.sh
+          fi
 
       - name: Diagnose source-build failure
         if: ${{ failure() && !inputs.smoke_mode }}
