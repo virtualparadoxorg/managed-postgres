@@ -77,54 +77,24 @@ jobs:
           MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS: ${{ !inputs.smoke_mode && runner.os == 'Windows' && '1' || '' }}
         run: ./scripts/runtime-packaging/build-phase1.sh
 
-      - name: Diagnose Unix source-build failure
-        if: ${{ failure() && !inputs.smoke_mode && runner.os != 'Windows' }}
+      - name: Diagnose source-build failure
+        if: ${{ failure() && !inputs.smoke_mode }}
         shell: bash
         env:
           TARGET_PLATFORM: ${{ matrix.target }}
         run: |
           set -x
           work_root="${GITHUB_WORKSPACE}/target/runtime-packaging-work/${TARGET_PLATFORM}"
-          build_lmgr="${work_root}/build/${TARGET_PLATFORM}/src/backend/storage/lmgr"
-          source_lmgr="${work_root}/source/${TARGET_PLATFORM}"/postgresql-*/src/backend/storage/lmgr
-          ls -la "${build_lmgr}" || true
-          ls -la ${source_lmgr} || true
-          find "${work_root}" -name 'lwlocknames.c' -o -name 'lwlocknames.h' -o -name 'lwlocknames.o' | sort || true
-          for file in "${build_lmgr}/lwlocknames.o" ${source_lmgr}/lwlocknames.c ${source_lmgr}/lwlocknames.h; do
-            if [[ -f "${file}" ]]; then
-              echo "=== ${file}"
-              wc -c "${file}" || true
+          meson_build="${work_root}/build/${TARGET_PLATFORM}/meson"
+          for log in "${meson_build}/meson-logs/meson-log.txt" \
+                     "${meson_build}/meson-logs/testlog.txt"; do
+            if [[ -f "${log}" ]]; then
+              echo "=== ${log}"
+              tail -n 200 "${log}" || true
             fi
           done
-          if [[ -f "${build_lmgr}/lwlocknames.o" ]]; then
-            nm "${build_lmgr}/lwlocknames.o" | rg 'IndividualLWLockNames| U ' || true
-          fi
-          if [[ -f "${build_lmgr}/lwlock.o" ]]; then
-            nm "${build_lmgr}/lwlock.o" | rg 'IndividualLWLockNames|GetLWLockIdentifier|GetLWTrancheName' || true
-          fi
-          if ls ${source_lmgr}/lwlocknames.c >/dev/null 2>&1; then
-            sed -n '1,40p' ${source_lmgr}/lwlocknames.c || true
-          fi
-
-      - name: Diagnose Windows source-build failure
-        if: ${{ failure() && !inputs.smoke_mode && runner.os == 'Windows' }}
-        shell: bash
-        run: |
-          set -x
-          diagnostics_file="${GITHUB_WORKSPACE}/target/runtime-packaging-work/windows-x86_64/build/windows-x86_64/managed-postgres-windows-env-probe.txt"
-          if [[ -f "${diagnostics_file}" ]]; then
-            echo "=== ${diagnostics_file}"
-            cat "${diagnostics_file}"
-          fi
-          where.exe msbuild || true
-          where.exe cl || true
-          where.exe mvn || true
-          where.exe mvn.cmd || true
-          where.exe link || true
-          where.exe perl || true
-          ls -la "/c/Program Files/Microsoft Visual Studio" || true
-          find "${GITHUB_WORKSPACE}/target/runtime-packaging-work/windows-x86_64" -maxdepth 6 \
-            \( -name build.pl -o -name Solution.pm -o -name lwlocknames.c -o -name lwlocknames.h \) | sort || true
+          command -v meson >/dev/null 2>&1 && meson --version || true
+          command -v ninja >/dev/null 2>&1 && ninja --version || true
 
       - name: Publish runtime bundle metadata
         id: publish
