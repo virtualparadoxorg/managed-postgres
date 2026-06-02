@@ -37,12 +37,10 @@ jobs:
             target: macos-x86_64
           - runner: macos-latest
             target: macos-aarch64
-          # TEMPORARILY DISABLED while validating macOS builds (hosted-runner cost).
-          # Re-enable both before the final full-matrix run.
-          # - runner: ubuntu-24.04
-          #   target: linux-x86_64-glibc
-          # - runner: windows-2025
-          #   target: windows-x86_64
+          - runner: ubuntu-24.04
+            target: linux-x86_64-glibc
+          - runner: windows-2025
+            target: windows-x86_64
 
     steps:
       - name: Check out repository
