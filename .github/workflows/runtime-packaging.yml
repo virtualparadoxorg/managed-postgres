@@ -120,7 +120,7 @@ jobs:
           command -v meson >/dev/null 2>&1 && meson --version || true
           command -v ninja >/dev/null 2>&1 && ninja --version || true
 
-      - name: Publish runtime bundle metadata
+      - name: Resolve runtime bundle artifact metadata
         id: publish
         shell: bash
         env:
@@ -128,9 +128,6 @@ jobs:
           PACKAGING_REVISION: ${{ inputs.packaging_revision }}
           TARGET_PLATFORM: ${{ matrix.target }}
           DIST_DIR: dist/${{ matrix.target }}
-          PUBLISH_GITHUB_RELEASE: ${{ inputs.publish_release }}
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ github.token }}
         run: ./scripts/runtime-packaging/publish-phase1.sh
 
       - name: Upload workflow artifacts
@@ -139,3 +136,45 @@ jobs:
           name: ${{ steps.publish.outputs.artifact_name }}
           path: ${{ steps.publish.outputs.artifact_path }}
           if-no-files-found: error
+
+  publish:
+    name: Publish release pg${{ inputs.postgres_version }}-${{ inputs.packaging_revision }}
+    needs: package
+    if: ${{ inputs.publish_release && !inputs.smoke_mode }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Download all platform bundles
+        uses: actions/download-artifact@v7
+        with:
+          path: dist-release
+          merge-multiple: true
+
+      - name: Generate consolidated manifest.json and SHA256SUMS
+        shell: bash
+        env:
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+          RELEASE_DIR: dist-release
+        run: ./scripts/runtime-packaging/finalize-release.sh
+
+      - name: Create or update GitHub release (single, race-free)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+        run: |
+          set -euo pipefail
+          tag="pg${POSTGRES_VERSION}-${PACKAGING_REVISION}"
+          if ! gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" \
+              --notes "Managed Postgres runtime bundles for PostgreSQL ${POSTGRES_VERSION} (revision ${PACKAGING_REVISION}). Verify downloads against SHA256SUMS / manifest.json."
+          fi
+          gh release upload "${tag}" \
+            dist-release/*.zip dist-release/SHA256SUMS dist-release/manifest.json \
+            --repo "${GITHUB_REPOSITORY}" --clobber
