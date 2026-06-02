@@ -94,4 +94,21 @@ final class PlatformBuildDriverTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Windows");
     }
+
+    @Test
+    void exposesMinimalMesonFeatureDisableSet() {
+        final PlatformBuildDriver driver = PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64);
+
+        final java.util.Map<String, String> settings = driver.mesonFeatureSettings();
+
+        assertThat(settings)
+                .containsEntry("readline", "disabled")
+                .containsEntry("zlib", "disabled")
+                .containsEntry("ssl", "none")
+                .containsEntry("uuid", "none")
+                .containsEntry("libcurl", "disabled")
+                .containsEntry("plperl", "disabled")
+                .containsEntry("docs", "disabled");
+        assertThat(settings).doesNotContainKey("prefix");
+    }
 }

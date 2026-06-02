@@ -2,7 +2,10 @@ package eu.virtualparadox.managedpostgres.runtime.packaging.build;
 
 import eu.virtualparadox.managedpostgres.runtime.packaging.TargetPlatform;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -53,6 +56,29 @@ public sealed interface PlatformBuildDriver
                 "--without-gssapi",
                 "--without-pam",
                 "--without-llvm");
+    }
+
+    /**
+     * Returns the platform-independent minimal set of Meson feature settings
+     * (option name to value) that keep the runtime bundle small and portable.
+     *
+     * <p>The build executor filters these against the options actually declared
+     * by the source version and supplies the install prefix itself.
+     *
+     * @return ordered map of meson option name to value
+     */
+    default Map<String, String> mesonFeatureSettings() {
+        final LinkedHashMap<String, String> settings = new LinkedHashMap<>();
+        for (final String feature : List.of(
+                "readline", "zlib", "icu", "ldap", "gssapi", "pam", "llvm", "nls",
+                "libxml", "libxslt", "lz4", "zstd", "systemd", "selinux", "libcurl",
+                "plperl", "plpython", "pltcl", "tap_tests", "docs", "docs_pdf",
+                "bonjour", "bsd_auth", "dtrace")) {
+            settings.put(feature, "disabled");
+        }
+        settings.put("ssl", "none");
+        settings.put("uuid", "none");
+        return Collections.unmodifiableMap(settings);
     }
 
     /**
