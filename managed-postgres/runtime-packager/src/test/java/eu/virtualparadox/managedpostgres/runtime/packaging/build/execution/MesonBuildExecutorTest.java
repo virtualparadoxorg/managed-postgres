@@ -92,6 +92,63 @@ final class MesonBuildExecutorTest {
         return path;
     }
 
+    @Test
+    void recoversFromConflictingPreGeneratedSourceFiles() throws Exception {
+        final Path sourceTree = tempDir.resolve("src");
+        Files.createDirectories(sourceTree);
+        Files.writeString(sourceTree.resolve("meson_options.txt"),
+                "option('readline', type : 'feature', value : 'auto')\n", StandardCharsets.UTF_8);
+        final Path conflicting = sourceTree.resolve("gram.c");
+        Files.writeString(conflicting, "pre-generated", StandardCharsets.UTF_8);
+
+        final Path meson = fakeMesonWithConflict(tempDir.resolve("tools2").resolve("meson"));
+        final Path buildDirectory = tempDir.resolve("build2");
+
+        final MesonBuildExecutor executor = new MesonBuildExecutor(
+                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+
+        final Path installTree = executor.build(
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                release(), sourceTree, buildDirectory);
+
+        assertThat(conflicting).doesNotExist();
+        assertThat(installTree.resolve("bin/postgres")).exists();
+    }
+
+    private static Path fakeMesonWithConflict(final Path path) throws Exception {
+        Files.createDirectories(path.getParent());
+        Files.writeString(path, """
+                #!/bin/sh
+                set -eu
+                sub="$1"
+                case "$sub" in
+                  setup)
+                    builddir="$2"; srcdir="$3"
+                    mkdir -p "$builddir"
+                    if [ -f "$srcdir/gram.c" ]; then
+                      echo "Conflicting files in source directory:"
+                      echo "  $srcdir/gram.c"
+                      echo "The conflicting files need to be removed, either by removing the files listed"
+                      echo "above, or by running configure and then make maintainer-clean."
+                      exit 1
+                    fi
+                    printf '%s\\n' "$srcdir" > "$builddir/.srcdir"
+                    for a in "$@"; do case "$a" in --prefix=*) printf '%s\\n' "${a#--prefix=}" > "$builddir/.prefix";; esac; done
+                    ;;
+                  compile)
+                    :
+                    ;;
+                  install)
+                    builddir="$3"; prefix="$(cat "$builddir/.prefix")"
+                    mkdir -p "$prefix/bin"; : > "$prefix/bin/postgres"
+                    ;;
+                esac
+                """, StandardCharsets.UTF_8);
+        Files.setPosixFilePermissions(path, EnumSet.of(
+                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+        return path;
+    }
+
     private static PostgresRelease release() {
         return new PostgresRelease(16, "16.14", URI.create("file:///tmp/postgresql-16.14.tar.gz"), "abc123");
     }

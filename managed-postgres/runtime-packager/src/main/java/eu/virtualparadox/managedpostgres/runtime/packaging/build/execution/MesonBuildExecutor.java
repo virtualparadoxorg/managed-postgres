@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Builds PostgreSQL from source with Meson and Ninja on every supported platform and version.
@@ -23,7 +25,10 @@ import java.util.regex.Pattern;
 public final class MesonBuildExecutor implements BuildExecutor {
 
     private static final Pattern OPTION_NAME = Pattern.compile("option\\(\\s*'([^']+)'");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s+");
     private static final List<String> OPTION_FILE_NAMES = List.of("meson.options", "meson_options.txt");
+    private static final String CONFLICT_MARKER = "Conflicting files in source directory:";
+    private static final String CONFLICT_FOOTER = "The conflicting files need to be removed";
 
     private final Map<String, String> environmentOverrides;
     private final List<String> mesonCommand;
@@ -63,8 +68,9 @@ public final class MesonBuildExecutor implements BuildExecutor {
         final Path mesonBuildDirectory = validatedBuildDirectory.resolve("meson");
         createDirectories(validatedBuildDirectory, installDirectory);
 
-        runCommand(setupCommand(validatedDriver, validatedSourceTree, mesonBuildDirectory, installDirectory),
-                validatedBuildDirectory);
+        runMesonSetup(
+                setupCommand(validatedDriver, validatedSourceTree, mesonBuildDirectory, installDirectory),
+                validatedSourceTree, mesonBuildDirectory, validatedBuildDirectory);
         runCommand(mesonCommandWith("compile", "-C", mesonBuildDirectory.toString()), validatedBuildDirectory);
         runCommand(mesonCommandWith("install", "-C", mesonBuildDirectory.toString()), validatedBuildDirectory);
         return installDirectory;
@@ -89,6 +95,34 @@ public final class MesonBuildExecutor implements BuildExecutor {
         return command;
     }
 
+    /**
+     * Runs {@code meson setup}, recovering once from a "conflicting files" failure.
+     *
+     * <p>Some PostgreSQL release tarballs (e.g. 16.x) ship pre-generated in-tree files
+     * that Meson refuses to build over. Meson lists them; we remove exactly those files,
+     * wipe the partial build directory, and retry. A second failure propagates.
+     */
+    private void runMesonSetup(
+            final List<String> setupCommand,
+            final Path sourceTree,
+            final Path mesonBuildDirectory,
+            final Path workingDirectory) {
+        try {
+            runCommand(setupCommand, workingDirectory);
+            return;
+        } catch (IllegalStateException firstFailure) {
+            final String failureMessage = firstFailure.getMessage();
+            final List<Path> conflicts =
+                    parseConflictingFiles(failureMessage == null ? "" : failureMessage, sourceTree);
+            if (conflicts.isEmpty()) {
+                throw firstFailure;
+            }
+            deleteFiles(conflicts);
+            wipeDirectory(mesonBuildDirectory);
+        }
+        runCommand(setupCommand, workingDirectory);
+    }
+
     private List<String> mesonCommandWith(final String... arguments) {
         final List<String> command = new ArrayList<>(mesonCommand);
         command.addAll(List.of(arguments));
@@ -98,6 +132,56 @@ public final class MesonBuildExecutor implements BuildExecutor {
     private void runCommand(final List<String> command, final Path workingDirectory) {
         processCommandExecutor.runCommand(
                 command, workingDirectory, environmentOverrides, "failed to execute Meson source-build command");
+    }
+
+    private static List<Path> parseConflictingFiles(final String message, final Path sourceTree) {
+        if (!message.contains(CONFLICT_MARKER)) {
+            return List.of();
+        }
+        final int start = message.indexOf(CONFLICT_MARKER) + CONFLICT_MARKER.length();
+        final int footer = message.indexOf(CONFLICT_FOOTER, start);
+        final String region = footer < 0 ? message.substring(start) : message.substring(start, footer);
+        final Path normalizedSource = sourceTree.toAbsolutePath().normalize();
+        final List<Path> conflicts = new ArrayList<>();
+        for (final String token : WHITESPACE.split(region, -1)) {
+            if (token.isEmpty()) {
+                continue;
+            }
+            final Path candidate = Path.of(token).toAbsolutePath().normalize();
+            if (candidate.startsWith(normalizedSource) && Files.isRegularFile(candidate)) {
+                conflicts.add(candidate);
+            }
+        }
+        return conflicts;
+    }
+
+    private static void deleteFiles(final List<Path> files) {
+        for (final Path file : files) {
+            try {
+                Files.deleteIfExists(file);
+            } catch (IOException exception) {
+                throw new UncheckedIOException("failed to remove conflicting source file: " + file, exception);
+            }
+        }
+    }
+
+    private static void wipeDirectory(final Path directory) {
+        if (!Files.exists(directory)) {
+            return;
+        }
+        try (Stream<Path> paths = Files.walk(directory)) {
+            paths.sorted(Comparator.reverseOrder()).forEach(MesonBuildExecutor::deleteQuietly);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to wipe meson build directory: " + directory, exception);
+        }
+    }
+
+    private static void deleteQuietly(final Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to delete build directory entry: " + path, exception);
+        }
     }
 
     private static Set<String> declaredOptions(final Path sourceTree) {
