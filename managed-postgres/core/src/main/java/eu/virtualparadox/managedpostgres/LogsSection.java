@@ -9,7 +9,7 @@ package eu.virtualparadox.managedpostgres;
 public interface LogsSection extends ManagedPostgresBuilder {
 
     /**
-     * Writes PostgreSQL logs to files only (no SLF4J bridging).
+     * Writes PostgreSQL logs to files only (no SLF4J bridging). Clears any previously set SLF4J bridge.
      *
      * @return the logs section
      */

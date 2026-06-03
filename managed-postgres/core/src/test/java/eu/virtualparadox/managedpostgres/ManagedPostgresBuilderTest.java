@@ -116,7 +116,9 @@ public final class ManagedPostgresBuilderTest {
     @Test
     void builderStoresOptionalSlf4jLogBridgeConfiguration() {
         assertThat(ManagedPostgres.builder()
-                        .logs(logs -> logs.toSlf4j().loggerName("managed.postgres.test"))
+                        .logs()
+                        .toSlf4j()
+                        .loggerName("managed.postgres.test")
                         .build()
                         .toString())
                 .contains("bridgeToSlf4j=true")
@@ -156,16 +158,6 @@ public final class ManagedPostgresBuilderTest {
         assertThat(ManagedPostgres.builder().reuseExisting().build().toString())
                 .contains("attachPolicy=ATTACH_IF_COMPATIBLE")
                 .contains("stopPolicy=KEEP_RUNNING");
-    }
-
-    @Test
-    void builderRejectsInvalidLogsCustomizer() throws ReflectiveOperationException {
-        assertThatThrownBy(ManagedPostgresBuilderTest::invokeLogsCustomizerWithNull)
-                .hasCauseInstanceOf(NullPointerException.class)
-                .hasRootCauseMessage("customizer");
-        assertThatThrownBy(() -> ManagedPostgres.builder().logs(logs -> null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("logs");
     }
 
     @Test
@@ -286,12 +278,6 @@ public final class ManagedPostgresBuilderTest {
     private static void invokeClusterCustomizerWithNull() throws ReflectiveOperationException {
         ManagedPostgresBuilder.class
                 .getMethod("cluster", UnaryOperator.class)
-                .invoke(ManagedPostgres.builder(), new Object[] {null});
-    }
-
-    private static void invokeLogsCustomizerWithNull() throws ReflectiveOperationException {
-        ManagedPostgresBuilder.class
-                .getMethod("logs", UnaryOperator.class)
                 .invoke(ManagedPostgres.builder(), new Object[] {null});
     }
 }
