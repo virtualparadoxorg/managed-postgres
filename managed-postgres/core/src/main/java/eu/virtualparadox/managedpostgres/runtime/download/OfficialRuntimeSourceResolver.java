@@ -25,9 +25,15 @@ import java.util.function.Supplier;
  * and returns a source pointing at the concrete {@code https} archive URL with that checksum.
  * Any other (custom) repository is returned unchanged.
  */
+@SuppressWarnings({
+        // The resolver intentionally orchestrates the runtime source, repository, platform and HTTP
+        // types to turn an official/github-release source into a concrete, verified download.
+        "PMD.CouplingBetweenObjects"
+})
 public final class OfficialRuntimeSourceResolver {
 
     static final String OFFICIAL_SCHEME = "managed-postgres";
+    static final String GITHUB_RELEASE_SCHEME = "github-release";
     private static final String DOWNLOADED_KIND = "downloaded";
     private static final String DEFAULT_BASE_URL = "https://github.com/virtualparadoxorg/managed-postgres-runtimes";
     private static final String DEFAULT_REVISION = "r1";
@@ -69,15 +75,16 @@ public final class OfficialRuntimeSourceResolver {
         final RuntimeSource result;
         if (!DOWNLOADED_KIND.equals(source.kind())
                 || downloaded.isEmpty()
-                || !isOfficial(downloaded.orElseThrow().repository())) {
+                || !isManagedRelease(downloaded.orElseThrow().repository())) {
             result = source;
         } else {
+            final String releaseBaseUrl = baseUrlFor(downloaded.orElseThrow().repository().orElseThrow());
             final String target = targetSupplier.get();
             final String tag = "pg" + postgresqlVersion + "-" + revision;
             final String archiveName =
                     "managed-postgres-runtime-pg" + postgresqlVersion + "-" + target + "-" + revision + ".zip";
-            final URI archiveUri = URI.create(baseUrl + "/releases/download/" + tag + "/" + archiveName);
-            final URI checksumUri = URI.create(baseUrl + "/releases/download/" + tag + "/SHA256SUMS");
+            final URI archiveUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/" + archiveName);
+            final URI checksumUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/SHA256SUMS");
             final String checksumHex = findChecksum(textFetcher.apply(checksumUri), archiveName, checksumUri);
             final DownloadedRuntime resolved = downloaded.orElseThrow()
                     .repository(RuntimeRepository.custom(archiveUri))
@@ -88,10 +95,28 @@ public final class OfficialRuntimeSourceResolver {
         return result;
     }
 
-    private static boolean isOfficial(final Optional<RuntimeRepository> repository) {
-        // Opt-in only: an explicit official() repository triggers manifest resolution. An absent
-        // repository keeps the existing cache-only / unconfigured semantics untouched.
-        return repository.isPresent() && OFFICIAL_SCHEME.equals(repository.orElseThrow().uri().getScheme());
+    private static boolean isManagedRelease(final Optional<RuntimeRepository> repository) {
+        // Opt-in only: an official() or github-release repository triggers manifest resolution. An
+        // absent or direct (http/file) repository keeps the existing semantics untouched.
+        final boolean managed;
+        if (repository.isEmpty()) {
+            managed = false;
+        } else {
+            final String scheme = repository.orElseThrow().uri().getScheme();
+            managed = OFFICIAL_SCHEME.equals(scheme) || GITHUB_RELEASE_SCHEME.equals(scheme);
+        }
+        return managed;
+    }
+
+    private String baseUrlFor(final RuntimeRepository repository) {
+        final URI uri = repository.uri();
+        final String resolvedBase;
+        if (GITHUB_RELEASE_SCHEME.equals(uri.getScheme())) {
+            resolvedBase = "https://github.com/" + uri.getAuthority() + uri.getPath();
+        } else {
+            resolvedBase = baseUrl;
+        }
+        return resolvedBase;
     }
 
     private static String findChecksum(final String sha256sums, final String archiveName, final URI checksumUri) {
