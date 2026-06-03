@@ -38,6 +38,22 @@ final class RuntimeArchiveExtractorZipTest {
     }
 
     @Test
+    void reExtractingOverAnExistingTreeOverwritesIdempotently() throws IOException {
+        final Path archive = zipArchive(
+                entry("PG_VERSION", "16"),
+                entry("bin/pg_ctl", "pg_ctl"),
+                entry("bin/postgres", "postgres"));
+        final Path staging = temporaryDirectory.resolve("staging");
+
+        new RuntimeArchiveExtractor().extract(archive, staging);
+        // A second extraction into the same directory must succeed (not fail on existing files).
+        new RuntimeArchiveExtractor().extract(archive, staging);
+
+        assertRuntimeFiles(staging);
+        assertThat(Files.readString(staging.resolve("PG_VERSION"))).isEqualTo("16");
+    }
+
+    @Test
     void zipParentDirectoriesAreCreatedBeforeFiles() throws IOException {
         final Path archive = zipArchive(entry("runtime/nested/PG_VERSION", "16"));
         final Path staging = temporaryDirectory.resolve("staging");
