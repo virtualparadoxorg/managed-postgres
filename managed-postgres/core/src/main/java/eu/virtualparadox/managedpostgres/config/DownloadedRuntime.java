@@ -108,7 +108,8 @@ public record DownloadedRuntime(
      * @return updated downloaded runtime configuration
      */
     public DownloadedRuntime checksum(final String newChecksum) {
-        return new DownloadedRuntime(repository, cache, Optional.of(requireNotBlank(newChecksum, "checksum")), signature);
+        return new DownloadedRuntime(
+                repository, cache, Optional.of(requireNotBlank(newChecksum, "checksum")), signature);
     }
 
     /**
@@ -129,10 +130,7 @@ public record DownloadedRuntime(
      */
     public DownloadedRuntime signature(final RuntimeSignature newSignature) {
         return new DownloadedRuntime(
-                repository,
-                cache,
-                checksum,
-                Optional.of(Objects.requireNonNull(newSignature, "newSignature")));
+                repository, cache, checksum, Optional.of(Objects.requireNonNull(newSignature, "newSignature")));
     }
 
     /**

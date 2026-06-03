@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +11,7 @@ import java.util.Map;
  */
 public final class PostgresRestoreOperations {
 
-    private PostgresRestoreOperations() {
-    }
+    private PostgresRestoreOperations() {}
 
     /**
      * Returns the unsupported result.
@@ -24,8 +23,7 @@ public final class PostgresRestoreOperations {
             throw new PostgresRestoreException(
                     "PostgreSQL logical restore execution is not configured",
                     new DiagnosticReport(List.of(new DiagnosticSection(
-                            "postgres-restore",
-                            Map.of("reason", "restore execution is not configured")))));
+                            "postgres-restore", Map.of("reason", "restore execution is not configured")))));
         };
     }
 }

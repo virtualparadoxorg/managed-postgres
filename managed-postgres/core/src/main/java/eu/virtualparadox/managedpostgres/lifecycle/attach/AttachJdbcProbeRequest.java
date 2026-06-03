@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
-import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import java.util.Objects;
 
 /**
  * Request passed to an attach JDBC probe.
@@ -13,9 +13,7 @@ import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
  * @param layout expected PostgreSQL layout
  */
 public record AttachJdbcProbeRequest(
-        PostgresInstanceMetadata metadata,
-        StartPostgresWorkflow.Configuration configuration,
-        PostgresLayout layout) {
+        PostgresInstanceMetadata metadata, StartPostgresWorkflow.Configuration configuration, PostgresLayout layout) {
 
     /**
      * Defines the value value.

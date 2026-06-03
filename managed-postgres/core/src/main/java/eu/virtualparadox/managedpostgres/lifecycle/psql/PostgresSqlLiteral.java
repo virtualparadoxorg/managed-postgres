@@ -7,8 +7,7 @@ import java.util.Objects;
  */
 public final class PostgresSqlLiteral {
 
-    private PostgresSqlLiteral() {
-    }
+    private PostgresSqlLiteral() {}
 
     /**
      * Returns the quote result.

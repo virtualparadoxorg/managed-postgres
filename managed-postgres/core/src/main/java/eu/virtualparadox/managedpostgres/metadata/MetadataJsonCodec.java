@@ -23,8 +23,7 @@ public final class MetadataJsonCodec {
 
     private static final Pattern PORT_FIELD = Pattern.compile("\"port\"\\s*:\\s*(\\d+)");
 
-    private MetadataJsonCodec() {
-    }
+    private MetadataJsonCodec() {}
 
     /**
      * Returns the serialize result.
@@ -36,40 +35,40 @@ public final class MetadataJsonCodec {
         Objects.requireNonNull(metadata, "metadata");
 
         return ("{%n"
-                + "  \"schemaVersion\":%d,%n"
-                + "  \"instanceId\":\"%s\",%n"
-                + "  \"clusterId\":\"%s\",%n"
-                + "  \"name\":\"%s\",%n"
-                + "  \"dataDirectory\":\"%s\",%n"
-                + "  \"host\":\"%s\",%n"
-                + "  \"port\":%d,%n"
-                + "  \"database\":\"%s\",%n"
-                + "  \"owner\":\"%s\",%n"
-                + "  \"postgresqlVersion\":\"%s\",%n"
-                + "  \"postgresqlMajor\":%d,%n"
-                + "  \"attachmentMode\":\"%s\",%n"
-                + "  \"pid\":%d,%n"
-                + "  \"configHash\":\"%s\",%n"
-                + "  \"createdAt\":\"%s\",%n"
-                + "  \"updatedAt\":\"%s\"%n"
-                + "}%n")
+                        + "  \"schemaVersion\":%d,%n"
+                        + "  \"instanceId\":\"%s\",%n"
+                        + "  \"clusterId\":\"%s\",%n"
+                        + "  \"name\":\"%s\",%n"
+                        + "  \"dataDirectory\":\"%s\",%n"
+                        + "  \"host\":\"%s\",%n"
+                        + "  \"port\":%d,%n"
+                        + "  \"database\":\"%s\",%n"
+                        + "  \"owner\":\"%s\",%n"
+                        + "  \"postgresqlVersion\":\"%s\",%n"
+                        + "  \"postgresqlMajor\":%d,%n"
+                        + "  \"attachmentMode\":\"%s\",%n"
+                        + "  \"pid\":%d,%n"
+                        + "  \"configHash\":\"%s\",%n"
+                        + "  \"createdAt\":\"%s\",%n"
+                        + "  \"updatedAt\":\"%s\"%n"
+                        + "}%n")
                 .formatted(
-                metadata.schemaVersion(),
-                JsonStrings.escape(metadata.instanceId()),
-                JsonStrings.escape(metadata.clusterId()),
-                JsonStrings.escape(metadata.name()),
-                JsonStrings.escape(metadata.dataDirectory().toString()),
-                JsonStrings.escape(metadata.host()),
-                metadata.port(),
-                JsonStrings.escape(metadata.database()),
-                JsonStrings.escape(metadata.owner()),
-                JsonStrings.escape(metadata.postgresqlVersion()),
-                metadata.postgresqlMajor(),
-                JsonStrings.escape(metadata.attachmentMode()),
-                metadata.pid(),
-                JsonStrings.escape(metadata.configHash()),
-                DateTimeFormatter.ISO_INSTANT.format(metadata.createdAt()),
-                DateTimeFormatter.ISO_INSTANT.format(metadata.updatedAt()));
+                        metadata.schemaVersion(),
+                        JsonStrings.escape(metadata.instanceId()),
+                        JsonStrings.escape(metadata.clusterId()),
+                        JsonStrings.escape(metadata.name()),
+                        JsonStrings.escape(metadata.dataDirectory().toString()),
+                        JsonStrings.escape(metadata.host()),
+                        metadata.port(),
+                        JsonStrings.escape(metadata.database()),
+                        JsonStrings.escape(metadata.owner()),
+                        JsonStrings.escape(metadata.postgresqlVersion()),
+                        metadata.postgresqlMajor(),
+                        JsonStrings.escape(metadata.attachmentMode()),
+                        metadata.pid(),
+                        JsonStrings.escape(metadata.configHash()),
+                        DateTimeFormatter.ISO_INSTANT.format(metadata.createdAt()),
+                        DateTimeFormatter.ISO_INSTANT.format(metadata.updatedAt()));
     }
 
     /**
@@ -84,11 +83,11 @@ public final class MetadataJsonCodec {
         validatePort(port);
 
         return ("{%n"
-                + "  \"schemaVersion\":1,%n"
-                + "  \"metadataKind\":\"port-reservation\",%n"
-                + "  \"key\":\"%s\",%n"
-                + "  \"port\":%d%n"
-                + "}%n")
+                        + "  \"schemaVersion\":1,%n"
+                        + "  \"metadataKind\":\"port-reservation\",%n"
+                        + "  \"key\":\"%s\",%n"
+                        + "  \"port\":%d%n"
+                        + "}%n")
                 .formatted(JsonStrings.escape(checkedKey), port);
     }
 
@@ -104,17 +103,17 @@ public final class MetadataJsonCodec {
         final String checkedReason = requireNotBlank(reason, "reason");
 
         return ("{%n"
-                + "  \"schemaVersion\":1,%n"
-                + "  \"metadataKind\":\"stale-instance-metadata\",%n"
-                + "  \"staleReason\":\"%s\",%n"
-                + "  \"instanceId\":\"%s\",%n"
-                + "  \"clusterId\":\"%s\",%n"
-                + "  \"name\":\"%s\",%n"
-                + "  \"dataDirectory\":\"%s\",%n"
-                + "  \"host\":\"%s\",%n"
-                + "  \"port\":%d,%n"
-                + "  \"updatedAt\":\"%s\"%n"
-                + "}%n")
+                        + "  \"schemaVersion\":1,%n"
+                        + "  \"metadataKind\":\"stale-instance-metadata\",%n"
+                        + "  \"staleReason\":\"%s\",%n"
+                        + "  \"instanceId\":\"%s\",%n"
+                        + "  \"clusterId\":\"%s\",%n"
+                        + "  \"name\":\"%s\",%n"
+                        + "  \"dataDirectory\":\"%s\",%n"
+                        + "  \"host\":\"%s\",%n"
+                        + "  \"port\":%d,%n"
+                        + "  \"updatedAt\":\"%s\"%n"
+                        + "}%n")
                 .formatted(
                         JsonStrings.escape(checkedReason),
                         JsonStrings.escape(checkedMetadata.instanceId()),
@@ -137,8 +136,7 @@ public final class MetadataJsonCodec {
         final Matcher matcher = PORT_FIELD.matcher(Objects.requireNonNull(metadataContent, "metadataContent"));
         if (!matcher.find()) {
             throw new ManagedPostgresException(
-                    "PostgreSQL metadata does not contain a valid port",
-                    diagnostic(metadataPath));
+                    "PostgreSQL metadata does not contain a valid port", diagnostic(metadataPath));
         }
 
         return parseAndValidatePort(metadataPath, matcher.group(1));
@@ -152,8 +150,7 @@ public final class MetadataJsonCodec {
      */
     public static boolean isPortReservation(final String metadataContent) {
         return Strings.CS.contains(
-                Objects.requireNonNull(metadataContent, "metadataContent"),
-                "\"metadataKind\":\"port-reservation\"");
+                Objects.requireNonNull(metadataContent, "metadataContent"), "\"metadataKind\":\"port-reservation\"");
     }
 
     /**
@@ -170,9 +167,7 @@ public final class MetadataJsonCodec {
             throw exception;
         } catch (final DateTimeParseException | IllegalArgumentException exception) {
             throw new ManagedPostgresException(
-                    "Failed to parse PostgreSQL metadata",
-                    exception,
-                    diagnostic(metadataPath));
+                    "Failed to parse PostgreSQL metadata", exception, diagnostic(metadataPath));
         }
     }
 
@@ -203,8 +198,7 @@ public final class MetadataJsonCodec {
         final int parsedPort = parsePortNumber(metadataPath, port);
         if (parsedPort < 1 || parsedPort > 65_535) {
             throw new ManagedPostgresException(
-                    "PostgreSQL metadata contains an invalid port",
-                    diagnostic(metadataPath));
+                    "PostgreSQL metadata contains an invalid port", diagnostic(metadataPath));
         }
 
         return parsedPort;
@@ -237,9 +231,7 @@ public final class MetadataJsonCodec {
             return Integer.parseInt(port);
         } catch (NumberFormatException exception) {
             throw new ManagedPostgresException(
-                    "PostgreSQL metadata contains an invalid port",
-                    exception,
-                    diagnostic(metadataPath));
+                    "PostgreSQL metadata contains an invalid port", exception, diagnostic(metadataPath));
         }
     }
 

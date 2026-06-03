@@ -1,14 +1,14 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
-import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import java.nio.file.Path;
-import java.util.Objects;
+import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Runs pg_dump and converts command failures into backup exceptions.
@@ -54,13 +54,13 @@ public final class PgDumpCommandExecutor {
                     "PostgreSQL pg_dump command failed",
                     exception,
                     diagnostics.commandRunnerFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
+                            Objects.toString(
+                                    exception.getMessage(), exception.getClass().getName()),
                             connectionInfo));
         }
         if (!result.successful()) {
             throw new PostgresBackupException(
-                    "PostgreSQL pg_dump command failed",
-                    diagnostics.commandFailure(result, connectionInfo));
+                    "PostgreSQL pg_dump command failed", diagnostics.commandFailure(result, connectionInfo));
         }
     }
 }

@@ -11,10 +11,7 @@ import java.util.Objects;
  * @param sourceTree extracted PostgreSQL source tree
  * @param buildDirectory target-specific build directory
  */
-public record PreparedSourceWorkspace(
-        PlatformBuildDriver driver,
-        Path sourceTree,
-        Path buildDirectory) {
+public record PreparedSourceWorkspace(PlatformBuildDriver driver, Path sourceTree, Path buildDirectory) {
 
     /**
      * Creates prepared source workspace metadata.

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 final class PostgresReleaseTest {
 
-    PostgresReleaseTest() {
-    }
+    PostgresReleaseTest() {}
 
     @Test
     void storesSemanticVersion() {

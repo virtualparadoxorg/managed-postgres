@@ -35,9 +35,7 @@ public final class DestroyManagedPostgresWorkflow {
      */
     public DestroyManagedPostgresWorkflow() {
         this(
-                new PostgresStopCommand(
-                        new DefaultRuntimeResolver(),
-                        Duration.ofSeconds(30)),
+                new PostgresStopCommand(new DefaultRuntimeResolver(), Duration.ofSeconds(30)),
                 new FileSystemOperationJournal(),
                 new PostgresLockService());
     }
@@ -66,9 +64,7 @@ public final class DestroyManagedPostgresWorkflow {
         }
     }
 
-    private void destroyExistingCluster(
-            final ManagedPostgresConfiguration configuration,
-            final PostgresLayout layout) {
+    private void destroyExistingCluster(final ManagedPostgresConfiguration configuration, final PostgresLayout layout) {
         try (HeldPostgresLocks locks = lockService.acquireLifecycleLocks(layout)) {
             requireLocks(locks);
             destroyLocked(configuration, layout, new MetadataStore(layout.metadataPath(), fileSystem));
@@ -78,7 +74,8 @@ public final class DestroyManagedPostgresWorkflow {
             throw new PostgresDestroyException(
                     "Managed PostgreSQL destroy failed",
                     exception,
-                    CleanupWorkflowDiagnostics.destroy("storage-root", layout.root().toString()));
+                    CleanupWorkflowDiagnostics.destroy(
+                            "storage-root", layout.root().toString()));
         }
     }
 
@@ -115,7 +112,8 @@ public final class DestroyManagedPostgresWorkflow {
         if (configuration.storage().temporaryStorage()) {
             throw new PostgresDestroyException(
                     "Explicit destroy is unsupported for temporary cluster storage",
-                    CleanupWorkflowDiagnostics.destroy("temporary-storage", configuration.storage().path().toString()));
+                    CleanupWorkflowDiagnostics.destroy(
+                            "temporary-storage", configuration.storage().path().toString()));
         }
     }
 
@@ -123,7 +121,8 @@ public final class DestroyManagedPostgresWorkflow {
         if (PostmasterPidFile.readPid(layout.dataDirectory()).isPresent()) {
             throw new PostgresDestroyException(
                     "Managed PostgreSQL destroy refused because live PostgreSQL ownership could not be verified",
-                    CleanupWorkflowDiagnostics.destroy("data-directory", layout.dataDirectory().toString()));
+                    CleanupWorkflowDiagnostics.destroy(
+                            "data-directory", layout.dataDirectory().toString()));
         }
     }
 
@@ -131,7 +130,8 @@ public final class DestroyManagedPostgresWorkflow {
         if (!looksFrameworkManaged(layout)) {
             throw new PostgresDestroyException(
                     "Managed PostgreSQL destroy refused because storage does not look framework-managed",
-                    CleanupWorkflowDiagnostics.destroy("storage-root", layout.root().toString()));
+                    CleanupWorkflowDiagnostics.destroy(
+                            "storage-root", layout.root().toString()));
         }
     }
 

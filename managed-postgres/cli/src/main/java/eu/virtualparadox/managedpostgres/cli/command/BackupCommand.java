@@ -21,10 +21,7 @@ import picocli.CommandLine.Parameters;
 /**
  * Creates a managed PostgreSQL logical backup.
  */
-@Command(
-        name = "backup",
-        description = "Create a managed PostgreSQL backup.",
-        sortOptions = false)
+@Command(name = "backup", description = "Create a managed PostgreSQL backup.", sortOptions = false)
 public final class BackupCommand implements Callable<Integer> {
 
     @Mixin
@@ -81,7 +78,8 @@ public final class BackupCommand implements Callable<Integer> {
                 .withStopPolicy(StopPolicy.KEEP_RUNNING);
         final Path target = backupPath.orElseThrow(() -> new IllegalArgumentException("backup path is required"));
 
-        try (RunningPostgres runningPostgres = context.managedPostgres(configuration).start()) {
+        try (RunningPostgres runningPostgres =
+                context.managedPostgres(configuration).start()) {
             runningPostgres.backupTo(target);
         }
 

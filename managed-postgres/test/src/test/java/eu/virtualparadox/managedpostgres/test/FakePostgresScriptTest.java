@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 final class FakePostgresScriptTest {
 
-    FakePostgresScriptTest() {
-    }
+    FakePostgresScriptTest() {}
 
     @Test
     void scriptRenderingIncludesDelayOutputErrorAndExitCode() {
@@ -29,9 +28,8 @@ final class FakePostgresScriptTest {
 
     @Test
     void explicitScriptBodyReplacesGeneratedBody() {
-        final FakePostgresScript script = FakePostgresScript.named("initdb")
-                .withExitCode(3)
-                .withBody("printf '%s\\n' 'custom body'\nexit 0");
+        final FakePostgresScript script =
+                FakePostgresScript.named("initdb").withExitCode(3).withBody("printf '%s\\n' 'custom body'\nexit 0");
 
         assertThat(script.render())
                 .startsWith("#!/bin/sh\n")

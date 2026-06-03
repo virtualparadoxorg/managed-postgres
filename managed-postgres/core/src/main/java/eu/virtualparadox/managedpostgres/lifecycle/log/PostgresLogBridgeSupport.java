@@ -19,8 +19,7 @@ public final class PostgresLogBridgeSupport {
     /**
      * Creates a PostgreSQL log bridge support helper.
      */
-    public PostgresLogBridgeSupport() {
-    }
+    public PostgresLogBridgeSupport() {}
 
     /**
      * Starts an optional log bridge for the supplied PostgreSQL log file.
@@ -61,10 +60,7 @@ public final class PostgresLogBridgeSupport {
      * @param logs PostgreSQL log handling configuration
      * @return wrapped handle when bridging is enabled, otherwise the original handle
      */
-    public RunningPostgres wrap(
-            final RunningPostgres handle,
-            final Runnable closeAction,
-            final PostgresLogs logs) {
+    public RunningPostgres wrap(final RunningPostgres handle, final Runnable closeAction, final PostgresLogs logs) {
         final RunningPostgres checkedHandle = Objects.requireNonNull(handle, "handle");
         final Runnable checkedCloseAction = Objects.requireNonNull(closeAction, "closeAction");
         final PostgresLogs checkedLogs = Objects.requireNonNull(logs, "logs");

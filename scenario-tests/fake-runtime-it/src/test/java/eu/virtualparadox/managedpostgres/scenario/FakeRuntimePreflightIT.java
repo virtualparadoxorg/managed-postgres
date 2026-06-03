@@ -24,15 +24,13 @@ final class FakeRuntimePreflightIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimePreflightIT() {
-    }
+    FakeRuntimePreflightIT() {}
 
     @Test
     void persistentMajorUpgradeFailsBeforeStartAndPreservesMetadata() throws IOException {
         final Path callLog = temporaryDirectory.resolve("pg_ctl-calls.log");
         final FakePostgresRuntime runtime = FakePostgresRuntime.create(
-                temporaryDirectory.resolve("runtime"),
-                ScenarioShell.recordingPgCtl(callLog));
+                temporaryDirectory.resolve("runtime"), ScenarioShell.recordingPgCtl(callLog));
         final Path storageRoot = temporaryDirectory.resolve("cluster");
 
         try (RunningPostgres ignored = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
@@ -43,12 +41,12 @@ final class FakeRuntimePreflightIT {
         }
 
         assertThatThrownBy(() -> ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
-                .version("17.0")
-                .start())
+                        .version("17.0")
+                        .start())
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("dataDirectoryPostgresqlVersion")
                         .contains("requestedPostgresqlVersion")
                         .contains("17.0")
@@ -79,15 +77,14 @@ final class FakeRuntimePreflightIT {
         final var originalBootstrapCalls = Files.readAllLines(bootstrapLog);
 
         assertThatThrownBy(() -> ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
-                .cluster(cluster -> cluster
-                        .database("app_v2")
-                        .owner("app_owner_v2")
-                        .password(Secret.of("new-app-password")))
-                .start())
+                        .cluster(cluster -> cluster.database("app_v2")
+                                .owner("app_owner_v2")
+                                .password(Secret.of("new-app-password")))
+                        .start())
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("database")
                         .contains("expected <app_v2>")
                         .contains("was <app>")
@@ -103,8 +100,7 @@ final class FakeRuntimePreflightIT {
         assertThat(ScenarioMetadata.require(storageRoot)).isEqualTo(originalMetadata);
         assertThat(Files.readAllLines(pgCtlLog)).containsExactly("start");
         assertThat(Files.readAllLines(bootstrapLog)).isEqualTo(originalBootstrapCalls);
-        assertThat(originalBootstrapCalls).noneSatisfy(call -> assertThat(call)
-                .contains("app_v2")
-                .contains("app_owner_v2"));
+        assertThat(originalBootstrapCalls)
+                .noneSatisfy(call -> assertThat(call).contains("app_v2").contains("app_owner_v2"));
     }
 }

@@ -18,8 +18,7 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 
 final class DoctorCommandTest {
 
-    DoctorCommandTest() {
-    }
+    DoctorCommandTest() {}
 
     @Test
     void doctorCommandPrintsRedactedDoctorReportText() {
@@ -42,12 +41,8 @@ final class DoctorCommandTest {
             final Object document = new Load(LoadSettings.builder().build()).loadFromString(run.output());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
-            assertThat(document)
-                    .asInstanceOf(InstanceOfAssertFactories.MAP)
-                    .containsEntry("status", "RUNNING");
-            assertThat(run.output())
-                    .contains("\"password\": \"<redacted>\"")
-                    .doesNotContain("secret-password");
+            assertThat(document).asInstanceOf(InstanceOfAssertFactories.MAP).containsEntry("status", "RUNNING");
+            assertThat(run.output()).contains("\"password\": \"<redacted>\"").doesNotContain("secret-password");
         }
     }
 
@@ -85,7 +80,6 @@ final class DoctorCommandTest {
         return new DoctorReport(
                 PostgresStatus.RUNNING,
                 List.of(new DiagnosticSection(
-                        "credentials",
-                        Map.of("username", "app", "password", "secret-password"))));
+                        "credentials", Map.of("username", "app", "password", "secret-password"))));
     }
 }

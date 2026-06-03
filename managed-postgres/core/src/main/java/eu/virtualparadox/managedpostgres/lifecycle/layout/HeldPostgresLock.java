@@ -19,11 +19,7 @@ public final class HeldPostgresLock implements AutoCloseable {
     private final Object owner;
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    private HeldPostgresLock(
-            final Path path,
-            final FileChannel channel,
-            final FileLock fileLock,
-            final Object owner) {
+    private HeldPostgresLock(final Path path, final FileChannel channel, final FileLock fileLock, final Object owner) {
         this.path = Objects.requireNonNull(path, "path");
         this.channel = Objects.requireNonNull(channel, "channel");
         this.fileLock = Objects.requireNonNull(fileLock, "fileLock");
@@ -38,10 +34,7 @@ public final class HeldPostgresLock implements AutoCloseable {
      * @param channel channel value
      * @return open result
      */
-    public static HeldPostgresLock open(
-            final Path path,
-            final Object owner,
-            final FileChannel channel) {
+    public static HeldPostgresLock open(final Path path, final Object owner, final FileChannel channel) {
         try {
             final FileLock lock = channel.tryLock();
             if (lock == null) {
@@ -55,9 +48,7 @@ public final class HeldPostgresLock implements AutoCloseable {
         } catch (OverlappingFileLockException exception) {
             closeChannelQuietly(channel, exception);
             throw PostgresLockFailure.create(
-                    "PostgreSQL lifecycle lock is already held by this process",
-                    path,
-                    exception);
+                    "PostgreSQL lifecycle lock is already held by this process", path, exception);
         }
     }
 

@@ -7,8 +7,7 @@ import java.util.Map;
 
 final class CleanupWorkflowDiagnostics {
 
-    private CleanupWorkflowDiagnostics() {
-    }
+    private CleanupWorkflowDiagnostics() {}
 
     static DiagnosticReport cleanup(final String key, final String value) {
         return report("postgres-cleanup", key, value);
@@ -18,12 +17,7 @@ final class CleanupWorkflowDiagnostics {
         return report("postgres-destroy", key, value);
     }
 
-    private static DiagnosticReport report(
-            final String sectionName,
-            final String key,
-            final String value) {
-        return new DiagnosticReport(List.of(new DiagnosticSection(
-                sectionName,
-                Map.of(key, value))));
+    private static DiagnosticReport report(final String sectionName, final String key, final String value) {
+        return new DiagnosticReport(List.of(new DiagnosticSection(sectionName, Map.of(key, value))));
     }
 }

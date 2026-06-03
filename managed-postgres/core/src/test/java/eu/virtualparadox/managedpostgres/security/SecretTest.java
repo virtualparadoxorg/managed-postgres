@@ -7,16 +7,13 @@ import org.junit.jupiter.api.Test;
 
 public final class SecretTest {
 
-    SecretTest() {
-    }
+    SecretTest() {}
 
     @Test
     void toStringNeverPrintsSecret() {
         final Secret secret = Secret.of("actual-secret");
 
-        assertThat(secret.toString())
-                .contains("REDACTED")
-                .doesNotContain("actual-secret");
+        assertThat(secret.toString()).contains("REDACTED").doesNotContain("actual-secret");
     }
 
     @Test

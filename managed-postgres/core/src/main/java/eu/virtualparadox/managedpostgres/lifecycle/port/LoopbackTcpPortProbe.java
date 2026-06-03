@@ -16,8 +16,7 @@ public final class LoopbackTcpPortProbe implements Predicate<PostgresInstanceMet
     /**
      * Creates a LoopbackTcpPortProbe instance.
      */
-    public LoopbackTcpPortProbe() {
-    }
+    public LoopbackTcpPortProbe() {}
 
     /**
      * {@inheritDoc}

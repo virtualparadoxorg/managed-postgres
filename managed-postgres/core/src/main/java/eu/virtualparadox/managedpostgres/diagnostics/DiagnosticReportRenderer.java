@@ -11,8 +11,7 @@ public final class DiagnosticReportRenderer {
 
     private static final DiagnosticReportRenderer TEXT = new DiagnosticReportRenderer();
 
-    private DiagnosticReportRenderer() {
-    }
+    private DiagnosticReportRenderer() {}
 
     /**
      * Returns the plain text diagnostic report renderer.
@@ -45,14 +44,9 @@ public final class DiagnosticReportRenderer {
     }
 
     private static void appendValue(
-            final StringBuilder builder,
-            final String lineSeparator,
-            final Map.Entry<String, String> entry) {
-        final String renderedValue = "%s=%s".formatted(
-                entry.getKey(),
-                CommandRedactor.redactValue(entry.getKey(), entry.getValue()));
-        builder.append("  ")
-                .append(CommandRedactor.redact(renderedValue))
-                .append(lineSeparator);
+            final StringBuilder builder, final String lineSeparator, final Map.Entry<String, String> entry) {
+        final String renderedValue =
+                "%s=%s".formatted(entry.getKey(), CommandRedactor.redactValue(entry.getKey(), entry.getValue()));
+        builder.append("  ").append(CommandRedactor.redact(renderedValue)).append(lineSeparator);
     }
 }

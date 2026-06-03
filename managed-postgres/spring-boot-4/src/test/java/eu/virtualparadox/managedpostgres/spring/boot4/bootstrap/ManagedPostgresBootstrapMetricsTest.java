@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 final class ManagedPostgresBootstrapMetricsTest {
 
-    ManagedPostgresBootstrapMetricsTest() {
-    }
+    ManagedPostgresBootstrapMetricsTest() {}
 
     @Test
     void bootstrapMetricsRejectNegativeStartupDuration() {

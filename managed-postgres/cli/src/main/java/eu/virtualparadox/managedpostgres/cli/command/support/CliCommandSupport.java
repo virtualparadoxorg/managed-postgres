@@ -14,8 +14,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class CliCommandSupport {
 
-    private CliCommandSupport() {
-    }
+    private CliCommandSupport() {}
 
     /**
      * Resolves effective CLI configuration from common command options.
@@ -25,8 +24,7 @@ public final class CliCommandSupport {
      * @return effective CLI configuration
      */
     public static CliManagedPostgresConfiguration configuration(
-            final CliCommonOptions commonOptions,
-            final CliYamlConfigurationLoader loader) {
+            final CliCommonOptions commonOptions, final CliYamlConfigurationLoader loader) {
         final CliManagedPostgresConfiguration configuration;
 
         try {
@@ -57,6 +55,7 @@ public final class CliCommandSupport {
 
     private static String configurationReadMessage(final IOException exception) {
         return "configuration file could not be read: "
-                + StringUtils.defaultIfBlank(exception.getMessage(), exception.getClass().getName());
+                + StringUtils.defaultIfBlank(
+                        exception.getMessage(), exception.getClass().getName());
     }
 }

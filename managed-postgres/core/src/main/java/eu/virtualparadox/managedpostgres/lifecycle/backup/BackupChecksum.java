@@ -19,8 +19,7 @@ public final class BackupChecksum {
 
     private static final String SHA_256 = "SHA-256";
 
-    private BackupChecksum() {
-    }
+    private BackupChecksum() {}
 
     /**
      * Returns the sha256 result.

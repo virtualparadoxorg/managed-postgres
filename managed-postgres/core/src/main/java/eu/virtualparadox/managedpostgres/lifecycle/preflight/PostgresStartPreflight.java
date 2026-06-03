@@ -1,6 +1,9 @@
 package eu.virtualparadox.managedpostgres.lifecycle.preflight;
 
 import eu.virtualparadox.managedpostgres.exception.PostgresUpgradeException;
+import eu.virtualparadox.managedpostgres.lifecycle.attach.PostgresAttachCompatibility;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,9 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.attach.PostgresAttachCompatibility;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Verifies existing PostgreSQL cluster state before startup mutates files.
@@ -21,8 +21,7 @@ public final class PostgresStartPreflight {
     /**
      * Creates a PostgreSQL start preflight verifier.
      */
-    public PostgresStartPreflight() {
-    }
+    public PostgresStartPreflight() {}
 
     /**
      * Verifies that startup may safely mutate the planned PostgreSQL cluster.
@@ -38,8 +37,7 @@ public final class PostgresStartPreflight {
         final StartPostgresWorkflow.Configuration checkedConfiguration =
                 Objects.requireNonNull(configuration, "configuration");
         final PostgresLayout checkedLayout = Objects.requireNonNull(layout, "layout");
-        final Optional<PostgresInstanceMetadata> checkedMetadata =
-                Objects.requireNonNull(metadata, "metadata");
+        final Optional<PostgresInstanceMetadata> checkedMetadata = Objects.requireNonNull(metadata, "metadata");
 
         verifyDataDirectoryVersion(checkedConfiguration, checkedLayout);
         if (checkedMetadata.isPresent()) {
@@ -48,8 +46,7 @@ public final class PostgresStartPreflight {
     }
 
     private static void verifyDataDirectoryVersion(
-            final StartPostgresWorkflow.Configuration configuration,
-            final PostgresLayout layout) {
+            final StartPostgresWorkflow.Configuration configuration, final PostgresLayout layout) {
         final Path pgVersionPath = layout.dataDirectory().resolve("PG_VERSION");
         if (Files.exists(pgVersionPath)) {
             verifyExistingPgVersion(configuration, pgVersionPath);
@@ -57,15 +54,11 @@ public final class PostgresStartPreflight {
     }
 
     private static void verifyExistingPgVersion(
-            final StartPostgresWorkflow.Configuration configuration,
-            final Path pgVersionPath) {
+            final StartPostgresWorkflow.Configuration configuration, final Path pgVersionPath) {
         final String dataDirectoryVersion = readPgVersion(pgVersionPath);
-        final PostgresVersion requestedVersion = parseVersion(
-                configuration.postgresqlVersion(),
-                "requestedPostgresqlVersion");
-        final PostgresVersion existingVersion = parseVersion(
-                dataDirectoryVersion,
-                "dataDirectoryPostgresqlVersion");
+        final PostgresVersion requestedVersion =
+                parseVersion(configuration.postgresqlVersion(), "requestedPostgresqlVersion");
+        final PostgresVersion existingVersion = parseVersion(dataDirectoryVersion, "dataDirectoryPostgresqlVersion");
 
         if (requestedVersion.major() != existingVersion.major()) {
             throw new PostgresUpgradeException(
@@ -101,9 +94,8 @@ public final class PostgresStartPreflight {
             throw new PostgresUpgradeException(
                     "Failed to read PostgreSQL PG_VERSION",
                     exception,
-                    PostgresPreflightDiagnostics.version(Map.of(
-                            "source", "PG_VERSION",
-                            "path", pgVersionPath.toString())));
+                    PostgresPreflightDiagnostics.version(
+                            Map.of("source", "PG_VERSION", "path", pgVersionPath.toString())));
         }
 
         return version;
@@ -114,8 +106,8 @@ public final class PostgresStartPreflight {
         if (!StringUtils.isNumeric(firstComponent)) {
             throw new PostgresUpgradeException(
                     "PostgreSQL version must start with a positive major version",
-                    PostgresPreflightDiagnostics.version(Map.of(
-                            diagnosticKey, Objects.toString(postgresqlVersion, ""))));
+                    PostgresPreflightDiagnostics.version(
+                            Map.of(diagnosticKey, Objects.toString(postgresqlVersion, ""))));
         }
 
         return new PostgresVersion(postgresqlVersion, Integer.parseInt(firstComponent));

@@ -18,8 +18,7 @@ public final class ManagedPostgresMeterBinderTest {
 
     private static final String RAW_PASSWORD = "metrics-secret";
 
-    ManagedPostgresMeterBinderTest() {
-    }
+    ManagedPostgresMeterBinderTest() {}
 
     @Test
     void runningStatusPublishesRunningHealthyAndPortGaugesWithoutTags() {
@@ -33,11 +32,16 @@ public final class ManagedPostgresMeterBinderTest {
         assertThat(registry.get("managed.postgres.running").gauge().value()).isEqualTo(1.0d);
         assertThat(registry.get("managed.postgres.healthy").gauge().value()).isEqualTo(1.0d);
         assertThat(registry.get("managed.postgres.port").gauge().value()).isEqualTo(15_432.0d);
-        assertThat(registry.get("managed.postgres.startup.duration").gauge().value()).isEqualTo(1.25d);
-        assertThat(registry.get("managed.postgres.install.duration").gauge().value()).isEqualTo(0.25d);
-        assertThat(registry.get("managed.postgres.healthcheck.failures").gauge().value()).isEqualTo(3.0d);
-        assertThat(registry.getMeters()).extracting(Meter::getId).extracting(Meter.Id::getTags).allSatisfy(tags ->
-                assertThat(tags).isEmpty());
+        assertThat(registry.get("managed.postgres.startup.duration").gauge().value())
+                .isEqualTo(1.25d);
+        assertThat(registry.get("managed.postgres.install.duration").gauge().value())
+                .isEqualTo(0.25d);
+        assertThat(registry.get("managed.postgres.healthcheck.failures").gauge().value())
+                .isEqualTo(3.0d);
+        assertThat(registry.getMeters())
+                .extracting(Meter::getId)
+                .extracting(Meter.Id::getTags)
+                .allSatisfy(tags -> assertThat(tags).isEmpty());
     }
 
     @Test
@@ -52,9 +56,12 @@ public final class ManagedPostgresMeterBinderTest {
         assertThat(registry.get("managed.postgres.running").gauge().value()).isZero();
         assertThat(registry.get("managed.postgres.healthy").gauge().value()).isZero();
         assertThat(registry.get("managed.postgres.port").gauge().value()).isEqualTo(15_432.0d);
-        assertThat(registry.get("managed.postgres.startup.duration").gauge().value()).isZero();
-        assertThat(registry.get("managed.postgres.install.duration").gauge().value()).isZero();
-        assertThat(registry.get("managed.postgres.healthcheck.failures").gauge().value()).isZero();
+        assertThat(registry.get("managed.postgres.startup.duration").gauge().value())
+                .isZero();
+        assertThat(registry.get("managed.postgres.install.duration").gauge().value())
+                .isZero();
+        assertThat(registry.get("managed.postgres.healthcheck.failures").gauge().value())
+                .isZero();
         assertThat(registry.getMeters().toString())
                 .doesNotContain(RAW_PASSWORD)
                 .doesNotContain("127.0.0.1")
@@ -66,12 +73,8 @@ public final class ManagedPostgresMeterBinderTest {
     private static RunningPostgres runningPostgres(final PostgresStatus status) {
         final RunningPostgres runningPostgres = mock(RunningPostgres.class);
         when(runningPostgres.status()).thenReturn(status);
-        when(runningPostgres.connectionInfo()).thenReturn(new PostgresConnectionInfo(
-                "127.0.0.1",
-                15_432,
-                "app",
-                "app",
-                Secret.of(RAW_PASSWORD)));
+        when(runningPostgres.connectionInfo())
+                .thenReturn(new PostgresConnectionInfo("127.0.0.1", 15_432, "app", "app", Secret.of(RAW_PASSWORD)));
         return runningPostgres;
     }
 }

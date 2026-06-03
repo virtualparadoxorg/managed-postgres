@@ -19,8 +19,7 @@ final class MesonOptionFile {
     private static final Pattern OPTION_NAME = Pattern.compile("option\\(\\s*'([^']+)'");
     private static final List<String> OPTION_FILE_NAMES = List.of("meson.options", "meson_options.txt");
 
-    private MesonOptionFile() {
-    }
+    private MesonOptionFile() {}
 
     /**
      * Returns the option names declared by the source tree's Meson option file.

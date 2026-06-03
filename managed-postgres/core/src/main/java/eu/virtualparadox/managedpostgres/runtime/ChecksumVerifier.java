@@ -19,8 +19,7 @@ public final class ChecksumVerifier {
     /**
      * Creates a checksum verifier.
      */
-    public ChecksumVerifier() {
-    }
+    public ChecksumVerifier() {}
 
     /**
      * Verifies that the artifact content matches the expected checksum.
@@ -36,10 +35,7 @@ public final class ChecksumVerifier {
         final String actualHex = digestHex(checkedArtifact, checkedChecksum);
         if (!checkedChecksum.hex().equals(actualHex)) {
             throw new IllegalArgumentException(
-                    "checksum mismatch for "
-                            + checkedArtifact
-                            + " using "
-                            + checkedChecksum.messageDigestAlgorithm());
+                    "checksum mismatch for " + checkedArtifact + " using " + checkedChecksum.messageDigestAlgorithm());
         }
 
         return checkedArtifact;
@@ -63,7 +59,8 @@ public final class ChecksumVerifier {
         try {
             return MessageDigest.getInstance(checksum.messageDigestAlgorithm());
         } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("checksum algorithm is unavailable: " + checksum.messageDigestAlgorithm(), exception);
+            throw new IllegalStateException(
+                    "checksum algorithm is unavailable: " + checksum.messageDigestAlgorithm(), exception);
         }
     }
 }

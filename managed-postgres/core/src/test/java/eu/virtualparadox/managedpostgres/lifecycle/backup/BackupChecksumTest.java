@@ -14,8 +14,7 @@ public final class BackupChecksumTest {
     @TempDir
     private Path temporaryDirectory;
 
-    BackupChecksumTest() {
-    }
+    BackupChecksumTest() {}
 
     @Test
     void sha256StreamsFileBytesAsLowerCaseHex() throws IOException {

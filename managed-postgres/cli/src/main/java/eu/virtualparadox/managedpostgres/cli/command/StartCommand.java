@@ -19,10 +19,7 @@ import picocli.CommandLine.Option;
 /**
  * Starts managed PostgreSQL and prints non-secret connection details.
  */
-@Command(
-        name = "start",
-        description = "Start managed PostgreSQL.",
-        sortOptions = false)
+@Command(name = "start", description = "Start managed PostgreSQL.", sortOptions = false)
 public final class StartCommand implements Callable<Integer> {
 
     @Mixin
@@ -85,7 +82,8 @@ public final class StartCommand implements Callable<Integer> {
         final CliManagedPostgresConfiguration configuration =
                 context.configuration(commonOptions).withStopPolicy(stopPolicy);
 
-        try (RunningPostgres runningPostgres = context.managedPostgres(configuration).start()) {
+        try (RunningPostgres runningPostgres =
+                context.managedPostgres(configuration).start()) {
             renderConnection(runningPostgres.connectionInfo());
         }
 

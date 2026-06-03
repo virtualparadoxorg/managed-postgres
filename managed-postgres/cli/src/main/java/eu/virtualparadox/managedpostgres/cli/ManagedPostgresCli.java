@@ -2,8 +2,8 @@ package eu.virtualparadox.managedpostgres.cli;
 
 import eu.virtualparadox.managedpostgres.cli.command.BackupCommand;
 import eu.virtualparadox.managedpostgres.cli.command.CleanupCommand;
-import eu.virtualparadox.managedpostgres.cli.command.DoctorCommand;
 import eu.virtualparadox.managedpostgres.cli.command.DestroyCommand;
+import eu.virtualparadox.managedpostgres.cli.command.DoctorCommand;
 import eu.virtualparadox.managedpostgres.cli.command.RestoreCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StartCommand;
 import eu.virtualparadox.managedpostgres.cli.command.StatusCommand;
@@ -56,8 +56,8 @@ public final class ManagedPostgresCli implements Callable<Integer> {
         commandLine.setOut(output);
         commandLine.setErr(errorOutput);
         commandLine.setParameterExceptionHandler(this::handleParameterException);
-        commandLine.setExecutionExceptionHandler((exception, parsedCommandLine, parseResult) ->
-                new CliExceptionHandler(errorOutput).handle(exception));
+        commandLine.setExecutionExceptionHandler(
+                (exception, parsedCommandLine, parseResult) -> new CliExceptionHandler(errorOutput).handle(exception));
 
         return commandLine.execute(arguments);
     }
@@ -111,8 +111,7 @@ public final class ManagedPostgresCli implements Callable<Integer> {
         /**
          * Creates a managed-postgres version provider.
          */
-        public ManagedPostgresVersionProvider() {
-        }
+        public ManagedPostgresVersionProvider() {}
 
         /**
          * Returns command line version lines.

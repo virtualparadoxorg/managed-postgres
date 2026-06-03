@@ -2,8 +2,6 @@ package eu.virtualparadox.managedpostgres.lifecycle.doctor.live;
 
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
-import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachJdbcProbeRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachValidation;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorProbeSections;
@@ -12,6 +10,8 @@ import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorProbeValues;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import java.util.Objects;
 
 /**
  * Probes JDBC identity after process and port evidence are acceptable.

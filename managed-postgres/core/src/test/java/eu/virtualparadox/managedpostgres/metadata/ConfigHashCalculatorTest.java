@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ConfigHashCalculatorTest {
 
-    ConfigHashCalculatorTest() {
-    }
+    ConfigHashCalculatorTest() {}
 
     @Test
     void configHashIsStableAcrossMapOrdering() {

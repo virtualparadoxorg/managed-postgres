@@ -38,8 +38,7 @@ public final class ExternalManagedPostgres implements ManagedPostgres {
      * @param validator external connection validator
      */
     public ExternalManagedPostgres(
-            final PostgresConnectionInfo connectionInfo,
-            final ExternalPostgresValidator validator) {
+            final PostgresConnectionInfo connectionInfo, final ExternalPostgresValidator validator) {
         this.connectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         this.validator = Objects.requireNonNull(validator, "validator");
     }

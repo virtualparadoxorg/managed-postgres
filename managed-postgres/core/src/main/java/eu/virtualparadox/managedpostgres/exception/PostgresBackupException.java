@@ -28,9 +28,7 @@ public final class PostgresBackupException extends ManagedPostgresException {
      * @param diagnosticReport diagnostic report
      */
     public PostgresBackupException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

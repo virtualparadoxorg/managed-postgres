@@ -13,8 +13,7 @@ public final class PostgresLayoutTest {
     @TempDir
     private Path storageRoot;
 
-    PostgresLayoutTest() {
-    }
+    PostgresLayoutTest() {}
 
     @Test
     void temporaryLayoutUsesIsolatedTempDirectory() throws IOException {
@@ -52,9 +51,7 @@ public final class PostgresLayoutTest {
         assertThat(PostgresLayout.RUNTIME_INSTALL_LOCK_FILE).isEqualTo("runtime-install.lock");
         assertThat(PostgresLayout.OPERATION_LOCK_FILE).isEqualTo("operation.lock");
         assertThat(PostgresLayout.MANAGER_LOCK_FILE).isEqualTo("manager.lock");
-        assertThat(layout.lockOrder()).containsExactly(
-                layout.runtimeInstallLockPath(),
-                layout.operationLockPath(),
-                layout.managerLockPath());
+        assertThat(layout.lockOrder())
+                .containsExactly(layout.runtimeInstallLockPath(), layout.operationLockPath(), layout.managerLockPath());
     }
 }

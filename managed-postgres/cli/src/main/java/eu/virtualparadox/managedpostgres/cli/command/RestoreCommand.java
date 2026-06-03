@@ -23,10 +23,7 @@ import picocli.CommandLine.Parameters;
 /**
  * Restores a managed PostgreSQL logical backup with explicit safety flags.
  */
-@Command(
-        name = "restore",
-        description = "Restore a managed PostgreSQL backup.",
-        sortOptions = false)
+@Command(name = "restore", description = "Restore a managed PostgreSQL backup.", sortOptions = false)
 public final class RestoreCommand implements Callable<Integer> {
 
     @Mixin
@@ -96,7 +93,8 @@ public final class RestoreCommand implements Callable<Integer> {
                 .createSafetyBackup(true)
                 .build();
 
-        try (RunningPostgres runningPostgres = context.managedPostgres(configuration).start()) {
+        try (RunningPostgres runningPostgres =
+                context.managedPostgres(configuration).start()) {
             runningPostgres.restoreFrom(backup, options);
         }
 

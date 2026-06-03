@@ -20,8 +20,7 @@ public final class BundleNormalizer {
     /**
      * Creates a bundle normalizer.
      */
-    public BundleNormalizer() {
-    }
+    public BundleNormalizer() {}
 
     /**
      * Normalizes a raw install tree into the managed bundle layout.
@@ -43,9 +42,7 @@ public final class BundleNormalizer {
                         validatedRawInstallTree.resolve(payloadDirectory),
                         validatedOutputDirectory.resolve(payloadDirectory));
             }
-            Files.writeString(
-                    validatedOutputDirectory.resolve("manifest.json"),
-                    manifestJson(validatedManifest));
+            Files.writeString(validatedOutputDirectory.resolve("manifest.json"), manifestJson(validatedManifest));
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to normalize runtime bundle", exception);
         }
@@ -94,7 +91,8 @@ public final class BundleNormalizer {
         return "{\n"
                 + "  \"postgresVersion\": \"" + escapeJson(manifest.postgresVersion()) + "\",\n"
                 + "  \"bundleRevision\": \"" + escapeJson(manifest.bundleRevision()) + "\",\n"
-                + "  \"targetPlatform\": \"" + escapeJson(manifest.targetPlatform().identifier()) + "\",\n"
+                + "  \"targetPlatform\": \""
+                + escapeJson(manifest.targetPlatform().identifier()) + "\",\n"
                 + "  \"archiveFileName\": \"" + escapeJson(manifest.archiveFileName()) + "\",\n"
                 + "  \"sha256\": \"" + escapeJson(manifest.sha256()) + "\",\n"
                 + "  \"publishedAt\": \"" + escapeJson(manifest.publishedAt().toString()) + "\",\n"

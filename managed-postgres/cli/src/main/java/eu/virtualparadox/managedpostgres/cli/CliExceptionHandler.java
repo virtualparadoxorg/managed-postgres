@@ -23,15 +23,10 @@ import java.util.Set;
  */
 public final class CliExceptionHandler {
 
-    private static final Set<String> RUNTIME_SECTIONS = Set.of(
-            "runtime-resolution",
-            "runtime-download",
-            "runtime-validation");
-    private static final Set<String> CLUSTER_SECTIONS = Set.of(
-            "postgres-layout",
-            "metadata",
-            "postmaster.pid",
-            "data-directory");
+    private static final Set<String> RUNTIME_SECTIONS =
+            Set.of("runtime-resolution", "runtime-download", "runtime-validation");
+    private static final Set<String> CLUSTER_SECTIONS =
+            Set.of("postgres-layout", "metadata", "postmaster.pid", "data-directory");
 
     private final PrintWriter errorOutput;
 

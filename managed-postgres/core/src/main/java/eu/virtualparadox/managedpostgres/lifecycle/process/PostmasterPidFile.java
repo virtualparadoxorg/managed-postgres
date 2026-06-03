@@ -17,8 +17,7 @@ public final class PostmasterPidFile {
 
     private static final String POSTMASTER_PID = "postmaster.pid";
 
-    private PostmasterPidFile() {
-    }
+    private PostmasterPidFile() {}
 
     /**
      * Returns the read pid result.
@@ -27,7 +26,8 @@ public final class PostmasterPidFile {
      * @return read pid result
      */
     public static OptionalLong readPid(final Path dataDirectory) {
-        final Path pidPath = Objects.requireNonNull(dataDirectory, "dataDirectory").resolve(POSTMASTER_PID);
+        final Path pidPath =
+                Objects.requireNonNull(dataDirectory, "dataDirectory").resolve(POSTMASTER_PID);
         final OptionalLong pid;
         if (Files.isRegularFile(pidPath)) {
             pid = readPidPathQuietly(pidPath);
@@ -46,7 +46,8 @@ public final class PostmasterPidFile {
      * @throws IOException when the operation fails
      */
     public static OptionalLong readPidStrict(final Path dataDirectory) throws IOException {
-        final Path pidPath = Objects.requireNonNull(dataDirectory, "dataDirectory").resolve(POSTMASTER_PID);
+        final Path pidPath =
+                Objects.requireNonNull(dataDirectory, "dataDirectory").resolve(POSTMASTER_PID);
         final OptionalLong pid;
         if (Files.isRegularFile(pidPath)) {
             pid = pidFromLines(Files.readAllLines(pidPath, StandardCharsets.UTF_8));
@@ -69,10 +70,7 @@ public final class PostmasterPidFile {
     }
 
     private static OptionalLong pidFromLines(final List<String> lines) {
-        return lines.stream()
-                .findFirst()
-                .flatMap(PostmasterPidFile::parsePid)
-                .stream()
+        return lines.stream().findFirst().flatMap(PostmasterPidFile::parsePid).stream()
                 .mapToLong(Long::longValue)
                 .findFirst();
     }

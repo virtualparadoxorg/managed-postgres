@@ -10,17 +10,12 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringNetworkMapperTest {
 
-    ManagedPostgresSpringNetworkMapperTest() {
-    }
+    ManagedPostgresSpringNetworkMapperTest() {}
 
     @Test
     void randomNetworkPropertiesMapToCoreDsl() {
         final ManagedPostgresSpringProperties.NetworkProperties properties =
-                new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "random",
-                Optional.empty(),
-                false);
+                new ManagedPostgresSpringProperties.NetworkProperties("127.0.0.1", "random", Optional.empty(), false);
 
         final String description = managedPostgresDescription(properties);
 
@@ -35,10 +30,7 @@ public final class ManagedPostgresSpringNetworkMapperTest {
     void stableRandomNetworkPropertiesMapToCoreDsl() {
         final ManagedPostgresSpringProperties.NetworkProperties properties =
                 new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "stable-random",
-                Optional.empty(),
-                false);
+                        "127.0.0.1", "stable-random", Optional.empty(), false);
 
         final String description = managedPostgresDescription(properties);
 
@@ -52,11 +44,7 @@ public final class ManagedPostgresSpringNetworkMapperTest {
     @Test
     void fixedNetworkPropertiesMapToCoreDsl() {
         final ManagedPostgresSpringProperties.NetworkProperties properties =
-                new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "fixed",
-                Optional.of(15432),
-                false);
+                new ManagedPostgresSpringProperties.NetworkProperties("127.0.0.1", "fixed", Optional.of(15432), false);
 
         final String description = managedPostgresDescription(properties);
 
@@ -71,10 +59,7 @@ public final class ManagedPostgresSpringNetworkMapperTest {
     void preferredNetworkPropertiesMapToCoreDsl() {
         final ManagedPostgresSpringProperties.NetworkProperties properties =
                 new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "preferred",
-                Optional.of(15432),
-                false);
+                        "127.0.0.1", "preferred", Optional.of(15432), false);
 
         final String description = managedPostgresDescription(properties);
 
@@ -89,10 +74,7 @@ public final class ManagedPostgresSpringNetworkMapperTest {
     void preferredNetworkPropertiesMapToCoreDslWithFallback() {
         final ManagedPostgresSpringProperties.NetworkProperties properties =
                 new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "preferred",
-                Optional.of(15432),
-                true);
+                        "127.0.0.1", "preferred", Optional.of(15432), true);
 
         final String description = managedPostgresDescription(properties);
 
@@ -106,26 +88,21 @@ public final class ManagedPostgresSpringNetworkMapperTest {
     @Test
     void invalidNetworkPropertiesFailBeforeStartup() {
         assertThatThrownBy(() -> configure(new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "fixed",
-                Optional.empty(),
-                false))).isInstanceOf(ManagedPostgresSpringException.class)
+                        "127.0.0.1", "fixed", Optional.empty(), false)))
+                .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("network.port");
         assertThatThrownBy(() -> configure(new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "random",
-                Optional.empty(),
-                true))).isInstanceOf(ManagedPostgresSpringException.class)
+                        "127.0.0.1", "random", Optional.empty(), true)))
+                .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("fallback-to-random");
         assertThatThrownBy(() -> configure(new ManagedPostgresSpringProperties.NetworkProperties(
-                "127.0.0.1",
-                "unknown",
-                Optional.empty(),
-                false))).isInstanceOf(ManagedPostgresSpringException.class)
+                        "127.0.0.1", "unknown", Optional.empty(), false)))
+                .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("port-selection");
     }
 
-    private static ManagedPostgresBuilder configure(final ManagedPostgresSpringProperties.NetworkProperties properties) {
+    private static ManagedPostgresBuilder configure(
+            final ManagedPostgresSpringProperties.NetworkProperties properties) {
         return ManagedPostgresSpringNetworkMapper.configure(ManagedPostgresBuilder.local(), properties);
     }
 

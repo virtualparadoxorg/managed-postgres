@@ -13,9 +13,7 @@ import java.util.Objects;
  * @param additionalSections extra probe diagnostics
  */
 public record DoctorProbeSnapshot(
-        PostgresStatus status,
-        DiagnosticSection section,
-        List<DiagnosticSection> additionalSections) {
+        PostgresStatus status, DiagnosticSection section, List<DiagnosticSection> additionalSections) {
 
     /**
      * Defines the value value.

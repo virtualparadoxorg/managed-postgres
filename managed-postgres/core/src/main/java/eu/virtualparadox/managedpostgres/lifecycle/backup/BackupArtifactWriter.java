@@ -22,8 +22,7 @@ public final class BackupArtifactWriter {
      * @param diagnostics diagnostics value
      */
     public BackupArtifactWriter(
-            final BackupManifestFactory manifestFactory,
-            final PostgresBackupDiagnostics diagnostics) {
+            final BackupManifestFactory manifestFactory, final PostgresBackupDiagnostics diagnostics) {
         this.manifestFactory = Objects.requireNonNull(manifestFactory, "manifestFactory");
         this.diagnostics = Objects.requireNonNull(diagnostics, "diagnostics");
     }
@@ -46,10 +45,7 @@ public final class BackupArtifactWriter {
      * @param backupFileName backup file name value
      * @param checksum checksum value
      */
-    public void writeChecksum(
-            final Path stagedChecksum,
-            final String backupFileName,
-            final String checksum) {
+    public void writeChecksum(final Path stagedChecksum, final String backupFileName, final String checksum) {
         writeString(stagedChecksum, checksum + "  " + backupFileName + "\n", "write-backup-checksum");
     }
 

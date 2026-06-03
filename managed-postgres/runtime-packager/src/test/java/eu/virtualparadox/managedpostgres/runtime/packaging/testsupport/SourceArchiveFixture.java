@@ -16,8 +16,7 @@ import java.util.zip.ZipOutputStream;
  */
 public final class SourceArchiveFixture {
 
-    private SourceArchiveFixture() {
-    }
+    private SourceArchiveFixture() {}
 
     /**
      * Creates a minimal source archive with a single top-level source directory.
@@ -63,22 +62,17 @@ public final class SourceArchiveFixture {
      * @throws IOException if the archive cannot be read
      */
     public static PostgresRelease releaseForArchive(final Path archive) throws IOException {
-        return new PostgresRelease(
-                16,
-                "16.14",
-                archive.toUri(),
-                sha256Hex(Files.readAllBytes(archive)));
+        return new PostgresRelease(16, "16.14", archive.toUri(), sha256Hex(Files.readAllBytes(archive)));
     }
 
-    private static void writeDirectory(final ZipOutputStream zipOutputStream, final String entryName) throws IOException {
+    private static void writeDirectory(final ZipOutputStream zipOutputStream, final String entryName)
+            throws IOException {
         zipOutputStream.putNextEntry(new ZipEntry(entryName));
         zipOutputStream.closeEntry();
     }
 
-    private static void writeFile(
-            final ZipOutputStream zipOutputStream,
-            final String entryName,
-            final String content) throws IOException {
+    private static void writeFile(final ZipOutputStream zipOutputStream, final String entryName, final String content)
+            throws IOException {
         zipOutputStream.putNextEntry(new ZipEntry(entryName));
         zipOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
         zipOutputStream.closeEntry();

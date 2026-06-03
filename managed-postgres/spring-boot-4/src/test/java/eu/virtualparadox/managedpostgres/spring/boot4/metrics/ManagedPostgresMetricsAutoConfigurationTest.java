@@ -8,10 +8,10 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapMetrics;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spring.boot4.autoconfigure.ManagedPostgresAutoConfiguration;
 import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapContextTestSupport;
+import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapMetrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Duration;
@@ -27,8 +27,7 @@ public final class ManagedPostgresMetricsAutoConfigurationTest {
             .withConfiguration(AutoConfigurations.of(ManagedPostgresAutoConfiguration.class))
             .withUserConfiguration(SimpleMeterRegistryConfiguration.class);
 
-    ManagedPostgresMetricsAutoConfigurationTest() {
-    }
+    ManagedPostgresMetricsAutoConfigurationTest() {}
 
     @AfterEach
     void resetBootstrapContext() {
@@ -102,15 +101,13 @@ public final class ManagedPostgresMetricsAutoConfigurationTest {
                 fixture.runningPostgres(),
                 new ManagedPostgresBootstrapMetrics(Duration.ofSeconds(1), Duration.ZERO, 0));
 
-        contextRunner
-                .withPropertyValues("managed-postgres.enabled=true")
-                .run(context -> assertThat(context).doesNotHaveBean(ManagedPostgresMeterBinder.class));
+        contextRunner.withPropertyValues("managed-postgres.enabled=true").run(context -> assertThat(context)
+                .doesNotHaveBean(ManagedPostgresMeterBinder.class));
     }
 
     private static final class SimpleMeterRegistryConfiguration {
 
-        private SimpleMeterRegistryConfiguration() {
-        }
+        private SimpleMeterRegistryConfiguration() {}
 
         @Bean
         MeterRegistry meterRegistry() {
@@ -122,12 +119,8 @@ public final class ManagedPostgresMetricsAutoConfigurationTest {
 
         private final ManagedPostgres postgres = mock(ManagedPostgres.class);
         private final RunningPostgres runningPostgres = mock(RunningPostgres.class);
-        private final PostgresConnectionInfo connectionInfo = new PostgresConnectionInfo(
-                "127.0.0.1",
-                15_432,
-                "app",
-                "app",
-                Secret.of("metrics-boot-secret"));
+        private final PostgresConnectionInfo connectionInfo =
+                new PostgresConnectionInfo("127.0.0.1", 15_432, "app", "app", Secret.of("metrics-boot-secret"));
 
         private BootstrapFixture(final PostgresStatus status) {
             when(runningPostgres.status()).thenReturn(status);

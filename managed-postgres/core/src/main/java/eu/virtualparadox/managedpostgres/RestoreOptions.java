@@ -48,8 +48,7 @@ public final class RestoreOptions {
         private boolean dropCurrentDatabase;
         private boolean createSafetyBackup;
 
-        private Builder() {
-        }
+        private Builder() {}
 
         /**
          * Configures whether restore may drop objects in the current database.

@@ -4,11 +4,11 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.CommandRedactor;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 
 /**
  * Builds redacted diagnostics for logical backup failures.
@@ -18,8 +18,7 @@ public final class PostgresBackupDiagnostics {
     /**
      * Creates a PostgresBackupDiagnostics instance.
      */
-    public PostgresBackupDiagnostics() {
-    }
+    public PostgresBackupDiagnostics() {}
 
     /**
      * Returns the invalid target result.
@@ -60,11 +59,13 @@ public final class PostgresBackupDiagnostics {
      * @return command failure result
      */
     public DiagnosticReport commandFailure(final CommandResult result, final PostgresConnectionInfo connectionInfo) {
-        return diagnostic("pg-dump", Map.of(
-                "command", redact(result.renderedCommand(), connectionInfo),
-                "exitCode", Integer.toString(result.exitCode()),
-                "stdout", redact(result.stdout(), connectionInfo),
-                "stderr", redact(result.stderr(), connectionInfo)));
+        return diagnostic(
+                "pg-dump",
+                Map.of(
+                        "command", redact(result.renderedCommand(), connectionInfo),
+                        "exitCode", Integer.toString(result.exitCode()),
+                        "stdout", redact(result.stdout(), connectionInfo),
+                        "stderr", redact(result.stderr(), connectionInfo)));
     }
 
     /**

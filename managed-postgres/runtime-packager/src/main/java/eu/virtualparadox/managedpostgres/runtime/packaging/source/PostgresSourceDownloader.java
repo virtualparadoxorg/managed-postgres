@@ -141,7 +141,8 @@ public final class PostgresSourceDownloader {
     }
 
     private static String archiveFileName(final URI sourceTarball) {
-        final Path fileName = Path.of(requireNonBlank(sourceTarball.getPath(), "sourceTarball.path")).getFileName();
+        final Path fileName = Path.of(requireNonBlank(sourceTarball.getPath(), "sourceTarball.path"))
+                .getFileName();
         if (fileName == null) {
             throw new IllegalArgumentException("source tarball path must include a file name");
         }

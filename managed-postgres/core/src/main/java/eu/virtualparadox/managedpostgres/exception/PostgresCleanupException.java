@@ -28,9 +28,7 @@ public final class PostgresCleanupException extends ManagedPostgresException {
      * @param diagnosticReport structured diagnostics
      */
     public PostgresCleanupException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

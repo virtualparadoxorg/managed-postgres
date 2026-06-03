@@ -35,7 +35,8 @@ public final class ManagedPostgresSpringConfigurationFactory {
     public ManagedPostgres create(final ManagedPostgresSpringProperties properties) {
         final ManagedPostgresSpringProperties checkedProperties = Objects.requireNonNull(properties, "properties");
         if (!checkedProperties.enabled()) {
-            throw new ManagedPostgresSpringException("managed-postgres.enabled must be true before creating PostgreSQL");
+            throw new ManagedPostgresSpringException(
+                    "managed-postgres.enabled must be true before creating PostgreSQL");
         }
 
         ManagedPostgresBuilder builder = Objects.requireNonNull(builderSupplier.get(), "builder")
@@ -69,17 +70,21 @@ public final class ManagedPostgresSpringConfigurationFactory {
 
     private static PostgresConfiguration postgresConfiguration(
             final ManagedPostgresSpringProperties.ConfigurationProperties properties) {
-        PostgresConfiguration postgresConfiguration = properties.preset()
+        PostgresConfiguration postgresConfiguration = properties
+                .preset()
                 .map(ManagedPostgresSpringConfigurationFactory::preset)
                 .orElse(PostgresConfiguration.defaults());
         if (properties.maxConnections().isPresent()) {
-            postgresConfiguration = postgresConfiguration.maxConnections(properties.maxConnections().get().intValue());
+            postgresConfiguration = postgresConfiguration.maxConnections(
+                    properties.maxConnections().get().intValue());
         }
         if (properties.sharedBuffers().isPresent()) {
-            postgresConfiguration = postgresConfiguration.sharedBuffers(properties.sharedBuffers().get());
+            postgresConfiguration = postgresConfiguration.sharedBuffers(
+                    properties.sharedBuffers().get());
         }
         if (properties.tempBuffers().isPresent()) {
-            postgresConfiguration = postgresConfiguration.tempBuffers(properties.tempBuffers().get());
+            postgresConfiguration =
+                    postgresConfiguration.tempBuffers(properties.tempBuffers().get());
         }
         if (properties.statementTimeoutSeconds().isPresent()) {
             postgresConfiguration = postgresConfiguration.statementTimeoutSeconds(

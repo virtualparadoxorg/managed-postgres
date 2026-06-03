@@ -12,8 +12,7 @@ public final class CliManagedPostgresFactory {
     /**
      * Creates a CLI managed PostgreSQL factory.
      */
-    public CliManagedPostgresFactory() {
-    }
+    public CliManagedPostgresFactory() {}
 
     /**
      * Creates a managed PostgreSQL instance through the public fluent API.

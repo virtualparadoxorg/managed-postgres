@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.cli.CliExitCode;
 import eu.virtualparadox.managedpostgres.cli.command.support.CliCommandTestSupport;
-import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgres;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFactory;
+import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
@@ -17,8 +17,7 @@ import org.junit.jupiter.api.Test;
 
 final class StopCommandTest {
 
-    StopCommandTest() {
-    }
+    StopCommandTest() {}
 
     @Test
     void stopCommandCallsManagedPostgresStop() {
@@ -42,20 +41,16 @@ final class StopCommandTest {
 
     @Test
     void shutdownExceptionMapsToClusterError() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "shutdown",
-                Map.of("password", "secret-password"))));
-        final PostgresShutdownException failure = new PostgresShutdownException(
-                "shutdown failed password=secret-password",
-                diagnostics);
+        final DiagnosticReport diagnostics =
+                new DiagnosticReport(List.of(new DiagnosticSection("shutdown", Map.of("password", "secret-password"))));
+        final PostgresShutdownException failure =
+                new PostgresShutdownException("shutdown failed password=secret-password", diagnostics);
 
         try (TestManagedPostgres postgres = TestManagedPostgresFailureFactory.withStopFailure(failure)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runStop(postgres);
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.CLUSTER_ERROR.code());
-            assertThat(run.errorOutput())
-                    .contains("Managed Postgres error")
-                    .doesNotContain("secret-password");
+            assertThat(run.errorOutput()).contains("Managed Postgres error").doesNotContain("secret-password");
         }
     }
 

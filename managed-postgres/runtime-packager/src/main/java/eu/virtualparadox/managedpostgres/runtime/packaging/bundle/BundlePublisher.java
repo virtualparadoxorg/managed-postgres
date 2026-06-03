@@ -38,15 +38,12 @@ public final class BundlePublisher {
      * @return published artifact paths
      */
     public PublishResult publish(
-            final Path normalizedBundle,
-            final Path publishDirectory,
-            final BundleManifest manifest) {
+            final Path normalizedBundle, final Path publishDirectory, final BundleManifest manifest) {
         final Path validatedNormalizedBundle = Objects.requireNonNull(normalizedBundle, "normalizedBundle");
         final Path validatedPublishDirectory = Objects.requireNonNull(publishDirectory, "publishDirectory");
         final BundleManifest validatedManifest = Objects.requireNonNull(manifest, "manifest");
         final Path bundle = bundleArchiveWriter.write(
-                validatedNormalizedBundle,
-                validatedPublishDirectory.resolve(validatedManifest.archiveFileName()));
+                validatedNormalizedBundle, validatedPublishDirectory.resolve(validatedManifest.archiveFileName()));
         final Path checksum = writeChecksum(bundle);
         final Path publishedManifest = copyManifest(validatedNormalizedBundle, validatedPublishDirectory);
 
@@ -57,10 +54,7 @@ public final class BundlePublisher {
         final Path checksumPath = Path.of(bundle + ".sha256");
         try {
             final String checksum = HexFormat.of().formatHex(sha256(Files.readAllBytes(bundle)));
-            Files.writeString(
-                    checksumPath,
-                    checksum + "  " + bundle.getFileName() + "\n",
-                    StandardCharsets.UTF_8);
+            Files.writeString(checksumPath, checksum + "  " + bundle.getFileName() + "\n", StandardCharsets.UTF_8);
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to write runtime bundle checksum", exception);
         }

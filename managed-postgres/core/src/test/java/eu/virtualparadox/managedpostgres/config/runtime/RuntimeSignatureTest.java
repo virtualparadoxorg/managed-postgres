@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public final class RuntimeSignatureTest {
 
-    RuntimeSignatureTest() {
-    }
+    RuntimeSignatureTest() {}
 
     @Test
     void ed25519RejectsBlankPublicKey() {
@@ -35,9 +34,7 @@ public final class RuntimeSignatureTest {
     void toStringDoesNotExposeFullSignatureValue() {
         final RuntimeSignature signature = RuntimeSignature.ed25519("public-key", "signature-value");
 
-        assertThat(signature.toString())
-                .contains("Ed25519")
-                .doesNotContain("signature-value");
+        assertThat(signature.toString()).contains("Ed25519").doesNotContain("signature-value");
     }
 
     @Test

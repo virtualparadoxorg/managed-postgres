@@ -19,8 +19,7 @@ public final class FileCredentialStoreTest {
     @TempDir
     private Path temporaryDirectory;
 
-    FileCredentialStoreTest() {
-    }
+    FileCredentialStoreTest() {}
 
     @Test
     void credentialStoreWritesThroughManagedFileSystem() throws IOException {
@@ -42,8 +41,7 @@ public final class FileCredentialStoreTest {
         final Path credentialsPath = temporaryDirectory.resolve("credentials.properties");
         Files.writeString(
                 credentialsPath,
-                "username=postgres%npassword=persisted-secret%npersistent=true%nlocalTrustOnly=false%n"
-                        .formatted(),
+                "username=postgres%npassword=persisted-secret%npersistent=true%nlocalTrustOnly=false%n".formatted(),
                 StandardCharsets.UTF_8);
 
         final FileCredentialStore store = new FileCredentialStore(credentialsPath, new RecordingManagedFileSystem());
@@ -59,8 +57,7 @@ public final class FileCredentialStoreTest {
     @Test
     void missingCredentialStoreReadsAsEmpty() throws IOException {
         final FileCredentialStore store = new FileCredentialStore(
-                temporaryDirectory.resolve("missing.properties"),
-                new RecordingManagedFileSystem());
+                temporaryDirectory.resolve("missing.properties"), new RecordingManagedFileSystem());
 
         assertThat(store.read()).isEmpty();
     }
@@ -71,9 +68,7 @@ public final class FileCredentialStoreTest {
         Files.writeString(credentialsPath, "password=persisted-secret%n".formatted(), StandardCharsets.UTF_8);
         final FileCredentialStore store = new FileCredentialStore(credentialsPath, new RecordingManagedFileSystem());
 
-        assertThatThrownBy(store::read)
-                .isInstanceOf(IOException.class)
-                .hasMessageContaining("username");
+        assertThatThrownBy(store::read).isInstanceOf(IOException.class).hasMessageContaining("username");
     }
 
     private static final class RecordingManagedFileSystem implements ManagedFileSystem {
@@ -85,8 +80,7 @@ public final class FileCredentialStoreTest {
         private boolean committed;
 
         @Override
-        public void createDirectories(final Path directory) {
-        }
+        public void createDirectories(final Path directory) {}
 
         @Override
         public Path createTemporaryDirectory(final Path parentDirectory, final String prefix) {
@@ -94,8 +88,7 @@ public final class FileCredentialStoreTest {
         }
 
         @Override
-        public void deleteIfExists(final Path filePath) {
-        }
+        public void deleteIfExists(final Path filePath) {}
 
         @Override
         public FileSystemOperation beginOperation(final String operationName, final Path operationRoot) {
@@ -124,8 +117,7 @@ public final class FileCredentialStoreTest {
 
         private final class RecordingOperation implements FileSystemOperation {
 
-            private RecordingOperation() {
-            }
+            private RecordingOperation() {}
 
             @Override
             public Path createStagingDirectory(final String name) {
@@ -141,9 +133,7 @@ public final class FileCredentialStoreTest {
 
             @Override
             public void writeUtf8Atomically(
-                    final Path target,
-                    final String content,
-                    final ManagedFilePermissions requestedPermissions) {
+                    final Path target, final String content, final ManagedFilePermissions requestedPermissions) {
                 writeUtf8Atomically(target, content);
                 permissions = requestedPermissions;
             }
@@ -164,8 +154,7 @@ public final class FileCredentialStoreTest {
             }
 
             @Override
-            public void close() {
-            }
+            public void close() {}
         }
     }
 }

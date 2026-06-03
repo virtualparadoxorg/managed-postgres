@@ -15,8 +15,7 @@ public final class DirectoryPublisherTest {
     @TempDir
     private Path operationRoot;
 
-    DirectoryPublisherTest() {
-    }
+    DirectoryPublisherTest() {}
 
     @Test
     void publishToAbsentTargetMovesStagingDirectoryIntoPlace() throws IOException {

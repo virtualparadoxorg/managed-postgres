@@ -12,8 +12,7 @@ import java.util.Map;
  */
 public final class DownloadedRuntimeResolutionDiagnostics {
 
-    private DownloadedRuntimeResolutionDiagnostics() {
-    }
+    private DownloadedRuntimeResolutionDiagnostics() {}
 
     /**
      * Returns the failure result.
@@ -35,15 +34,12 @@ public final class DownloadedRuntimeResolutionDiagnostics {
      * @return failure result
      */
     public static ManagedPostgresException failure(
-            final String message,
-            final RuntimeSource runtimeSource,
-            final Throwable cause) {
+            final String message, final RuntimeSource runtimeSource, final Throwable cause) {
         return new ManagedPostgresException(message, cause, diagnostic(runtimeSource, message));
     }
 
     private static DiagnosticReport diagnostic(final RuntimeSource runtimeSource, final String message) {
-        return new DiagnosticReport(List.of(new DiagnosticSection("runtime-resolution", Map.of(
-                "runtimeSource", runtimeSource.kind(),
-                "message", message))));
+        return new DiagnosticReport(List.of(new DiagnosticSection(
+                "runtime-resolution", Map.of("runtimeSource", runtimeSource.kind(), "message", message))));
     }
 }

@@ -38,8 +38,7 @@ public final class StartPostgresWorkflowNetworkTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowNetworkTest() {
-    }
+    StartPostgresWorkflowNetworkTest() {}
 
     @Test
     void temporaryStartCreatesLayoutCredentialsConfigMetadataAndStartedHandle() throws IOException {
@@ -51,19 +50,25 @@ public final class StartPostgresWorkflowNetworkTest {
             final PostgresLayout startedLayout = ((StartedPostgresHandle) handle).layout();
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(handle.connectionInfo().host()).isEqualTo("127.0.0.1");
-            assertThat(startedLayout.root()).startsWith(storage.path().toAbsolutePath().normalize());
-            assertThat(Files.isRegularFile(startedLayout.dataDirectory().resolve("postgresql.conf"))).isTrue();
-            assertThat(Files.isRegularFile(startedLayout.dataDirectory().resolve("pg_hba.conf"))).isTrue();
-            assertThat(Files.isRegularFile(startedLayout.stateDirectory().resolve("credentials.properties"))).isTrue();
+            assertThat(startedLayout.root())
+                    .startsWith(storage.path().toAbsolutePath().normalize());
+            assertThat(Files.isRegularFile(startedLayout.dataDirectory().resolve("postgresql.conf")))
+                    .isTrue();
+            assertThat(Files.isRegularFile(startedLayout.dataDirectory().resolve("pg_hba.conf")))
+                    .isTrue();
+            assertThat(Files.isRegularFile(startedLayout.stateDirectory().resolve("credentials.properties")))
+                    .isTrue();
             assertThat(Files.isRegularFile(startedLayout.metadataPath())).isTrue();
-            assertThat(Files.readString(startedLayout.dataDirectory().resolve("postgresql.conf"), StandardCharsets.UTF_8))
+            assertThat(Files.readString(
+                            startedLayout.dataDirectory().resolve("postgresql.conf"), StandardCharsets.UTF_8))
                     .contains("listen_addresses='127.0.0.1'")
                     .contains("password_encryption='scram-sha-256'")
                     .containsPattern("port=\\d+");
             assertThat(Files.readString(startedLayout.dataDirectory().resolve("pg_hba.conf"), StandardCharsets.UTF_8))
                     .contains("scram-sha-256")
                     .contains("127.0.0.1/32");
-            assertThat(Files.exists(startedLayout.stateDirectory().resolve("initdb-password.txt"))).isFalse();
+            assertThat(Files.exists(startedLayout.stateDirectory().resolve("initdb-password.txt")))
+                    .isFalse();
         }
 
         assertThat(calls()).contains("initdb", "pg_ctl start", "pg_isready");
@@ -75,8 +80,8 @@ public final class StartPostgresWorkflowNetworkTest {
         final Path storageRoot = temporaryDirectory.resolve("local-postgres");
         final int fixedPort = availablePort();
 
-        try (ManagedPostgres postgres = managedPostgres(storageRoot, runtimeDirectory, Network.localhostOnly()
-                .port(fixedPort));
+        try (ManagedPostgres postgres = managedPostgres(
+                        storageRoot, runtimeDirectory, Network.localhostOnly().port(fixedPort));
                 RunningPostgres handle = postgres.start()) {
             assertThat(handle.connectionInfo().port()).isEqualTo(fixedPort);
             assertThat(Files.readString(storageRoot.resolve("data/postgresql.conf"), StandardCharsets.UTF_8))
@@ -92,9 +97,10 @@ public final class StartPostgresWorkflowNetworkTest {
         final Path storageRoot = temporaryDirectory.resolve("local-postgres");
         final int preferredPort = availablePort();
 
-        try (ManagedPostgres postgres = managedPostgres(storageRoot, runtimeDirectory, Network.localhostOnly()
-                .preferredPort(preferredPort)
-                .fallbackToRandom());
+        try (ManagedPostgres postgres = managedPostgres(
+                        storageRoot,
+                        runtimeDirectory,
+                        Network.localhostOnly().preferredPort(preferredPort).fallbackToRandom());
                 RunningPostgres handle = postgres.start()) {
             assertThat(handle.connectionInfo().host()).isEqualTo("127.0.0.1");
             assertThat(handle.connectionInfo().port()).isEqualTo(preferredPort);
@@ -121,9 +127,7 @@ public final class StartPostgresWorkflowNetworkTest {
     }
 
     private static ManagedPostgres managedPostgres(
-            final Path storageRoot,
-            final Path runtimeDirectory,
-            final Network network) {
+            final Path storageRoot, final Path runtimeDirectory, final Network network) {
         return ManagedPostgres.local()
                 .version("16.4")
                 .storage(new Storage(storageRoot, false))
@@ -149,8 +153,7 @@ public final class StartPostgresWorkflowNetworkTest {
     }
 
     private static StartPostgresWorkflow.Configuration configuration(
-            final Storage storage,
-            final Path runtimeDirectory) {
+            final Storage storage, final Path runtimeDirectory) {
         return new StartPostgresWorkflow.Configuration(
                 "app-db",
                 "16.4",

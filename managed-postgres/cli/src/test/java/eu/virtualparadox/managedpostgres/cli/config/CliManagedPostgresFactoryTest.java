@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.cli.command.CliCommonOptions;
+import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
@@ -23,46 +23,34 @@ final class CliManagedPostgresFactoryTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CliManagedPostgresFactoryTest() {
-    }
+    CliManagedPostgresFactoryTest() {}
 
     @Test
     void blankNameIsRejectedBeforeLifecycleStarts() {
-        assertThatThrownBy(() -> CliManagedPostgresConfiguration.of(
-                " ",
-                "16.4",
-                ".local/postgres",
-                RuntimeSource.system()))
+        assertThatThrownBy(() ->
+                        CliManagedPostgresConfiguration.of(" ", "16.4", ".local/postgres", RuntimeSource.system()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("name must not be blank");
     }
 
     @Test
     void blankPostgresqlVersionIsRejectedBeforeLifecycleStarts() {
-        assertThatThrownBy(() -> CliManagedPostgresConfiguration.of(
-                "app-db",
-                "",
-                ".local/postgres",
-                RuntimeSource.system()))
+        assertThatThrownBy(() ->
+                        CliManagedPostgresConfiguration.of("app-db", "", ".local/postgres", RuntimeSource.system()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("version must not be blank");
     }
 
     @Test
     void blankStorageIsRejectedBeforeLifecycleStarts() {
-        assertThatThrownBy(() -> CliManagedPostgresConfiguration.of(
-                "app-db",
-                "16.4",
-                " ",
-                RuntimeSource.system()))
+        assertThatThrownBy(() -> CliManagedPostgresConfiguration.of("app-db", "16.4", " ", RuntimeSource.system()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("storage must not be blank");
     }
 
     @Test
     void omittedRuntimeMapsToSystemRuntimeSource() {
-        final RuntimeSource runtimeSource = new CliRuntimeSourceFactory()
-                .create(Optional.empty(), Optional.empty());
+        final RuntimeSource runtimeSource = new CliRuntimeSourceFactory().create(Optional.empty(), Optional.empty());
 
         assertThat(runtimeSource).isEqualTo(RuntimeSource.system());
     }
@@ -70,8 +58,8 @@ final class CliManagedPostgresFactoryTest {
     @Test
     void runtimeExistingMapsToExistingRuntimeSource() {
         final Path runtimePath = temporaryDirectory.resolve("postgres-runtime");
-        final RuntimeSource runtimeSource = new CliRuntimeSourceFactory()
-                .create(Optional.of("existing"), Optional.of(runtimePath));
+        final RuntimeSource runtimeSource =
+                new CliRuntimeSourceFactory().create(Optional.of("existing"), Optional.of(runtimePath));
 
         assertThat(runtimeSource).isEqualTo(RuntimeSource.existing(runtimePath));
     }
@@ -79,40 +67,37 @@ final class CliManagedPostgresFactoryTest {
     @Test
     void omittedRuntimeSourceWithPathMapsToExistingRuntimeSource() {
         final Path runtimePath = temporaryDirectory.resolve("postgres-runtime");
-        final RuntimeSource runtimeSource = new CliRuntimeSourceFactory()
-                .create(Optional.empty(), Optional.of(runtimePath));
+        final RuntimeSource runtimeSource =
+                new CliRuntimeSourceFactory().create(Optional.empty(), Optional.of(runtimePath));
 
         assertThat(runtimeSource).isEqualTo(RuntimeSource.existing(runtimePath));
     }
 
     @Test
     void systemRuntimeRejectsPath() {
-        assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .create(Optional.of("system"), Optional.of(temporaryDirectory)))
+        assertThatThrownBy(() ->
+                        new CliRuntimeSourceFactory().create(Optional.of("system"), Optional.of(temporaryDirectory)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.path is only valid");
     }
 
     @Test
     void existingRuntimeRequiresPath() {
-        assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .create(Optional.of("existing"), Optional.empty()))
+        assertThatThrownBy(() -> new CliRuntimeSourceFactory().create(Optional.of("existing"), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("existing runtime source requires a path");
     }
 
     @Test
     void downloadedRuntimeRequiresChecksumForDirectCliFlags() {
-        assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .create(Optional.of("downloaded"), Optional.empty()))
+        assertThatThrownBy(() -> new CliRuntimeSourceFactory().create(Optional.of("downloaded"), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.source=downloaded requires runtime.checksum");
     }
 
     @Test
     void blankRuntimeSourceIsRejected() {
-        assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .create(Optional.of(" "), Optional.empty()))
+        assertThatThrownBy(() -> new CliRuntimeSourceFactory().create(Optional.of(" "), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime source must not be blank");
     }
@@ -128,7 +113,8 @@ final class CliManagedPostgresFactoryTest {
 
     @Test
     void yamlRejectsNonObjectStorageSection() throws IOException {
-        final Path configPath = writeConfiguration("""
+        final Path configPath = writeConfiguration(
+                """
                 managed-postgres:
                   storage: invalid
                 """);
@@ -140,7 +126,8 @@ final class CliManagedPostgresFactoryTest {
 
     @Test
     void directCommandLineFlagsOverrideConfigFileValues() throws IOException {
-        final Path configPath = writeConfiguration("""
+        final Path configPath = writeConfiguration(
+                """
                 managed-postgres:
                   name: config-db
                   version: "15.7"
@@ -155,8 +142,7 @@ final class CliManagedPostgresFactoryTest {
                 Optional.of(".flag/postgres"),
                 Optional.of(runtimePath));
 
-        final CliManagedPostgresConfiguration configuration =
-                options.toConfiguration(new CliYamlConfigurationLoader());
+        final CliManagedPostgresConfiguration configuration = options.toConfiguration(new CliYamlConfigurationLoader());
 
         assertThat(configuration.name()).isEqualTo("flag-db");
         assertThat(configuration.postgresqlVersion()).isEqualTo("16.4");
@@ -166,15 +152,11 @@ final class CliManagedPostgresFactoryTest {
 
     @Test
     void factoryCreatesManagedPostgresThroughPublicApiOnly() throws NoSuchMethodException {
-        final Method method = CliManagedPostgresFactory.class.getMethod(
-                "create",
-                CliManagedPostgresConfiguration.class);
+        final Method method =
+                CliManagedPostgresFactory.class.getMethod("create", CliManagedPostgresConfiguration.class);
         final String methodSignature = method.toGenericString();
-        final CliManagedPostgresConfiguration configuration = CliManagedPostgresConfiguration.of(
-                "app-db",
-                "16.4",
-                ".local/postgres",
-                RuntimeSource.system());
+        final CliManagedPostgresConfiguration configuration =
+                CliManagedPostgresConfiguration.of("app-db", "16.4", ".local/postgres", RuntimeSource.system());
 
         try (ManagedPostgres managedPostgres = new CliManagedPostgresFactory().create(configuration)) {
             assertThat(managedPostgres).isNotNull();
@@ -199,9 +181,7 @@ final class CliManagedPostgresFactoryTest {
                 Network.localhostOnly().stableRandomPort(),
                 AttachPolicy.CREATE_NEW,
                 StopPolicy.STOP_ON_CLOSE,
-                Resources.ci()
-                        .maxConnections(24)
-                        .sharedBuffers("96MB"));
+                Resources.ci().maxConnections(24).sharedBuffers("96MB"));
 
         try (ManagedPostgres managedPostgres = new CliManagedPostgresFactory().create(configuration)) {
             assertThat(managedPostgres.toString())

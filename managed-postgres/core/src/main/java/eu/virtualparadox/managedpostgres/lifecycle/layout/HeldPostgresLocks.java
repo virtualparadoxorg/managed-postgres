@@ -61,9 +61,7 @@ public final class HeldPostgresLocks implements AutoCloseable {
         }
     }
 
-    private static void closeLocks(
-            final List<HeldPostgresLock> locks,
-            final ManagedPostgresException originalFailure) {
+    private static void closeLocks(final List<HeldPostgresLock> locks, final ManagedPostgresException originalFailure) {
         for (int index = locks.size() - 1; index >= 0; index--) {
             try {
                 locks.get(index).close();

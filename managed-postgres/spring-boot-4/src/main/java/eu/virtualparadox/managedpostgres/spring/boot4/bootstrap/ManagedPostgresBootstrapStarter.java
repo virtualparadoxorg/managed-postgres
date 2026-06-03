@@ -13,8 +13,7 @@ import java.util.Optional;
  */
 final class ManagedPostgresBootstrapStarter {
 
-    ManagedPostgresBootstrapStarter() {
-    }
+    ManagedPostgresBootstrapStarter() {}
 
     /**
      * Starts managed PostgreSQL and returns the populated bootstrap context.
@@ -25,36 +24,25 @@ final class ManagedPostgresBootstrapStarter {
     ManagedPostgresBootstrapContext start(final ManagedPostgres managedPostgres) {
         final ManagedPostgres checkedManagedPostgres = Objects.requireNonNull(managedPostgres, "managedPostgres");
         final long startupStartedAt = System.nanoTime();
-        final RunningPostgres runningPostgres = Objects.requireNonNull(
-                checkedManagedPostgres.start(),
-                "runningPostgres");
+        final RunningPostgres runningPostgres =
+                Objects.requireNonNull(checkedManagedPostgres.start(), "runningPostgres");
         final StartupTelemetryAccess startupTelemetry = startupTelemetry(runningPostgres);
 
         return ManagedPostgresBootstrapContext.of(
                 checkedManagedPostgres,
                 runningPostgres,
                 metricsSince(
-                        startupStartedAt,
-                        installDuration(startupTelemetry),
-                        healthcheckFailures(startupTelemetry)));
+                        startupStartedAt, installDuration(startupTelemetry), healthcheckFailures(startupTelemetry)));
     }
 
     private static ManagedPostgresBootstrapMetrics metricsSince(
-            final long startupStartedAt,
-            final Duration installDuration,
-            final int healthcheckFailures) {
+            final long startupStartedAt, final Duration installDuration, final int healthcheckFailures) {
         return new ManagedPostgresBootstrapMetrics(
-                Duration.ofNanos(System.nanoTime() - startupStartedAt),
-                installDuration,
-                healthcheckFailures);
+                Duration.ofNanos(System.nanoTime() - startupStartedAt), installDuration, healthcheckFailures);
     }
 
     private static Duration installDuration(final StartupTelemetryAccess startupTelemetryAccess) {
-        return telemetryValue(
-                startupTelemetryAccess,
-                "runtimeInstallDuration",
-                Duration.class,
-                Duration.ZERO);
+        return telemetryValue(startupTelemetryAccess, "runtimeInstallDuration", Duration.class, Duration.ZERO);
     }
 
     private static int healthcheckFailures(final StartupTelemetryAccess startupTelemetryAccess) {
@@ -69,12 +57,13 @@ final class ManagedPostgresBootstrapStarter {
         T telemetryValue = fallback;
         if (startupTelemetryAccess.method().isPresent()) {
             try {
-                final Object startupTelemetry = startupTelemetryAccess.telemetry().orElseThrow();
-                telemetryValue = valueType.cast(startupTelemetry.getClass()
-                        .getMethod(accessorName)
-                        .invoke(startupTelemetry));
+                final Object startupTelemetry =
+                        startupTelemetryAccess.telemetry().orElseThrow();
+                telemetryValue = valueType.cast(
+                        startupTelemetry.getClass().getMethod(accessorName).invoke(startupTelemetry));
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException exception) {
-                throw new IllegalStateException("Unable to read managed PostgreSQL startup telemetry details", exception);
+                throw new IllegalStateException(
+                        "Unable to read managed PostgreSQL startup telemetry details", exception);
             }
         }
         return telemetryValue;
@@ -103,6 +92,5 @@ final class ManagedPostgresBootstrapStarter {
         return new StartupTelemetryAccess(method, telemetry);
     }
 
-    private record StartupTelemetryAccess(Optional<Method> method, Optional<Object> telemetry) {
-    }
+    private record StartupTelemetryAccess(Optional<Method> method, Optional<Object> telemetry) {}
 }

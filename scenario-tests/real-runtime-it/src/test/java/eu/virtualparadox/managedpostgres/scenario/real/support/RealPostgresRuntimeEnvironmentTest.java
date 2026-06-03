@@ -18,8 +18,7 @@ final class RealPostgresRuntimeEnvironmentTest {
     @TempDir
     private Path temporaryDirectory;
 
-    RealPostgresRuntimeEnvironmentTest() {
-    }
+    RealPostgresRuntimeEnvironmentTest() {}
 
     @Test
     void propertyRuntimeWinsOverEnvironmentAndPathDiscovery() throws IOException {
@@ -74,7 +73,8 @@ final class RealPostgresRuntimeEnvironmentTest {
 
         final RealPostgresRuntime runtime = environment.resolve().orElseThrow();
 
-        assertThat(command.get()).containsExactly(toolDirectory.resolve("pg_config").toString(), "--bindir");
+        assertThat(command.get())
+                .containsExactly(toolDirectory.resolve("pg_config").toString(), "--bindir");
         assertThat(runtime.runtimeDirectory()).isEqualTo(pgConfigRuntime);
         assertThat(runtime.postgresqlVersion()).isEqualTo("16.6");
     }
@@ -82,11 +82,8 @@ final class RealPostgresRuntimeEnvironmentTest {
     @Test
     void pathPgCtlDiscoveryIsUsedAfterPgConfigDiscovery() throws IOException {
         final Path pathRuntime = runtime("path-runtime", "15.8");
-        final RealPostgresRuntimeEnvironment environment = environment(
-                "",
-                "",
-                pathRuntime.resolve("bin").toString(),
-                false);
+        final RealPostgresRuntimeEnvironment environment =
+                environment("", "", pathRuntime.resolve("bin").toString(), false);
 
         final RealPostgresRuntime runtime = environment.resolve().orElseThrow();
 
@@ -113,11 +110,8 @@ final class RealPostgresRuntimeEnvironmentTest {
 
     @Test
     void invalidExplicitRuntimeFailsInsteadOfSkipping() {
-        final RealPostgresRuntimeEnvironment environment = environment(
-                temporaryDirectory.resolve("missing-runtime").toString(),
-                "",
-                "",
-                false);
+        final RealPostgresRuntimeEnvironment environment =
+                environment(temporaryDirectory.resolve("missing-runtime").toString(), "", "", false);
 
         assertThatThrownBy(environment::resolve)
                 .isInstanceOf(AssertionError.class)
@@ -185,9 +179,7 @@ final class RealPostgresRuntimeEnvironmentTest {
     }
 
     private RealPostgresRuntimeEnvironment.RuntimeCommandResult commandResultFor(
-            final List<String> invocation,
-            final Path pgConfigRuntime,
-            final String version) {
+            final List<String> invocation, final Path pgConfigRuntime, final String version) {
         final String stdout;
         if (invocation.contains("--bindir")) {
             stdout = pgConfigRuntime.resolve("bin").toString();

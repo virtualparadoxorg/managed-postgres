@@ -13,8 +13,7 @@ import java.util.Objects;
  */
 public final class PostgresLockFailure {
 
-    private PostgresLockFailure() {
-    }
+    private PostgresLockFailure() {}
 
     /**
      * Returns the create result.

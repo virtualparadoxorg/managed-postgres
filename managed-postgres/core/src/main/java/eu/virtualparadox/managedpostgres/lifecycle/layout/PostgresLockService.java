@@ -113,10 +113,7 @@ public final class PostgresLockService {
         HELD_LOCKS.remove(path, owner);
     }
 
-    private static HeldPostgresLock lockOpenedChannel(
-            final Path path,
-            final Object owner,
-            final FileChannel channel) {
+    private static HeldPostgresLock lockOpenedChannel(final Path path, final Object owner, final FileChannel channel) {
         return HeldPostgresLock.open(path, owner, channel);
     }
 }

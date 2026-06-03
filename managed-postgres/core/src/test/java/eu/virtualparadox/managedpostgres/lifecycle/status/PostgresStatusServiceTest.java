@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public final class PostgresStatusServiceTest {
 
-    PostgresStatusServiceTest() {
-    }
+    PostgresStatusServiceTest() {}
 
     @Test
     void statusServiceReturnsStoppedWhenMetadataIsAbsent() {
@@ -66,9 +65,8 @@ public final class PostgresStatusServiceTest {
 
     @Test
     void statusServiceUsesProbeWhenMetadataIsPresent() {
-        final PostgresStatusService service = new PostgresStatusService(
-                () -> Optional.of(metadata()),
-                ignored -> PostgresStatusSnapshot.running());
+        final PostgresStatusService service =
+                new PostgresStatusService(() -> Optional.of(metadata()), ignored -> PostgresStatusSnapshot.running());
 
         assertThat(service.status()).isEqualTo(PostgresStatus.RUNNING);
         assertThat(service.diagnosticReport()).isEmpty();

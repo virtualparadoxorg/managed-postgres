@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedFilePermissionsTest {
 
-    ManagedFilePermissionsTest() {
-    }
+    ManagedFilePermissionsTest() {}
 
     @Test
     void defaultsHaveNoExplicitPermissions() {
@@ -25,9 +24,8 @@ public final class ManagedFilePermissionsTest {
         final ManagedFilePermissions permissions = ManagedFilePermissions.ownerOnlyReadWrite();
 
         assertThat(permissions.hasExplicitPermissions()).isTrue();
-        assertThat(permissions.posixPermissions()).containsExactlyInAnyOrder(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE);
+        assertThat(permissions.posixPermissions())
+                .containsExactlyInAnyOrder(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
         assertThat(permissions).hasToString("ManagedFilePermissions[explicitPermissions=true]");
     }
 

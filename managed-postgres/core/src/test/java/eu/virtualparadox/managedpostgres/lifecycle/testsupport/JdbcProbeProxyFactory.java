@@ -11,8 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class JdbcProbeProxyFactory {
 
-    private JdbcProbeProxyFactory() {
-    }
+    private JdbcProbeProxyFactory() {}
 
     public static Connection connection(final JdbcProbeScenario scenario) {
         return proxy(Connection.class, (proxy, method, arguments) -> {
@@ -87,9 +86,6 @@ public final class JdbcProbeProxyFactory {
     }
 
     private static <T> T proxy(final Class<T> type, final InvocationHandler invocationHandler) {
-        return type.cast(Proxy.newProxyInstance(
-                type.getClassLoader(),
-                new Class<?>[] {type},
-                invocationHandler));
+        return type.cast(Proxy.newProxyInstance(type.getClassLoader(), new Class<?>[] {type}, invocationHandler));
     }
 }

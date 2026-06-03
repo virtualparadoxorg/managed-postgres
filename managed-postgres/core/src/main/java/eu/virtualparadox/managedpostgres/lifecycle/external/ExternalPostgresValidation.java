@@ -10,9 +10,7 @@ import java.util.Objects;
  * @param connectionInfo validated connection details
  * @param snapshot PostgreSQL identity values observed through JDBC
  */
-public record ExternalPostgresValidation(
-        PostgresConnectionInfo connectionInfo,
-        JdbcProbeSnapshot snapshot) {
+public record ExternalPostgresValidation(PostgresConnectionInfo connectionInfo, JdbcProbeSnapshot snapshot) {
 
     /**
      * Creates immutable external PostgreSQL validation details.

@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringNetworkPropertiesTest {
 
-    ManagedPostgresSpringNetworkPropertiesTest() {
-    }
+    ManagedPostgresSpringNetworkPropertiesTest() {}
 
     @Test
     void networkPropertiesAreParsedFromEnvironment() {

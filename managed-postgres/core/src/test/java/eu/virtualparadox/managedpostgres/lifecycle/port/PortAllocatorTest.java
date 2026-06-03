@@ -24,8 +24,7 @@ public final class PortAllocatorTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PortAllocatorTest() {
-    }
+    PortAllocatorTest() {}
 
     @Test
     void randomPortAllocatorReturnsBindableUnusedPort() throws IOException {
@@ -42,8 +41,7 @@ public final class PortAllocatorTest {
     void stableRandomPortCanBeReadFromMetadata() throws IOException {
         final int freePort = availablePort();
         final MetadataStore metadataStore = new MetadataStore(
-                temporaryDirectory.resolve("state").resolve("metadata.json"),
-                new FileSystemOperationJournal());
+                temporaryDirectory.resolve("state").resolve("metadata.json"), new FileSystemOperationJournal());
         metadataStore.write(metadata(freePort));
         final PortAllocator allocator = PortAllocator.metadataBacked(metadataStore);
 
@@ -55,8 +53,7 @@ public final class PortAllocatorTest {
     @Test
     void stableRandomPortIsWrittenToMetadata() {
         final MetadataStore metadataStore = new MetadataStore(
-                temporaryDirectory.resolve("state").resolve("metadata.json"),
-                new FileSystemOperationJournal());
+                temporaryDirectory.resolve("state").resolve("metadata.json"), new FileSystemOperationJournal());
         final PortAllocator allocator = PortAllocator.metadataBacked(metadataStore);
 
         try (AllocatedPort allocated = allocator.allocateStableRandom("default")) {
@@ -97,8 +94,7 @@ public final class PortAllocatorTest {
 
         try (ServerSocket occupied = occupiedLoopbackSocket();
                 AllocatedPort allocated = allocator.allocatePreferred(
-                        occupied.getLocalPort(),
-                        PortAllocator.OccupiedPortPolicy.FALLBACK_TO_RANDOM)) {
+                        occupied.getLocalPort(), PortAllocator.OccupiedPortPolicy.FALLBACK_TO_RANDOM)) {
             assertThat(allocated.port()).isNotEqualTo(occupied.getLocalPort());
             assertBindable(allocated);
         }
@@ -106,10 +102,8 @@ public final class PortAllocatorTest {
 
     @Test
     void allocatedPortRejectsInvalidValuesAndClosesIdempotently() {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new AllocatedPort(" ", 15432));
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> new AllocatedPort("127.0.0.1", 0));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new AllocatedPort(" ", 15432));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> new AllocatedPort("127.0.0.1", 0));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> new AllocatedPort("127.0.0.1", 65_536));
         try (AllocatedPort allocatedPort = new AllocatedPort("127.0.0.1", 15432)) {
@@ -125,12 +119,9 @@ public final class PortAllocatorTest {
     void allocatorRejectsBlankStableKeysAndInvalidPreferredPorts() {
         final PortAllocator allocator = new PortAllocator();
 
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> allocator.allocateStableRandom(" "));
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> allocator.allocatePreferred(0));
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> allocator.allocatePreferred(65_536));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> allocator.allocateStableRandom(" "));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> allocator.allocatePreferred(0));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> allocator.allocatePreferred(65_536));
     }
 
     private static void assertBindable(final AllocatedPort allocated) throws IOException {
@@ -185,8 +176,7 @@ public final class PortAllocatorTest {
 
         private final Map<String, Integer> ports = new HashMap<>();
 
-        private InMemoryStablePortStore() {
-        }
+        private InMemoryStablePortStore() {}
 
         @Override
         public OptionalInt load(final String key) {

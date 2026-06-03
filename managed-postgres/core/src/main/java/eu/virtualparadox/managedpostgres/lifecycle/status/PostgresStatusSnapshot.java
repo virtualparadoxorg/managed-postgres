@@ -41,7 +41,6 @@ public record PostgresStatusSnapshot(PostgresStatus status, Optional<DiagnosticR
      */
     public static PostgresStatusSnapshot failed(final DiagnosticReport diagnosticReport) {
         return new PostgresStatusSnapshot(
-                PostgresStatus.FAILED,
-                Optional.of(Objects.requireNonNull(diagnosticReport, "diagnosticReport")));
+                PostgresStatus.FAILED, Optional.of(Objects.requireNonNull(diagnosticReport, "diagnosticReport")));
     }
 }

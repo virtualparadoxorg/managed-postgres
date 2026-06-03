@@ -22,8 +22,7 @@ final class RestoreCommandTest {
 
     private static final Path BACKUP = Path.of("target/backups/app.dump");
 
-    RestoreCommandTest() {
-    }
+    RestoreCommandTest() {}
 
     @Test
     void restoreCommandAcceptsBackupPathAsFirstPositionalParameter() {
@@ -31,10 +30,7 @@ final class RestoreCommandTest {
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--drop-current-database",
-                    "--create-safety-backup",
-                    BACKUP.toString());
+                    postgres, "--drop-current-database", "--create-safety-backup", BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
             assertThat(runningPostgres.restoreBackup()).hasValue(BACKUP);
@@ -46,10 +42,8 @@ final class RestoreCommandTest {
         final TestRunningPostgres runningPostgres = TestRunningPostgres.withConnection(connectionInfo());
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--create-safety-backup",
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run =
+                    CliCommandTestSupport.runRestore(postgres, "--create-safety-backup", BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.CONFIGURATION_ERROR.code());
             assertThat(run.errorOutput()).contains("--drop-current-database");
@@ -62,10 +56,8 @@ final class RestoreCommandTest {
         final TestRunningPostgres runningPostgres = TestRunningPostgres.withConnection(connectionInfo());
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--drop-current-database",
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run =
+                    CliCommandTestSupport.runRestore(postgres, "--drop-current-database", BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.CONFIGURATION_ERROR.code());
             assertThat(run.errorOutput()).contains("--create-safety-backup");
@@ -79,10 +71,7 @@ final class RestoreCommandTest {
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--drop-current-database",
-                    "--create-safety-backup",
-                    BACKUP.toString());
+                    postgres, "--drop-current-database", "--create-safety-backup", BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
             assertThat(runningPostgres.restoreOptions()).hasValueSatisfying(RestoreCommandTest::assertSafetyOptions);
@@ -91,27 +80,18 @@ final class RestoreCommandTest {
 
     @Test
     void restoreExceptionMapsToBackupRestoreExitCode() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "restore",
-                Map.of("password", "secret-password"))));
-        final PostgresRestoreException failure = new PostgresRestoreException(
-                "restore failed password=secret-password",
-                diagnostics);
-        final TestRunningPostgres runningPostgres = TestRunningPostgres.withRestoreFailure(
-                connectionInfo(),
-                failure);
+        final DiagnosticReport diagnostics =
+                new DiagnosticReport(List.of(new DiagnosticSection("restore", Map.of("password", "secret-password"))));
+        final PostgresRestoreException failure =
+                new PostgresRestoreException("restore failed password=secret-password", diagnostics);
+        final TestRunningPostgres runningPostgres = TestRunningPostgres.withRestoreFailure(connectionInfo(), failure);
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--drop-current-database",
-                    "--create-safety-backup",
-                    BACKUP.toString());
+                    postgres, "--drop-current-database", "--create-safety-backup", BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.BACKUP_RESTORE_ERROR.code());
-            assertThat(run.errorOutput())
-                    .contains("Managed Postgres error")
-                    .doesNotContain("secret-password");
+            assertThat(run.errorOutput()).contains("Managed Postgres error").doesNotContain("secret-password");
         }
     }
 
@@ -121,10 +101,7 @@ final class RestoreCommandTest {
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runRestore(
-                    postgres,
-                    "--drop-current-database",
-                    "--create-safety-backup",
-                    BACKUP.toString());
+                    postgres, "--drop-current-database", "--create-safety-backup", BACKUP.toString());
 
             assertThat(run.output()).doesNotContain("secret-password");
             assertThat(run.errorOutput()).doesNotContain("secret-password");
@@ -137,11 +114,6 @@ final class RestoreCommandTest {
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of("secret-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("secret-password"));
     }
 }

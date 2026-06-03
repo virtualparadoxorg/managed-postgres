@@ -42,10 +42,7 @@ public final class RuntimeCacheRetention {
      * @param currentRuntime current runtime directory
      * @param retainedRuntimeVersions retained runtime version count
      */
-    public void retain(
-            final RuntimeCacheLayout layout,
-            final Path currentRuntime,
-            final int retainedRuntimeVersions) {
+    public void retain(final RuntimeCacheLayout layout, final Path currentRuntime, final int retainedRuntimeVersions) {
         requirePositive(retainedRuntimeVersions);
         final RuntimeCacheLayout checkedLayout = Objects.requireNonNull(layout, "layout");
         final Path checkedCurrentRuntime = normalize(currentRuntime);
@@ -61,16 +58,14 @@ public final class RuntimeCacheRetention {
             entries = List.of();
         } else {
             try (Stream<Path> paths = Files.list(layout.runtimesDirectory())) {
-                entries = paths
-                        .map(RuntimeCacheRetention::normalize)
+                entries = paths.map(RuntimeCacheRetention::normalize)
                         .filter(this::isOwnedFinalRuntimeDirectory)
                         .map(RuntimeCacheRetention::entry)
                         .sorted(RuntimeEntry.newestFirst())
                         .toList();
             } catch (final IOException exception) {
                 throw new UncheckedIOException(
-                        "failed to inspect runtime cache directory " + layout.runtimesDirectory(),
-                        exception);
+                        "failed to inspect runtime cache directory " + layout.runtimesDirectory(), exception);
             }
         }
 
@@ -82,9 +77,7 @@ public final class RuntimeCacheRetention {
     }
 
     private static Set<Path> retainedPaths(
-            final List<RuntimeEntry> entries,
-            final Path currentRuntime,
-            final int retainedRuntimeVersions) {
+            final List<RuntimeEntry> entries, final Path currentRuntime, final int retainedRuntimeVersions) {
         final Set<Path> retainedPaths = new HashSet<>();
         if (entries.stream().map(RuntimeEntry::path).anyMatch(currentRuntime::equals)) {
             retainedPaths.add(currentRuntime);
@@ -144,10 +137,7 @@ public final class RuntimeCacheRetention {
         }
 
         private static Comparator<RuntimeEntry> newestFirst() {
-            return Comparator
-                    .comparing(RuntimeEntry::modifiedTime)
-                    .reversed()
-                    .thenComparing(RuntimeEntry::path);
+            return Comparator.comparing(RuntimeEntry::modifiedTime).reversed().thenComparing(RuntimeEntry::path);
         }
     }
 }

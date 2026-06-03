@@ -23,9 +23,7 @@ public final class BundlePublicationWorkflow {
         this(new BundleNormalizer(), new BundlePublisher());
     }
 
-    BundlePublicationWorkflow(
-            final BundleNormalizer bundleNormalizer,
-            final BundlePublisher bundlePublisher) {
+    BundlePublicationWorkflow(final BundleNormalizer bundleNormalizer, final BundlePublisher bundlePublisher) {
         this.bundleNormalizer = Objects.requireNonNull(bundleNormalizer, "bundleNormalizer");
         this.bundlePublisher = Objects.requireNonNull(bundlePublisher, "bundlePublisher");
     }
@@ -39,9 +37,7 @@ public final class BundlePublicationWorkflow {
      * @return packaging result
      */
     public RuntimePackagingResult publish(
-            final RuntimePackagingRequest request,
-            final Path rawInstallTree,
-            final PreparedSourceWorkspace workspace) {
+            final RuntimePackagingRequest request, final Path rawInstallTree, final PreparedSourceWorkspace workspace) {
         final RuntimePackagingRequest validatedRequest = Objects.requireNonNull(request, "request");
         final Path validatedRawInstallTree = Objects.requireNonNull(rawInstallTree, "rawInstallTree");
         final PreparedSourceWorkspace validatedWorkspace = Objects.requireNonNull(workspace, "workspace");
@@ -58,7 +54,8 @@ public final class BundlePublicationWorkflow {
                 validatedRequest.release().sourceTarball().toString());
         final Path normalized = bundleNormalizer.normalize(
                 validatedRawInstallTree,
-                validatedRequest.workRoot()
+                validatedRequest
+                        .workRoot()
                         .resolve("normalized")
                         .resolve(validatedRequest.targetPlatform().identifier()),
                 manifest);
@@ -68,15 +65,7 @@ public final class BundlePublicationWorkflow {
     }
 
     private static String archiveFileName(
-            final String postgresVersion,
-            final String targetIdentifier,
-            final String revision) {
-        return "managed-postgres-runtime-pg"
-                + postgresVersion
-                + "-"
-                + targetIdentifier
-                + "-"
-                + revision
-                + ".zip";
+            final String postgresVersion, final String targetIdentifier, final String revision) {
+        return "managed-postgres-runtime-pg" + postgresVersion + "-" + targetIdentifier + "-" + revision + ".zip";
     }
 }

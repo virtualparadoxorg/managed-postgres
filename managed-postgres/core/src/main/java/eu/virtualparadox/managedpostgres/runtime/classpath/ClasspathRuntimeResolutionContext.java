@@ -67,18 +67,16 @@ record ClasspathRuntimeResolutionContext(
      * @param postgresqlVersion requested PostgreSQL version
      * @return resolution context
      */
-    static ClasspathRuntimeResolutionContext create(
-            final RuntimeSource runtimeSource,
-            final String postgresqlVersion) {
+    static ClasspathRuntimeResolutionContext create(final RuntimeSource runtimeSource, final String postgresqlVersion) {
         final RuntimeSource checkedRuntimeSource = Objects.requireNonNull(runtimeSource, "runtimeSource");
         if (!CLASSPATH.equals(checkedRuntimeSource.kind())) {
             throw new IllegalArgumentException("classpath runtime resolver requires a classpath runtime source");
         }
 
-        final ClasspathRuntime runtime = checkedRuntimeSource.classpathRuntime()
+        final ClasspathRuntime runtime = checkedRuntimeSource
+                .classpathRuntime()
                 .orElseThrow(() -> ClasspathRuntimeResolutionDiagnostics.failure(
-                        "classpath runtime configuration is missing",
-                        checkedRuntimeSource));
+                        "classpath runtime configuration is missing", checkedRuntimeSource));
         final Checksum checksum = checksum(runtime, checkedRuntimeSource);
         final Optional<RuntimeSignature> signature = runtime.signature();
         final RuntimeCache runtimeCache = cache(runtime);
@@ -115,15 +113,13 @@ record ClasspathRuntimeResolutionContext(
     }
 
     private static RuntimeCache cache(final ClasspathRuntime runtime) {
-        return runtime.cache()
-                .orElseGet(() -> RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE));
+        return runtime.cache().orElseGet(() -> RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE));
     }
 
     private static Checksum checksum(final ClasspathRuntime runtime, final RuntimeSource runtimeSource) {
         return Checksum.parse(runtime.checksum()
                 .orElseThrow(() -> ClasspathRuntimeResolutionDiagnostics.failure(
-                        "classpath runtime checksum is not configured",
-                        runtimeSource)));
+                        "classpath runtime checksum is not configured", runtimeSource)));
     }
 
     private static String resourceName(final String resource) {

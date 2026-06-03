@@ -1,17 +1,17 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
+import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
-import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactPaths;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactPaths;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 
 /**
  * Restores managed PostgreSQL logical backups through {@code pg_restore}.
@@ -38,17 +38,20 @@ public final class PgRestoreService implements PostgresRestoreOperation {
      */
     @Override
     public void restoreFrom(final Path backup, final RestoreOptions options) {
-        final Path checkedBackup = Objects.requireNonNull(backup, "backup").toAbsolutePath().normalize();
+        final Path checkedBackup =
+                Objects.requireNonNull(backup, "backup").toAbsolutePath().normalize();
         final RestoreOptions checkedOptions = Objects.requireNonNull(options, "options");
         final BackupArtifactPaths safetyPaths = safetyBackupPaths(checkedBackup);
         try (HeldPostgresLock operationLock = acquireOperationLock();
-                FileSystemOperation operation = dependencies.fileSystem()
-                        .beginOperation(OPERATION_NAME, safetyPaths.operationRoot())) {
+                FileSystemOperation operation =
+                        dependencies.fileSystem().beginOperation(OPERATION_NAME, safetyPaths.operationRoot())) {
             requireHeldLock(operationLock);
-            dependencies.backupVerifier().verify(
-                    checkedBackup,
-                    dependencies.manifestSource().connectionInfo(),
-                    dependencies.manifestSource().metadata());
+            dependencies
+                    .backupVerifier()
+                    .verify(
+                            checkedBackup,
+                            dependencies.manifestSource().connectionInfo(),
+                            dependencies.manifestSource().metadata());
             requireSafetyBackup(checkedOptions);
             requireSafetyBackupArtifactsAbsent(safetyPaths);
             createSafetyBackup(operation, safetyPaths);
@@ -64,9 +67,13 @@ public final class PgRestoreService implements PostgresRestoreOperation {
             throw new PostgresRestoreException(
                     "PostgreSQL restore lock failed",
                     exception,
-                    dependencies.diagnostics().lockFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
-                            dependencies.layout().operationLockPath()));
+                    dependencies
+                            .diagnostics()
+                            .lockFailure(
+                                    Objects.toString(
+                                            exception.getMessage(),
+                                            exception.getClass().getName()),
+                                    dependencies.layout().operationLockPath()));
         }
     }
 
@@ -91,18 +98,20 @@ public final class PgRestoreService implements PostgresRestoreOperation {
         }
     }
 
-    private void createSafetyBackup(
-            final FileSystemOperation operation,
-            final BackupArtifactPaths safetyPaths) {
+    private void createSafetyBackup(final FileSystemOperation operation, final BackupArtifactPaths safetyPaths) {
         try {
             dependencies.safetyBackupCreator().create(operation, safetyPaths);
         } catch (final PostgresBackupException exception) {
             throw new PostgresRestoreException(
                     "Failed to create PostgreSQL restore safety backup",
                     exception,
-                    dependencies.diagnostics().safetyBackupFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
-                            dependencies.manifestSource().connectionInfo()));
+                    dependencies
+                            .diagnostics()
+                            .safetyBackupFailure(
+                                    Objects.toString(
+                                            exception.getMessage(),
+                                            exception.getClass().getName()),
+                                    dependencies.manifestSource().connectionInfo()));
         }
     }
 
@@ -128,9 +137,7 @@ public final class PgRestoreService implements PostgresRestoreOperation {
         final int extensionIndex = name.lastIndexOf('.');
         final String safetyName;
         if (extensionIndex > 0) {
-            safetyName = name.substring(0, extensionIndex)
-                    + SAFETY_BACKUP_MARKER
-                    + name.substring(extensionIndex);
+            safetyName = name.substring(0, extensionIndex) + SAFETY_BACKUP_MARKER + name.substring(extensionIndex);
         } else {
             safetyName = name + SAFETY_BACKUP_MARKER + DEFAULT_SAFETY_BACKUP_EXTENSION;
         }

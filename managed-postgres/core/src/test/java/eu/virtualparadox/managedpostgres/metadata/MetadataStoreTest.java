@@ -18,8 +18,7 @@ public final class MetadataStoreTest {
     @TempDir
     private Path temporaryDirectory;
 
-    MetadataStoreTest() {
-    }
+    MetadataStoreTest() {}
 
     @Test
     void metadataWriteIsAtomic() throws IOException {
@@ -68,9 +67,7 @@ public final class MetadataStoreTest {
     @Test
     void metadataPortCanBeReadBack() throws IOException {
         final Path metadataPath = temporaryDirectory.resolve("metadata.json");
-        final MetadataStore store = new MetadataStore(
-                metadataPath,
-                new FileSystemOperationJournal());
+        final MetadataStore store = new MetadataStore(metadataPath, new FileSystemOperationJournal());
 
         store.write(metadata());
 
@@ -80,9 +77,7 @@ public final class MetadataStoreTest {
     @Test
     void metadataCanBeReadBack() {
         final Path metadataPath = temporaryDirectory.resolve("metadata.json");
-        final MetadataStore store = new MetadataStore(
-                metadataPath,
-                new FileSystemOperationJournal());
+        final MetadataStore store = new MetadataStore(metadataPath, new FileSystemOperationJournal());
         final PostgresInstanceMetadata metadata = metadata();
 
         store.write(metadata);
@@ -93,9 +88,7 @@ public final class MetadataStoreTest {
     @Test
     void missingMetadataReadsAsEmpty() {
         final Path metadataPath = temporaryDirectory.resolve("missing-metadata.json");
-        final MetadataStore store = new MetadataStore(
-                metadataPath,
-                new FileSystemOperationJournal());
+        final MetadataStore store = new MetadataStore(metadataPath, new FileSystemOperationJournal());
 
         assertThat(store.read()).isEmpty();
         assertThat(store.readPort()).isEmpty();
@@ -115,9 +108,7 @@ public final class MetadataStoreTest {
     @Test
     void portReservationWriteIsAtomicAndReadable() {
         final Path metadataPath = temporaryDirectory.resolve("reserved-port.json");
-        final MetadataStore store = new MetadataStore(
-                metadataPath,
-                new FileSystemOperationJournal());
+        final MetadataStore store = new MetadataStore(metadataPath, new FileSystemOperationJournal());
 
         store.writePortReservation("default", 15432);
 
@@ -155,8 +146,7 @@ public final class MetadataStoreTest {
         private boolean committed;
 
         @Override
-        public void createDirectories(final Path directory) {
-        }
+        public void createDirectories(final Path directory) {}
 
         @Override
         public Path createTemporaryDirectory(final Path parentDirectory, final String prefix) {
@@ -195,8 +185,7 @@ public final class MetadataStoreTest {
 
         private final class RecordingOperation implements FileSystemOperation {
 
-            private RecordingOperation() {
-            }
+            private RecordingOperation() {}
 
             @Override
             public Path createStagingDirectory(final String name) {
@@ -212,9 +201,7 @@ public final class MetadataStoreTest {
 
             @Override
             public void writeUtf8Atomically(
-                    final Path target,
-                    final String metadataContent,
-                    final ManagedFilePermissions permissions) {
+                    final Path target, final String metadataContent, final ManagedFilePermissions permissions) {
                 writeUtf8Atomically(target, metadataContent);
             }
 
@@ -234,8 +221,7 @@ public final class MetadataStoreTest {
             }
 
             @Override
-            public void close() {
-            }
+            public void close() {}
         }
     }
 }

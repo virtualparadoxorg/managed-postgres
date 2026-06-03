@@ -10,8 +10,7 @@ import java.util.List;
  */
 public final class TestManagedPostgresFactory {
 
-    private TestManagedPostgresFactory() {
-    }
+    private TestManagedPostgresFactory() {}
 
     /**
      * Creates a managed-postgres test double with the given lifecycle status.
@@ -30,10 +29,7 @@ public final class TestManagedPostgresFactory {
      * @return configured managed-postgres test double
      */
     public static TestManagedPostgres withReport(final DoctorReport report) {
-        return new TestManagedPostgres(
-                report,
-                TestRunningPostgres.empty(),
-                emptyFailures());
+        return new TestManagedPostgres(report, TestRunningPostgres.empty(), emptyFailures());
     }
 
     /**
@@ -54,16 +50,10 @@ public final class TestManagedPostgresFactory {
      */
     public static TestManagedPostgres withRunning(final TestRunningPostgres runningPostgres) {
         return new TestManagedPostgres(
-                new DoctorReport(PostgresStatus.RUNNING, List.of()),
-                runningPostgres,
-                emptyFailures());
+                new DoctorReport(PostgresStatus.RUNNING, List.of()), runningPostgres, emptyFailures());
     }
 
     private static TestManagedPostgres.Failures emptyFailures() {
-        return new TestManagedPostgres.Failures(
-                () -> { },
-                () -> { },
-                () -> { },
-                () -> { });
+        return new TestManagedPostgres.Failures(() -> {}, () -> {}, () -> {}, () -> {});
     }
 }

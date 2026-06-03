@@ -7,8 +7,7 @@ import org.springframework.context.support.GenericApplicationContext;
 
 final class ManagedPostgresBootstrapInitializerTest {
 
-    ManagedPostgresBootstrapInitializerTest() {
-    }
+    ManagedPostgresBootstrapInitializerTest() {}
 
     @Test
     void initializeRegistersBootstrapContextBeanWhenMissing() {
@@ -16,8 +15,10 @@ final class ManagedPostgresBootstrapInitializerTest {
         try (GenericApplicationContext applicationContext = new GenericApplicationContext()) {
             new ManagedPostgresBootstrapInitializer(bootstrapContext).initialize(applicationContext);
 
-            assertThat(applicationContext.getBeanFactory()
-                    .containsBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME)).isTrue();
+            assertThat(applicationContext
+                            .getBeanFactory()
+                            .containsBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME))
+                    .isTrue();
         }
     }
 
@@ -31,9 +32,11 @@ final class ManagedPostgresBootstrapInitializerTest {
 
             new ManagedPostgresBootstrapInitializer(bootstrapContext).initialize(applicationContext);
 
-            assertThat(applicationContext.getBeanFactory()
-                    .getBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME)
-                    .getBeanClassName()).isEqualTo(ManagedPostgresBootstrapContext.class.getName());
+            assertThat(applicationContext
+                            .getBeanFactory()
+                            .getBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME)
+                            .getBeanClassName())
+                    .isEqualTo(ManagedPostgresBootstrapContext.class.getName());
         }
     }
 }

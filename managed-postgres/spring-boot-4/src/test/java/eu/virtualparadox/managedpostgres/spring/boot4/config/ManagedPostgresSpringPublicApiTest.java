@@ -10,14 +10,10 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringPublicApiTest {
 
-    private static final List<String> FORBIDDEN_API_NAME_PARTS = List.of(
-            "Platform",
-            "Process",
-            "ProcessHandle",
-            "ProcessBuilder");
+    private static final List<String> FORBIDDEN_API_NAME_PARTS =
+            List.of("Platform", "Process", "ProcessHandle", "ProcessBuilder");
 
-    ManagedPostgresSpringPublicApiTest() {
-    }
+    ManagedPostgresSpringPublicApiTest() {}
 
     @Test
     void factoryReturnTypeIsManagedPostgresAndPublicSignaturesHideInternalConcepts() {
@@ -36,14 +32,16 @@ public final class ManagedPostgresSpringPublicApiTest {
     }
 
     private static boolean isDeclaredPublicApiMethod(final Method method) {
-        return method.getDeclaringClass().getPackageName().startsWith(ManagedPostgres.class.getPackageName() + ".spring.boot4")
+        return method.getDeclaringClass()
+                        .getPackageName()
+                        .startsWith(ManagedPostgres.class.getPackageName() + ".spring.boot4")
                 && Modifier.isPublic(method.getModifiers());
     }
 
     private static List<String> methodSignatureTypeNames(final Method method) {
         return java.util.stream.Stream.concat(
-                java.util.stream.Stream.of(method.getReturnType().getName()),
-                List.of(method.getParameterTypes()).stream().map(Class::getName))
+                        java.util.stream.Stream.of(method.getReturnType().getName()),
+                        List.of(method.getParameterTypes()).stream().map(Class::getName))
                 .toList();
     }
 

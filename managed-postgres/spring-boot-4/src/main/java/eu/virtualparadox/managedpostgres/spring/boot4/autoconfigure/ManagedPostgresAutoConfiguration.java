@@ -28,8 +28,7 @@ public final class ManagedPostgresAutoConfiguration {
     /**
      * Creates the auto-configuration.
      */
-    public ManagedPostgresAutoConfiguration() {
-    }
+    public ManagedPostgresAutoConfiguration() {}
 
     /**
      * Exposes the bootstrap context for this Spring application context.
@@ -104,9 +103,7 @@ public final class ManagedPostgresAutoConfiguration {
      * @return managed PostgreSQL meter binder
      */
     @Bean
-    @ConditionalOnClass(name = {
-            "io.micrometer.core.instrument.MeterRegistry",
-            "io.micrometer.core.instrument.Gauge"})
+    @ConditionalOnClass(name = {"io.micrometer.core.instrument.MeterRegistry", "io.micrometer.core.instrument.Gauge"})
     @ConditionalOnBean(type = "io.micrometer.core.instrument.MeterRegistry")
     @ConditionalOnProperty(prefix = "managed-postgres.metrics", name = "enabled", havingValue = "true")
     @ConditionalOnMissingBean(name = "managedPostgresMeterBinder")

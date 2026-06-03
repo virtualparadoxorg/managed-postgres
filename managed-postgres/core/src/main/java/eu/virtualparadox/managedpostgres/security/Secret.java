@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.security;
 
-import java.util.Objects;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -46,7 +46,8 @@ public final class Secret {
         final byte[] bytes = new byte[RANDOM_SECRET_BYTES];
         SECURE_RANDOM.nextBytes(bytes);
 
-        return new Secret(Base64.getUrlEncoder().withoutPadding().encodeToString(bytes), RANDOM_SECRET_BYTES * BITS_PER_BYTE);
+        return new Secret(
+                Base64.getUrlEncoder().withoutPadding().encodeToString(bytes), RANDOM_SECRET_BYTES * BITS_PER_BYTE);
     }
 
     /**

@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,8 +13,7 @@ import java.util.Objects;
  */
 public final class PostgresRestoreFailures {
 
-    private PostgresRestoreFailures() {
-    }
+    private PostgresRestoreFailures() {}
 
     /**
      * Returns the not running result.

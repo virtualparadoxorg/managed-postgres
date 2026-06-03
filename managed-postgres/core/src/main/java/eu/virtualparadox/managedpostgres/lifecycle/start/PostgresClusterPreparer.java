@@ -1,12 +1,15 @@
 package eu.virtualparadox.managedpostgres.lifecycle.start;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.writer.PgHbaConfigWriter;
 import eu.virtualparadox.managedpostgres.config.writer.PostgresConfigWriter;
+import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperation;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFilePermissions;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
+import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.security.FileCredentialStore;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -16,9 +19,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
 
 /**
  * Prepares PostgreSQL credentials, data directory initialization, and configuration files.
@@ -42,9 +42,7 @@ public final class PostgresClusterPreparer {
      * @param startupTimeout command timeout
      */
     public PostgresClusterPreparer(
-            final ManagedFileSystem fileSystem,
-            final CommandRunner commandRunner,
-            final Duration startupTimeout) {
+            final ManagedFileSystem fileSystem, final CommandRunner commandRunner, final Duration startupTimeout) {
         this.fileSystem = Objects.requireNonNull(fileSystem, "fileSystem");
         this.commandRunner = Objects.requireNonNull(commandRunner, "commandRunner");
         this.startupTimeout = Objects.requireNonNull(startupTimeout, "startupTimeout");
@@ -77,23 +75,23 @@ public final class PostgresClusterPreparer {
                     exception,
                     PostgresStartupDiagnostics.diagnostic(
                             "credentials",
-                            Map.of("path", layout.stateDirectory().resolve(CREDENTIALS_FILE).toString())));
+                            Map.of(
+                                    "path",
+                                    layout.stateDirectory()
+                                            .resolve(CREDENTIALS_FILE)
+                                            .toString())));
         }
     }
 
     private void initializeDataDirectoryIfNeeded(
-            final Path runtimeDirectory,
-            final PostgresLayout layout,
-            final Credentials credentials) {
+            final Path runtimeDirectory, final PostgresLayout layout, final Credentials credentials) {
         if (requiresInitialization(layout.dataDirectory())) {
             initializeNewDataDirectory(runtimeDirectory, layout, credentials);
         }
     }
 
     private void initializeNewDataDirectory(
-            final Path runtimeDirectory,
-            final PostgresLayout layout,
-            final Credentials credentials) {
+            final Path runtimeDirectory, final PostgresLayout layout, final Credentials credentials) {
         final Path passwordFile = layout.stateDirectory().resolve(INITDB_PASSWORD_FILE);
         writeInitDbPasswordFile(layout, credentials, passwordFile);
         try {
@@ -105,10 +103,9 @@ public final class PostgresClusterPreparer {
     }
 
     private void writeInitDbPasswordFile(
-            final PostgresLayout layout,
-            final Credentials credentials,
-            final Path passwordFile) {
-        try (FileSystemOperation operation = fileSystem.beginOperation("write-initdb-password", layout.stateDirectory())) {
+            final PostgresLayout layout, final Credentials credentials, final Path passwordFile) {
+        try (FileSystemOperation operation =
+                fileSystem.beginOperation("write-initdb-password", layout.stateDirectory())) {
             operation.writeUtf8Atomically(
                     passwordFile,
                     credentials.password().reveal() + System.lineSeparator(),
@@ -135,16 +132,13 @@ public final class PostgresClusterPreparer {
         }
     }
 
-    private void writeConfiguration(
-            final PostgresLayout layout,
-            final Map<String, String> settings) {
-        try (FileSystemOperation operation = fileSystem.beginOperation("write-postgres-config", layout.dataDirectory())) {
+    private void writeConfiguration(final PostgresLayout layout, final Map<String, String> settings) {
+        try (FileSystemOperation operation =
+                fileSystem.beginOperation("write-postgres-config", layout.dataDirectory())) {
             operation.writeUtf8Atomically(
-                    layout.dataDirectory().resolve(POSTGRESQL_CONF),
-                    new PostgresConfigWriter().write(settings));
+                    layout.dataDirectory().resolve(POSTGRESQL_CONF), new PostgresConfigWriter().write(settings));
             operation.writeUtf8Atomically(
-                    layout.dataDirectory().resolve(PG_HBA_CONF),
-                    new PgHbaConfigWriter().defaultConfig());
+                    layout.dataDirectory().resolve(PG_HBA_CONF), new PgHbaConfigWriter().defaultConfig());
             operation.commit();
         } catch (final UncheckedIOException | IllegalArgumentException exception) {
             throw PostgresStartupDiagnostics.startupFailure(
@@ -167,17 +161,18 @@ public final class PostgresClusterPreparer {
             } else {
                 throw new PostgresStartupException(
                         "PostgreSQL data directory is not empty but PG_VERSION is missing",
-                        PostgresStartupDiagnostics.diagnostic("data-directory", Map.of(
-                                "dataDirectory", dataDirectory.toString(),
-                                "expectedMarker", pgVersion.toString())));
+                        PostgresStartupDiagnostics.diagnostic(
+                                "data-directory",
+                                Map.of(
+                                        "dataDirectory", dataDirectory.toString(),
+                                        "expectedMarker", pgVersion.toString())));
             }
         } catch (final IOException exception) {
             throw new PostgresStartupException(
                     "Failed to inspect PostgreSQL data directory",
                     exception,
                     PostgresStartupDiagnostics.diagnostic(
-                            "data-directory",
-                            Map.of("dataDirectory", dataDirectory.toString())));
+                            "data-directory", Map.of("dataDirectory", dataDirectory.toString())));
         }
 
         return required;

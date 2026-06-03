@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 final class PostgresRuntimeManifestTest {
 
-    PostgresRuntimeManifestTest() {
-    }
+    PostgresRuntimeManifestTest() {}
 
     @Test
     void manifestFactoriesDescribeRuntimeSourceAndIdentity() {
@@ -22,7 +21,8 @@ final class PostgresRuntimeManifestTest {
                         PostgresRuntimeManifest::runtimeIdentity)
                 .containsExactly("16.4", "system", Optional.empty());
         assertThat(PostgresRuntimeManifest.existing("16.5").runtimeSource()).isEqualTo("existing");
-        assertThat(PostgresRuntimeManifest.downloaded("17.0", identity).runtimeIdentity()).hasValue(identity);
+        assertThat(PostgresRuntimeManifest.downloaded("17.0", identity).runtimeIdentity())
+                .hasValue(identity);
     }
 
     @Test

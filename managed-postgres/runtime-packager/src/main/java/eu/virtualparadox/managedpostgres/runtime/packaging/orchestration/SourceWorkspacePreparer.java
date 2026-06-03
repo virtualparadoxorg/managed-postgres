@@ -26,8 +26,7 @@ public final class SourceWorkspacePreparer {
     }
 
     SourceWorkspacePreparer(
-            final PostgresSourceDownloader sourceDownloader,
-            final RuntimeArchiveExtractor archiveExtractor) {
+            final PostgresSourceDownloader sourceDownloader, final RuntimeArchiveExtractor archiveExtractor) {
         this.sourceDownloader = Objects.requireNonNull(sourceDownloader, "sourceDownloader");
         this.archiveExtractor = Objects.requireNonNull(archiveExtractor, "archiveExtractor");
     }
@@ -42,12 +41,14 @@ public final class SourceWorkspacePreparer {
         final RuntimePackagingRequest validatedRequest = Objects.requireNonNull(request, "request");
         final PlatformBuildDriver driver = PlatformBuildDriver.forTarget(validatedRequest.targetPlatform());
         final Path archive = sourceDownloader.download(validatedRequest.release(), validatedRequest.sourceCache());
-        final Path extractionDirectory = validatedRequest.workRoot()
+        final Path extractionDirectory = validatedRequest
+                .workRoot()
                 .resolve("source")
                 .resolve(validatedRequest.targetPlatform().identifier());
         final Path extractedRoot = extractArchive(archive, extractionDirectory);
         final Path sourceTree = resolveSourceTree(extractedRoot);
-        final Path buildDirectory = validatedRequest.workRoot()
+        final Path buildDirectory = validatedRequest
+                .workRoot()
                 .resolve("build")
                 .resolve(validatedRequest.targetPlatform().identifier());
         return new PreparedSourceWorkspace(driver, sourceTree, buildDirectory);

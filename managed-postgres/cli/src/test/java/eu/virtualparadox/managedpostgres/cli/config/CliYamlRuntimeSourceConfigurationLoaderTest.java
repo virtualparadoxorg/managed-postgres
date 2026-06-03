@@ -24,14 +24,14 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CliYamlRuntimeSourceConfigurationLoaderTest() {
-    }
+    CliYamlRuntimeSourceConfigurationLoaderTest() {}
 
     @Test
     void downloadedRuntimeSourceLoadsRepositoryChecksumAndCacheFromYaml() throws IOException {
         final URI repositoryUri = URI.create("https://runtime.example.test/postgres.zip");
         final Path cacheRoot = Path.of(".local/runtime-cache");
-        final RuntimeSource runtimeSource = loadRuntimeSource("""
+        final RuntimeSource runtimeSource = loadRuntimeSource(
+                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -43,8 +43,8 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                     cache: .local/runtime-cache
                 """);
 
-        assertThat(runtimeSource).isEqualTo(RuntimeSource.downloaded(runtime -> runtime
-                .repository(RuntimeRepository.custom(repositoryUri))
+        assertThat(runtimeSource).isEqualTo(RuntimeSource.downloaded(runtime -> runtime.repository(
+                        RuntimeRepository.custom(repositoryUri))
                 .checksum(SHA256_CHECKSUM)
                 .signature(RuntimeSignature.ed25519(SIGNATURE_PUBLIC_KEY, SIGNATURE_VALUE))
                 .cache(RuntimeCache.projectLocal(cacheRoot))));
@@ -53,7 +53,8 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
     @Test
     void classpathRuntimeSourceLoadsResourceChecksumAndCacheFromYaml() throws IOException {
         final Path cacheRoot = Path.of(".local/classpath-runtime-cache");
-        final RuntimeSource runtimeSource = loadRuntimeSource("""
+        final RuntimeSource runtimeSource = loadRuntimeSource(
+                """
                 managed-postgres:
                   runtime:
                     source: classpath
@@ -65,15 +66,17 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                     cache: .local/classpath-runtime-cache
                 """);
 
-        assertThat(runtimeSource).isEqualTo(RuntimeSource.classpath("/postgres-runtime.zip", runtime -> runtime
-                .checksum(SHA256_CHECKSUM)
-                .signature(RuntimeSignature.ed25519(SIGNATURE_PUBLIC_KEY, SIGNATURE_VALUE))
-                .cache(RuntimeCache.projectLocal(cacheRoot))));
+        assertThat(runtimeSource)
+                .isEqualTo(RuntimeSource.classpath("/postgres-runtime.zip", runtime -> runtime.checksum(SHA256_CHECKSUM)
+                        .signature(RuntimeSignature.ed25519(SIGNATURE_PUBLIC_KEY, SIGNATURE_VALUE))
+                        .cache(RuntimeCache.projectLocal(cacheRoot))));
     }
 
     @Test
     void downloadedRuntimeSourceRejectsIncompatibleYamlFields() throws IOException {
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -83,7 +86,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.path is only valid for existing runtime source");
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -97,7 +102,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
 
     @Test
     void classpathRuntimeSourceRejectsIncompatibleYamlFields() throws IOException {
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: classpath
@@ -107,7 +114,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.repository is only valid for downloaded runtime source");
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: classpath
@@ -121,7 +130,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
 
     @Test
     void runtimeSupplyChainFieldsRequireDownloadedOrClasspathSource() throws IOException {
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: system
@@ -129,7 +140,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.checksum is only valid for downloaded or classpath runtime source");
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: existing
@@ -142,7 +155,8 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
 
     @Test
     void downloadedAndClasspathRuntimeSourcesRequireTheirYamlFields() throws IOException {
-        final RuntimeSource cacheOnlyDownloadedRuntime = loadRuntimeSource("""
+        final RuntimeSource cacheOnlyDownloadedRuntime = loadRuntimeSource(
+                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -153,11 +167,13 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
         assertThat(cacheOnlyDownloadedRuntime.kind()).isEqualTo("downloaded");
         assertThat(cacheOnlyDownloadedRuntime.downloadedRuntime()).hasValueSatisfying(downloadedRuntime -> {
             assertThat(downloadedRuntime.repository()).isEmpty();
-            assertThat(downloadedRuntime.checksum()).contains(
-                    "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+            assertThat(downloadedRuntime.checksum())
+                    .contains("sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
         });
 
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -165,7 +181,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.source=downloaded requires runtime.checksum");
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: classpath
@@ -173,7 +191,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.source=classpath requires runtime.resource");
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: classpath
@@ -185,7 +205,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
 
     @Test
     void signatureYamlFieldsMustBeConfiguredTogether() throws IOException {
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: downloaded
@@ -200,7 +222,9 @@ final class CliYamlRuntimeSourceConfigurationLoaderTest {
 
     @Test
     void signatureYamlFieldsRequireDownloadedOrClasspathSource() throws IOException {
-        assertThatThrownBy(() -> loadRuntimeSource("""
+        assertThatThrownBy(
+                        () -> loadRuntimeSource(
+                                """
                 managed-postgres:
                   runtime:
                     source: system

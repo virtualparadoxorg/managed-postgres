@@ -27,9 +27,7 @@ public final class ValidatingJdbcReadinessProbe implements JdbcReadinessProbe {
      * @param expectedMajorVersion expected PostgreSQL major version
      */
     public ValidatingJdbcReadinessProbe(
-            final JdbcProbeClient client,
-            final Path expectedDataDirectory,
-            final int expectedMajorVersion) {
+            final JdbcProbeClient client, final Path expectedDataDirectory, final int expectedMajorVersion) {
         this.client = Objects.requireNonNull(client, "client");
         this.expectedDataDirectory = normalize(expectedDataDirectory);
         if (expectedMajorVersion < 1) {

@@ -6,12 +6,10 @@ import eu.virtualparadox.managedpostgres.config.StopPolicy;
 
 final class ManagedPostgresSpringLifecycleMapper {
 
-    private ManagedPostgresSpringLifecycleMapper() {
-    }
+    private ManagedPostgresSpringLifecycleMapper() {}
 
     static ManagedPostgresBuilder configure(
-            final ManagedPostgresBuilder builder,
-            final ManagedPostgresSpringProperties.LifecycleProperties lifecycle) {
+            final ManagedPostgresBuilder builder, final ManagedPostgresSpringProperties.LifecycleProperties lifecycle) {
         ManagedPostgresBuilder configuredBuilder = builder;
         if (lifecycle.reuseExisting()) {
             configuredBuilder = configuredBuilder.attachPolicy(AttachPolicy.ATTACH_IF_COMPATIBLE);

@@ -2,22 +2,22 @@ package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
+import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperationContext;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.AttachedPostgresHandle;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresApplicationConnection;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresHandleOperationProviders;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.start.PgCtlController;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.AttachedPostgresHandle;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.start.PgCtlController;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresApplicationConnection;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperationContext;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresHandleOperationProviders;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
-import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
 
 /**
  * Creates handles for PostgreSQL instances attached by this JVM.
@@ -64,34 +64,28 @@ public final class PostgresAttachedHandleFactory {
                 attachedConnectionInfo,
                 configuration.stopPolicy(),
                 () -> stopAttached(runtimeDirectory, layout),
-                operationProviders.backup().create(new PostgresBackupOperationContext(
-                        attachedConnectionInfo,
-                        metadata,
-                        layout,
-                        runtimeDirectory)),
-                operationProviders.restore().create(new PostgresBackupOperationContext(
-                        attachedConnectionInfo,
-                        metadata,
-                        layout,
-                        runtimeDirectory)));
+                operationProviders
+                        .backup()
+                        .create(new PostgresBackupOperationContext(
+                                attachedConnectionInfo, metadata, layout, runtimeDirectory)),
+                operationProviders
+                        .restore()
+                        .create(new PostgresBackupOperationContext(
+                                attachedConnectionInfo, metadata, layout, runtimeDirectory)));
     }
 
     private static PostgresConnectionInfo connectionInfo(
-            final PostgresInstanceMetadata metadata,
-            final StartPostgresWorkflow.Configuration configuration) {
+            final PostgresInstanceMetadata metadata, final StartPostgresWorkflow.Configuration configuration) {
         return PostgresApplicationConnection.fromMetadata(metadata, configuration);
     }
 
     private void stopAttached(final Path runtimeDirectory, final PostgresLayout layout) {
         final CommandResult result;
         try {
-            result = new PgCtlController(commandRunner, runtimeDirectory)
-                    .stop(layout.dataDirectory(), shutdownTimeout);
+            result = new PgCtlController(commandRunner, runtimeDirectory).stop(layout.dataDirectory(), shutdownTimeout);
         } catch (final ManagedPostgresException exception) {
             throw new PostgresShutdownException(
-                    "PostgreSQL pg_ctl stop command failed",
-                    exception,
-                    exception.diagnosticReport());
+                    "PostgreSQL pg_ctl stop command failed", exception, exception.diagnosticReport());
         }
         if (!result.successful()) {
             throw new PostgresShutdownException(

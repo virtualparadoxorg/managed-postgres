@@ -9,8 +9,7 @@ import java.util.Objects;
  */
 public final class RuntimeBinaryLocator {
 
-    private RuntimeBinaryLocator() {
-    }
+    private RuntimeBinaryLocator() {}
 
     /**
      * Resolves a required PostgreSQL binary from the runtime directory.
@@ -37,8 +36,8 @@ public final class RuntimeBinaryLocator {
      * @return preferred runtime binary path
      */
     public static Path resolveBinary(final Path runtimeDirectory, final String binaryName) {
-        final Path binDirectory = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory")
-                .resolve("bin");
+        final Path binDirectory =
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory").resolve("bin");
         final String checkedBinaryName = Objects.requireNonNull(binaryName, "binaryName");
         final Path plainExecutable = binDirectory.resolve(checkedBinaryName);
         final Path windowsExecutable = binDirectory.resolve(checkedBinaryName + ".exe");

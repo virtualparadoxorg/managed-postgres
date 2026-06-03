@@ -12,8 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class MetadataFieldParser {
 
-    private MetadataFieldParser() {
-    }
+    private MetadataFieldParser() {}
 
     /**
      * Returns the string field result.
@@ -23,12 +22,8 @@ public final class MetadataFieldParser {
      * @param fieldName field name value
      * @return string field result
      */
-    public static String stringField(
-            final Path metadataPath,
-            final String metadataContent,
-            final String fieldName) {
-        final Matcher matcher = Pattern
-                .compile("\"%s\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
+    public static String stringField(final Path metadataPath, final String metadataContent, final String fieldName) {
+        final Matcher matcher = Pattern.compile("\"%s\"\\s*:\\s*\"((?:\\\\.|[^\"\\\\])*)\""
                         .formatted(Pattern.quote(requireNotBlank(fieldName, "fieldName"))))
                 .matcher(metadataContent);
         if (!matcher.find()) {
@@ -46,10 +41,7 @@ public final class MetadataFieldParser {
      * @param fieldName field name value
      * @return int field result
      */
-    public static int intField(
-            final Path metadataPath,
-            final String metadataContent,
-            final String fieldName) {
+    public static int intField(final Path metadataPath, final String metadataContent, final String fieldName) {
         return Integer.parseInt(numberField(metadataPath, metadataContent, fieldName));
     }
 
@@ -61,20 +53,13 @@ public final class MetadataFieldParser {
      * @param fieldName field name value
      * @return long field result
      */
-    public static long longField(
-            final Path metadataPath,
-            final String metadataContent,
-            final String fieldName) {
+    public static long longField(final Path metadataPath, final String metadataContent, final String fieldName) {
         return Long.parseLong(numberField(metadataPath, metadataContent, fieldName));
     }
 
-    private static String numberField(
-            final Path metadataPath,
-            final String metadataContent,
-            final String fieldName) {
-        final Matcher matcher = Pattern
-                .compile("\"%s\"\\s*:\\s*(\\d+)"
-                        .formatted(Pattern.quote(requireNotBlank(fieldName, "fieldName"))))
+    private static String numberField(final Path metadataPath, final String metadataContent, final String fieldName) {
+        final Matcher matcher = Pattern.compile(
+                        "\"%s\"\\s*:\\s*(\\d+)".formatted(Pattern.quote(requireNotBlank(fieldName, "fieldName"))))
                 .matcher(metadataContent);
         if (!matcher.find()) {
             throw missingField(metadataPath, fieldName);

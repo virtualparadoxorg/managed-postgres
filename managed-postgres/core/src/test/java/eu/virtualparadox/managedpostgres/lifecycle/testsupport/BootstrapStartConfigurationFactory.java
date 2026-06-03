@@ -3,11 +3,11 @@ package eu.virtualparadox.managedpostgres.lifecycle.testsupport;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
-import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
@@ -20,12 +20,12 @@ public final class BootstrapStartConfigurationFactory {
     private final Path storageRoot;
 
     public BootstrapStartConfigurationFactory(final Path temporaryDirectory) {
-        this.storageRoot = Objects.requireNonNull(temporaryDirectory, "temporaryDirectory").resolve("local-postgres");
+        this.storageRoot =
+                Objects.requireNonNull(temporaryDirectory, "temporaryDirectory").resolve("local-postgres");
     }
 
     public StartPostgresWorkflow.Configuration configuration(
-            final Path runtimeDirectory,
-            final ClusterBootstrap clusterBootstrap) {
+            final Path runtimeDirectory, final ClusterBootstrap clusterBootstrap) {
         return new StartPostgresWorkflow.Configuration(
                 "app-db",
                 "16.4",

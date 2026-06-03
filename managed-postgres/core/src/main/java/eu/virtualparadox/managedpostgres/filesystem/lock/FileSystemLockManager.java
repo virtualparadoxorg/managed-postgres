@@ -16,8 +16,7 @@ public final class FileSystemLockManager {
     /**
      * Creates a filesystem lock manager.
      */
-    public FileSystemLockManager() {
-    }
+    public FileSystemLockManager() {}
 
     /**
      * Acquires an exclusive lock for the supplied path.
@@ -26,7 +25,8 @@ public final class FileSystemLockManager {
      * @return held filesystem lock
      */
     public FileSystemLock lock(final Path path) {
-        final Path lockPath = Objects.requireNonNull(path, "path").toAbsolutePath().normalize();
+        final Path lockPath =
+                Objects.requireNonNull(path, "path").toAbsolutePath().normalize();
         final ReentrantLock lock = locks.computeIfAbsent(lockPath, ignored -> new ReentrantLock());
 
         lock.lock();

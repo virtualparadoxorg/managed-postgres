@@ -10,12 +10,12 @@ import org.junit.jupiter.api.io.TempDir;
 
 final class RemovedProjectReferenceArchitectureTest {
 
-    RemovedProjectReferenceArchitectureTest() {
-    }
+    RemovedProjectReferenceArchitectureTest() {}
 
     @Test
     void repositoryTextDoesNotReferenceRemovedSourceProjectNames() throws IOException {
-        assertThat(RemovedProjectReferenceScanner.repositoryFilesContainingRemovedSourceProjectNames()).isEmpty();
+        assertThat(RemovedProjectReferenceScanner.repositoryFilesContainingRemovedSourceProjectNames())
+                .isEmpty();
     }
 
     @Test
@@ -33,6 +33,7 @@ final class RemovedProjectReferenceArchitectureTest {
         final Path notices = temporaryDirectory.resolve("THIRD-PARTY-NOTICES");
         Files.writeString(notices, "old reference: " + "bio" + "informatic");
 
-        assertThat(RemovedProjectReferenceScanner.fileContainsRemovedSourceProjectName(notices)).isTrue();
+        assertThat(RemovedProjectReferenceScanner.fileContainsRemovedSourceProjectName(notices))
+                .isTrue();
     }
 }

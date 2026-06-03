@@ -21,7 +21,9 @@ public record RealPostgresRuntime(Path runtimeDirectory, String postgresqlVersio
      * @param majorVersion PostgreSQL major version
      */
     public RealPostgresRuntime {
-        runtimeDirectory = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory").toAbsolutePath().normalize();
+        runtimeDirectory = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory")
+                .toAbsolutePath()
+                .normalize();
         if (StringUtils.isBlank(postgresqlVersion)) {
             throw new IllegalArgumentException("postgresqlVersion must not be blank");
         }

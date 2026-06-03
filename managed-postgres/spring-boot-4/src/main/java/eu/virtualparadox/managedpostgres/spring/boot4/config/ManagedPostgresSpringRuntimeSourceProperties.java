@@ -40,13 +40,15 @@ record ManagedPostgresSpringRuntimeSourceProperties(
 
     void requireRuntimePathAbsent() {
         if (path.isPresent()) {
-            throw new ManagedPostgresSpringException("managed-postgres.runtime.path is only valid for existing runtime source");
+            throw new ManagedPostgresSpringException(
+                    "managed-postgres.runtime.path is only valid for existing runtime source");
         }
     }
 
     void requireRuntimeRepositoryPresent() {
         if (repository.isEmpty()) {
-            throw new ManagedPostgresSpringException("managed-postgres.runtime.source=downloaded requires runtime.repository");
+            throw new ManagedPostgresSpringException(
+                    "managed-postgres.runtime.source=downloaded requires runtime.repository");
         }
     }
 
@@ -59,7 +61,8 @@ record ManagedPostgresSpringRuntimeSourceProperties(
 
     void requireClasspathResourcePresent() {
         if (resource.isEmpty()) {
-            throw new ManagedPostgresSpringException("managed-postgres.runtime.source=classpath requires runtime.resource");
+            throw new ManagedPostgresSpringException(
+                    "managed-postgres.runtime.source=classpath requires runtime.resource");
         }
     }
 

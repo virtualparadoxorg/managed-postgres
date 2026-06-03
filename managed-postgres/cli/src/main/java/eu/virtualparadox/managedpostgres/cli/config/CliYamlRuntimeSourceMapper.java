@@ -17,8 +17,7 @@ final class CliYamlRuntimeSourceMapper {
     private static final String DOWNLOADED = "downloaded";
     private static final String CLASSPATH = "classpath";
 
-    private CliYamlRuntimeSourceMapper() {
-    }
+    private CliYamlRuntimeSourceMapper() {}
 
     static RuntimeSource fromYaml(final CliYamlRuntimeSourceProperties properties) {
         final String effectiveSource = properties.effectiveSource();
@@ -28,7 +27,8 @@ final class CliYamlRuntimeSourceMapper {
             case EXISTING -> existingRuntime(properties);
             case DOWNLOADED -> downloadedRuntime(properties);
             case CLASSPATH -> classpathRuntime(properties);
-            default -> throw new IllegalArgumentException("runtime source must be system, existing, downloaded, or classpath");
+            default -> throw new IllegalArgumentException(
+                    "runtime source must be system, existing, downloaded, or classpath");
         };
     }
 
@@ -49,9 +49,7 @@ final class CliYamlRuntimeSourceMapper {
         CliYamlRuntimeSourceFieldValidator.requireNoExistingPath(properties.path());
         CliYamlRuntimeSourceFieldValidator.requireNoClasspathResource(properties.resource());
         final String runtimeChecksum = requiredText(
-                properties.checksum(),
-                "runtime.source=downloaded requires runtime.checksum",
-                "runtime.checksum");
+                properties.checksum(), "runtime.source=downloaded requires runtime.checksum", "runtime.checksum");
         final Optional<RuntimeSignature> runtimeSignature = runtimeSignature(properties);
 
         return RuntimeSource.downloaded(runtime -> configureDownloadedRuntime(
@@ -66,20 +64,14 @@ final class CliYamlRuntimeSourceMapper {
         CliYamlRuntimeSourceFieldValidator.requireNoExistingPath(properties.path());
         CliYamlRuntimeSourceFieldValidator.requireNoRepository(properties.repository());
         final String runtimeResource = requiredText(
-                properties.resource(),
-                "runtime.source=classpath requires runtime.resource",
-                "runtime.resource");
+                properties.resource(), "runtime.source=classpath requires runtime.resource", "runtime.resource");
         final String runtimeChecksum = requiredText(
-                properties.checksum(),
-                "runtime.source=classpath requires runtime.checksum",
-                "runtime.checksum");
+                properties.checksum(), "runtime.source=classpath requires runtime.checksum", "runtime.checksum");
         final Optional<RuntimeSignature> runtimeSignature = runtimeSignature(properties);
 
-        return RuntimeSource.classpath(runtimeResource, runtime -> configureClasspathRuntime(
-                runtime,
-                runtimeChecksum,
-                runtimeSignature,
-                properties.cache()));
+        return RuntimeSource.classpath(
+                runtimeResource,
+                runtime -> configureClasspathRuntime(runtime, runtimeChecksum, runtimeSignature, properties.cache()));
     }
 
     private static DownloadedRuntime configureDownloadedRuntime(
@@ -135,11 +127,8 @@ final class CliYamlRuntimeSourceMapper {
     }
 
     private static String requiredText(
-            final Optional<String> text,
-            final String missingMessage,
-            final String fieldName) {
-        return text
-                .map(value -> CliRuntimeSourceFactory.requireNotBlank(value, fieldName))
+            final Optional<String> text, final String missingMessage, final String fieldName) {
+        return text.map(value -> CliRuntimeSourceFactory.requireNotBlank(value, fieldName))
                 .orElseThrow(() -> new IllegalArgumentException(missingMessage));
     }
 

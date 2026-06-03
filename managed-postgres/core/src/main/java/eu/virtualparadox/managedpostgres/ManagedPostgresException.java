@@ -34,9 +34,7 @@ public class ManagedPostgresException extends RuntimeException {
      * @param diagnosticReport diagnostic report
      */
     public ManagedPostgresException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause);
         this.diagnosticReport = Objects.requireNonNull(diagnosticReport, "diagnosticReport");
     }

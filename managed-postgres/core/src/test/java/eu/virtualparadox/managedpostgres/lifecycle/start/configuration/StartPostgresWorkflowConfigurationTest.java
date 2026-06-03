@@ -40,8 +40,7 @@ public final class StartPostgresWorkflowConfigurationTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowConfigurationTest() {
-    }
+    StartPostgresWorkflowConfigurationTest() {}
 
     @Test
     void startupWritesConfiguredResourcePresetSettings() throws IOException {
@@ -75,12 +74,15 @@ public final class StartPostgresWorkflowConfigurationTest {
     void invalidPostgresqlVersionFailsBeforeStartingProcess() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts(List.of());
 
-        assertThatThrownBy(() -> workflow().start(configuration(
-                new Storage(temporaryDirectory.resolve("local-postgres"), false),
-                runtimeDirectory,
-                "sixteen")))
+        assertThatThrownBy(() -> workflow()
+                        .start(configuration(
+                                new Storage(temporaryDirectory.resolve("local-postgres"), false),
+                                runtimeDirectory,
+                                "sixteen")))
                 .isInstanceOf(PostgresStartupException.class)
-                .satisfies(throwable -> assertThat(((PostgresStartupException) throwable).diagnosticReport().renderText())
+                .satisfies(throwable -> assertThat(((PostgresStartupException) throwable)
+                                .diagnosticReport()
+                                .renderText())
                         .contains("startup-configuration")
                         .contains("postgresqlVersion"));
         assertThat(calls()).doesNotContain("pg_ctl start");
@@ -94,9 +96,12 @@ public final class StartPostgresWorkflowConfigurationTest {
         Files.createDirectories(dataDirectory);
         Files.writeString(dataDirectory.resolve("stray-file"), "not initialized", StandardCharsets.UTF_8);
 
-        assertThatThrownBy(() -> workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory, "16.4")))
+        assertThatThrownBy(() ->
+                        workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory, "16.4")))
                 .isInstanceOf(PostgresStartupException.class)
-                .satisfies(throwable -> assertThat(((PostgresStartupException) throwable).diagnosticReport().renderText())
+                .satisfies(throwable -> assertThat(((PostgresStartupException) throwable)
+                                .diagnosticReport()
+                                .renderText())
                         .contains("data-directory")
                         .contains("PG_VERSION"));
         assertThat(calls()).doesNotContain("pg_ctl");
@@ -117,14 +122,15 @@ public final class StartPostgresWorkflowConfigurationTest {
                         + "done\n"
                         + "exit 0\n")));
 
-        workflow().start(configuration(new Storage(temporaryDirectory.resolve("local-postgres"), false), runtimeDirectory, "16.4"));
+        workflow()
+                .start(configuration(
+                        new Storage(temporaryDirectory.resolve("local-postgres"), false), runtimeDirectory, "16.4"));
 
-        assertThat(calls())
-                .anySatisfy(call -> assertThat(call)
-                        .contains("--auth-host=scram-sha-256")
-                        .contains("--auth-local=scram-sha-256")
-                        .contains("--pwfile=")
-                        .doesNotContain("test-password"));
+        assertThat(calls()).anySatisfy(call -> assertThat(call)
+                .contains("--auth-host=scram-sha-256")
+                .contains("--auth-local=scram-sha-256")
+                .contains("--pwfile=")
+                .doesNotContain("test-password"));
     }
 
     private StartPostgresWorkflow workflow() {
@@ -136,9 +142,7 @@ public final class StartPostgresWorkflowConfigurationTest {
     }
 
     private StartPostgresWorkflow.Configuration configuration(
-            final Storage storage,
-            final Path runtimeDirectory,
-            final String postgresqlVersion) {
+            final Storage storage, final Path runtimeDirectory, final String postgresqlVersion) {
         return new StartPostgresWorkflow.Configuration(
                 "app-db",
                 postgresqlVersion,

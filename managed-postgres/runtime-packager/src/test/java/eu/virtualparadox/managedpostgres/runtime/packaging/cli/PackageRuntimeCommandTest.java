@@ -27,8 +27,7 @@ final class PackageRuntimeCommandTest {
     @TempDir
     Path tempDir;
 
-    PackageRuntimeCommandTest() {
-    }
+    PackageRuntimeCommandTest() {}
 
     @Test
     void requiresVersionAndTarget() {
@@ -36,9 +35,7 @@ final class PackageRuntimeCommandTest {
         final StringWriter error = new StringWriter();
 
         final int exitCode = RuntimePackagerMain.execute(
-                new String[] {"package"},
-                new PrintWriter(output, true),
-                new PrintWriter(error, true));
+                new String[] {"package"}, new PrintWriter(output, true), new PrintWriter(error, true));
 
         assertThat(exitCode).isNotZero();
     }
@@ -78,7 +75,8 @@ final class PackageRuntimeCommandTest {
         assertThat(exitCode).isZero();
         final Path bundle = outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip");
         assertThat(bundle).exists();
-        assertThat(outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip.sha256")).exists();
+        assertThat(outputDirectory.resolve("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip.sha256"))
+                .exists();
         assertThat(outputDirectory.resolve("manifest.json")).exists();
         final Path extracted = new RuntimeArchiveExtractor().extract(bundle, tempDir.resolve("extracted-raw"));
         assertThat(RuntimeValidator.requireUsableRuntimeDirectory(extracted)).isEqualTo(extracted);
@@ -93,11 +91,11 @@ final class PackageRuntimeCommandTest {
         final StringWriter error = new StringWriter();
         final Path sourceArchive = SourceArchiveFixture.create(tempDir, "postgresql-16.14");
         final PackageRuntimeCommand command = createCommand(
-                output,
-                error,
-                sourceArchive,
-                new RuntimePackagingOrchestrator(new UnsupportedBuildExecutor()),
-                outputDirectory)
+                        output,
+                        error,
+                        sourceArchive,
+                        new RuntimePackagingOrchestrator(new UnsupportedBuildExecutor()),
+                        outputDirectory)
                 .withRequiredOptions("16.14", "windows-x86_64", "r1", outputDirectory)
                 .withSourceBuildDirectories(sourceCache, workRoot);
 
@@ -125,11 +123,7 @@ final class PackageRuntimeCommandTest {
             }
         };
         final PackageRuntimeCommand command = createCommand(
-                output,
-                error,
-                sourceArchive,
-                new RuntimePackagingOrchestrator(buildExecutor),
-                outputDirectory)
+                        output, error, sourceArchive, new RuntimePackagingOrchestrator(buildExecutor), outputDirectory)
                 .withRequiredOptions("16.14", "macos-aarch64", "r1", outputDirectory)
                 .withSourceBuildDirectories(sourceCache, workRoot);
 
@@ -150,7 +144,9 @@ final class PackageRuntimeCommandTest {
         final StringWriter error = new StringWriter();
         final Path sourceArchive = SourceArchiveFixture.create(tempDir, "postgresql-16.14-defaults");
         final BuildExecutor buildExecutor = (driver, release, sourceTree, buildDirectory) -> {
-            assertThat(buildDirectory).hasToString(outputDirectory.resolve(".work/build/macos-aarch64").toString());
+            assertThat(buildDirectory)
+                    .hasToString(
+                            outputDirectory.resolve(".work/build/macos-aarch64").toString());
             try {
                 return RawInstallTreeFixture.create(buildDirectory);
             } catch (IOException exception) {
@@ -158,17 +154,14 @@ final class PackageRuntimeCommandTest {
             }
         };
         final PackageRuntimeCommand command = createCommand(
-                output,
-                error,
-                sourceArchive,
-                new RuntimePackagingOrchestrator(buildExecutor),
-                outputDirectory)
+                        output, error, sourceArchive, new RuntimePackagingOrchestrator(buildExecutor), outputDirectory)
                 .withRequiredOptions("16.14", "macos-aarch64", "r1", outputDirectory);
 
         final int exitCode = command.call();
 
         assertThat(exitCode).isZero();
-        assertThat(outputDirectory.resolve(".work/source-cache/postgresql-16.14-defaults.zip")).exists();
+        assertThat(outputDirectory.resolve(".work/source-cache/postgresql-16.14-defaults.zip"))
+                .exists();
         assertThat(error.toString()).isEmpty();
     }
 
@@ -177,16 +170,17 @@ final class PackageRuntimeCommandTest {
             final StringWriter error,
             final Path sourceArchive,
             final RuntimePackagingOrchestrator orchestrator,
-            final Path outputDirectory) throws IOException {
+            final Path outputDirectory)
+            throws IOException {
         return new PackageRuntimeCommand(
-                new PrintWriter(output, true),
-                new PrintWriter(error, true),
-                new PackageRuntimeCommandDependencies(
-                        new PostgresSourceCatalog(Map.of("16.14", SourceArchiveFixture.releaseForArchive(sourceArchive))),
-                        new eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundleNormalizer(),
-                        new eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundlePublisher(),
-                        orchestrator))
+                        new PrintWriter(output, true),
+                        new PrintWriter(error, true),
+                        new PackageRuntimeCommandDependencies(
+                                new PostgresSourceCatalog(
+                                        Map.of("16.14", SourceArchiveFixture.releaseForArchive(sourceArchive))),
+                                new eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundleNormalizer(),
+                                new eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundlePublisher(),
+                                orchestrator))
                 .withRequiredOptions("16.14", "macos-aarch64", "r1", outputDirectory);
     }
-
 }

@@ -38,7 +38,8 @@ public final class PgRestoreRuntimeFixture {
                   shift
                 done
                 exit 0
-                """.replace("__COMMAND_LOG__", commandLog.toString());
+                """
+                .replace("__COMMAND_LOG__", commandLog.toString());
     }
 
     private static String pgRestoreScript(final Path commandLog, final int exitCode) {
@@ -61,6 +62,5 @@ public final class PgRestoreRuntimeFixture {
         }
     }
 
-    public record TestRuntime(Path runtimeDirectory, Path commandLog) {
-    }
+    public record TestRuntime(Path runtimeDirectory, Path commandLog) {}
 }

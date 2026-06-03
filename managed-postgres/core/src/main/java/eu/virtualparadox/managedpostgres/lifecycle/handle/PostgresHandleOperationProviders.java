@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.lifecycle.handle;
 
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperationProvider;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperationProvider;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperations;
+import java.util.Objects;
 
 /**
  * Operation providers attached to a running PostgreSQL handle.
@@ -12,8 +12,7 @@ import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperat
  * @param restore logical restore operation provider
  */
 public record PostgresHandleOperationProviders(
-        PostgresBackupOperationProvider backup,
-        PostgresRestoreOperationProvider restore) {
+        PostgresBackupOperationProvider backup, PostgresRestoreOperationProvider restore) {
 
     /**
      * Defines the value value.
@@ -30,8 +29,6 @@ public record PostgresHandleOperationProviders(
      * @return unsupported restore result
      */
     public static PostgresHandleOperationProviders unsupportedRestore(final PostgresBackupOperationProvider backup) {
-        return new PostgresHandleOperationProviders(
-                backup,
-                context -> PostgresRestoreOperations.unsupported());
+        return new PostgresHandleOperationProviders(backup, context -> PostgresRestoreOperations.unsupported());
     }
 }

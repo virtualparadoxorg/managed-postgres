@@ -24,30 +24,31 @@ final class MesonBuildExecutorTest {
     @TempDir
     Path tempDir;
 
-    MesonBuildExecutorTest() {
-    }
+    MesonBuildExecutorTest() {}
 
     @Test
     void runsSetupCompileInstallAndFiltersOptionsToDeclaredSet() throws IOException {
         final Path sourceTree = tempDir.resolve("src");
         Files.createDirectories(sourceTree);
-        Files.writeString(sourceTree.resolve("meson_options.txt"), """
+        Files.writeString(
+                sourceTree.resolve("meson_options.txt"),
+                """
                 option('readline', type : 'feature', value : 'auto')
                 option('zlib', type : 'feature', value : 'auto')
                 option('ssl', type : 'combo', choices : ['auto', 'none', 'openssl'])
                 option('plperl', type : 'feature', value : 'auto')
-                """, StandardCharsets.UTF_8);
+                """,
+                StandardCharsets.UTF_8);
 
         final Path toolDir = tempDir.resolve("tools");
         final Path meson = fakeMeson(toolDir.resolve("meson"));
         final Path buildDirectory = tempDir.resolve("build");
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         final Path installTree = executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, buildDirectory);
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64), release(), sourceTree, buildDirectory);
 
         assertThat(installTree).isEqualTo(buildDirectory.resolve("install"));
         assertThat(installTree.resolve("bin/postgres")).exists();
@@ -67,7 +68,9 @@ final class MesonBuildExecutorTest {
 
     private static Path fakeMeson(final Path path) throws IOException {
         Files.createDirectories(Objects.requireNonNull(path.getParent(), "path must have a parent directory"));
-        Files.writeString(path, """
+        Files.writeString(
+                path,
+                """
                 #!/bin/sh
                 set -eu
                 sub="$1"
@@ -89,9 +92,14 @@ final class MesonBuildExecutorTest {
                     mkdir -p "$prefix/bin"; : > "$prefix/bin/postgres"
                     ;;
                 esac
-                """, StandardCharsets.UTF_8);
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+                """,
+                StandardCharsets.UTF_8);
+        Files.setPosixFilePermissions(
+                path,
+                EnumSet.of(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE));
         return path;
     }
 
@@ -99,20 +107,21 @@ final class MesonBuildExecutorTest {
     void recoversFromConflictingPreGeneratedSourceFiles() throws IOException {
         final Path sourceTree = tempDir.resolve("src");
         Files.createDirectories(sourceTree);
-        Files.writeString(sourceTree.resolve("meson_options.txt"),
-                "option('readline', type : 'feature', value : 'auto')\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                sourceTree.resolve("meson_options.txt"),
+                "option('readline', type : 'feature', value : 'auto')\n",
+                StandardCharsets.UTF_8);
         final Path conflicting = sourceTree.resolve("gram.c");
         Files.writeString(conflicting, "pre-generated", StandardCharsets.UTF_8);
 
         final Path meson = fakeMesonWithConflict(tempDir.resolve("tools2").resolve("meson"));
         final Path buildDirectory = tempDir.resolve("build2");
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         final Path installTree = executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, buildDirectory);
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64), release(), sourceTree, buildDirectory);
 
         assertThat(conflicting).doesNotExist();
         assertThat(installTree.resolve("bin/postgres")).exists();
@@ -120,7 +129,9 @@ final class MesonBuildExecutorTest {
 
     private static Path fakeMesonWithConflict(final Path path) throws IOException {
         Files.createDirectories(Objects.requireNonNull(path.getParent(), "path must have a parent directory"));
-        Files.writeString(path, """
+        Files.writeString(
+                path,
+                """
                 #!/bin/sh
                 set -eu
                 sub="$1"
@@ -146,9 +157,14 @@ final class MesonBuildExecutorTest {
                     mkdir -p "$prefix/bin"; : > "$prefix/bin/postgres"
                     ;;
                 esac
-                """, StandardCharsets.UTF_8);
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+                """,
+                StandardCharsets.UTF_8);
+        Files.setPosixFilePermissions(
+                path,
+                EnumSet.of(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE));
         return path;
     }
 
@@ -156,18 +172,19 @@ final class MesonBuildExecutorTest {
     void readsDeclaredOptionsFromMesonDotOptionsWhenPresent() throws IOException {
         final Path sourceTree = tempDir.resolve("src-dot-options");
         Files.createDirectories(sourceTree);
-        Files.writeString(sourceTree.resolve("meson.options"),
-                "option('readline', type : 'feature', value : 'auto')\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                sourceTree.resolve("meson.options"),
+                "option('readline', type : 'feature', value : 'auto')\n",
+                StandardCharsets.UTF_8);
 
         final Path meson = fakeMeson(tempDir.resolve("tools-dot").resolve("meson"));
         final Path buildDirectory = tempDir.resolve("build-dot");
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         final Path installTree = executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, buildDirectory);
+                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64), release(), sourceTree, buildDirectory);
 
         assertThat(Files.readString(sourceTree.resolve("setup.invocation"))).contains("-Dreadline=disabled");
         assertThat(installTree.resolve("bin/postgres")).exists();
@@ -180,12 +197,14 @@ final class MesonBuildExecutorTest {
 
         final Path meson = fakeMeson(tempDir.resolve("tools-none").resolve("meson"));
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         assertThatThrownBy(() -> executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, tempDir.resolve("build-none")))
+                        PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                        release(),
+                        sourceTree,
+                        tempDir.resolve("build-none")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("no meson option file");
     }
@@ -194,24 +213,27 @@ final class MesonBuildExecutorTest {
     void setupFailureWithoutConflictingFilesPropagates() throws IOException {
         final Path sourceTree = tempDir.resolve("src-fail");
         Files.createDirectories(sourceTree);
-        Files.writeString(sourceTree.resolve("meson_options.txt"),
-                "option('readline', type : 'feature', value : 'auto')\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                sourceTree.resolve("meson_options.txt"),
+                "option('readline', type : 'feature', value : 'auto')\n",
+                StandardCharsets.UTF_8);
 
         final Path meson = fakeFailingMeson(tempDir.resolve("tools-fail").resolve("meson"));
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         assertThatThrownBy(() -> executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, tempDir.resolve("build-fail")))
+                        PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                        release(),
+                        sourceTree,
+                        tempDir.resolve("build-fail")))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void constructorRejectsEmptyMesonCommand() {
-        assertThatThrownBy(() -> new MesonBuildExecutor(
-                Map.of(), List.of(), new ProcessCommandExecutor()))
+        assertThatThrownBy(() -> new MesonBuildExecutor(Map.of(), List.of(), new ProcessCommandExecutor()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("mesonCommand");
     }
@@ -220,23 +242,30 @@ final class MesonBuildExecutorTest {
     void conflictingFilesOutsideSourceTreeAreIgnoredAndFailurePropagates() throws IOException {
         final Path sourceTree = tempDir.resolve("src-external-conflict");
         Files.createDirectories(sourceTree);
-        Files.writeString(sourceTree.resolve("meson_options.txt"),
-                "option('readline', type : 'feature', value : 'auto')\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                sourceTree.resolve("meson_options.txt"),
+                "option('readline', type : 'feature', value : 'auto')\n",
+                StandardCharsets.UTF_8);
 
-        final Path meson = fakeMesonExternalConflict(tempDir.resolve("tools-external").resolve("meson"));
+        final Path meson =
+                fakeMesonExternalConflict(tempDir.resolve("tools-external").resolve("meson"));
 
-        final MesonBuildExecutor executor = new MesonBuildExecutor(
-                Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
+        final MesonBuildExecutor executor =
+                new MesonBuildExecutor(Map.of(), List.of(meson.toString()), new ProcessCommandExecutor());
 
         assertThatThrownBy(() -> executor.build(
-                PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
-                release(), sourceTree, tempDir.resolve("build-external")))
+                        PlatformBuildDriver.forTarget(TargetPlatform.MACOS_AARCH64),
+                        release(),
+                        sourceTree,
+                        tempDir.resolve("build-external")))
                 .isInstanceOf(IllegalStateException.class);
     }
 
     private static Path fakeMesonExternalConflict(final Path path) throws IOException {
         Files.createDirectories(Objects.requireNonNull(path.getParent(), "path must have a parent directory"));
-        Files.writeString(path, """
+        Files.writeString(
+                path,
+                """
                 #!/bin/sh
                 set -eu
                 sub="$1"
@@ -251,21 +280,33 @@ final class MesonBuildExecutorTest {
                     exit 1
                     ;;
                 esac
-                """, StandardCharsets.UTF_8);
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+                """,
+                StandardCharsets.UTF_8);
+        Files.setPosixFilePermissions(
+                path,
+                EnumSet.of(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE));
         return path;
     }
 
     private static Path fakeFailingMeson(final Path path) throws IOException {
         Files.createDirectories(Objects.requireNonNull(path.getParent(), "path must have a parent directory"));
-        Files.writeString(path, """
+        Files.writeString(
+                path,
+                """
                 #!/bin/sh
                 echo "meson.build:1:0: ERROR: unrelated configuration failure" 1>&2
                 exit 1
-                """, StandardCharsets.UTF_8);
-        Files.setPosixFilePermissions(path, EnumSet.of(
-                PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE));
+                """,
+                StandardCharsets.UTF_8);
+        Files.setPosixFilePermissions(
+                path,
+                EnumSet.of(
+                        PosixFilePermission.OWNER_READ,
+                        PosixFilePermission.OWNER_WRITE,
+                        PosixFilePermission.OWNER_EXECUTE));
         return path;
     }
 

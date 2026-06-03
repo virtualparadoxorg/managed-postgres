@@ -17,10 +17,8 @@ public final class ManagedPostgresBootstrapContext {
      */
     public static final String BEAN_NAME = "managedPostgresBootstrapContext";
 
-    private static final ManagedPostgresBootstrapContext EMPTY = new ManagedPostgresBootstrapContext(
-            Optional.empty(),
-            Optional.empty(),
-            Optional.empty());
+    private static final ManagedPostgresBootstrapContext EMPTY =
+            new ManagedPostgresBootstrapContext(Optional.empty(), Optional.empty(), Optional.empty());
     private static final AtomicReference<ManagedPostgresBootstrapContext> CURRENT = new AtomicReference<>(EMPTY);
 
     private final Optional<ManagedPostgres> managedPostgres;
@@ -73,9 +71,9 @@ public final class ManagedPostgresBootstrapContext {
     }
 
     static ManagedPostgresBootstrapContext of(
-            final ManagedPostgres managedPostgres,
-            final RunningPostgres runningPostgres) {
-        return of(managedPostgres, runningPostgres, new ManagedPostgresBootstrapMetrics(Duration.ZERO, Duration.ZERO, 0));
+            final ManagedPostgres managedPostgres, final RunningPostgres runningPostgres) {
+        return of(
+                managedPostgres, runningPostgres, new ManagedPostgresBootstrapMetrics(Duration.ZERO, Duration.ZERO, 0));
     }
 
     static ManagedPostgresBootstrapContext of(

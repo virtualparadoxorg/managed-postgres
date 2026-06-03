@@ -3,9 +3,14 @@ package eu.virtualparadox.managedpostgres.scenario;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,11 +19,6 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 
 @ResourceLock("driver-manager")
 final class FakeRuntimeBackupIT {
@@ -26,8 +26,7 @@ final class FakeRuntimeBackupIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeBackupIT() {
-    }
+    FakeRuntimeBackupIT() {}
 
     @Test
     void localStartBackupCreatesDumpManifestAndChecksum() throws IOException {
@@ -36,7 +35,8 @@ final class FakeRuntimeBackupIT {
         final Path storageRoot = temporaryDirectory.resolve("cluster");
         final Path target = temporaryDirectory.resolve("backups").resolve("app.dump");
 
-        try (RunningPostgres postgres = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
+        try (RunningPostgres postgres =
+                ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
             postgres.backupTo(target);
         }
 
@@ -65,7 +65,8 @@ final class FakeRuntimeBackupIT {
         final Path firstTarget = temporaryDirectory.resolve("backups").resolve("first.dump");
         final Path secondTarget = temporaryDirectory.resolve("backups").resolve("second.dump");
 
-        try (RunningPostgres first = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
+        try (RunningPostgres first =
+                ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
             first.backupTo(firstTarget);
             final PostgresInstanceMetadata metadata = ScenarioMetadata.require(storageRoot);
 
@@ -86,8 +87,7 @@ final class FakeRuntimeBackupIT {
 
         assertThat(firstTarget).hasContent("fake dump\n");
         assertThat(secondTarget).hasContent("fake dump\n");
-        assertThat(Files.readAllLines(pgDumpLog).stream()
-                .filter(call -> call.startsWith("pg_dump ")))
+        assertThat(Files.readAllLines(pgDumpLog).stream().filter(call -> call.startsWith("pg_dump ")))
                 .hasSize(2)
                 .allSatisfy(call -> assertThat(call).doesNotContain("app-password"));
     }

@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ReleaseModulePolicyTest {
 
-    ReleaseModulePolicyTest() {
-    }
+    ReleaseModulePolicyTest() {}
 
     @Test
     void parentDefinesCredentialFreeReleaseHardeningGates() throws IOException {

@@ -1,11 +1,11 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 
 /**
  * Dependencies required to create pg_dump backup operations.

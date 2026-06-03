@@ -1,15 +1,15 @@
 package eu.virtualparadox.managedpostgres.lifecycle.handle;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
-import java.util.Objects;
+import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.TemporaryClusterCleanup;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartedPostgresStopper;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.TemporaryClusterCleanup;
+import java.util.Objects;
 
 /**
  * Handle for a PostgreSQL instance started by this JVM.
@@ -28,9 +28,7 @@ public final class StartedPostgresHandle extends AbstractPostgresHandle {
      * @param connectionInfo connection details
      * @param dependencies started handle dependencies
      */
-    public StartedPostgresHandle(
-            final PostgresConnectionInfo connectionInfo,
-            final Dependencies dependencies) {
+    public StartedPostgresHandle(final PostgresConnectionInfo connectionInfo, final Dependencies dependencies) {
         super(connectionInfo, backupOperation(dependencies), restoreOperation(dependencies));
         final Dependencies checkedDependencies = Objects.requireNonNull(dependencies, "dependencies");
         this.layout = checkedDependencies.layout();

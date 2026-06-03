@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.operation;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 
 /**
  * Context required to create a PostgreSQL backup operation for a running instance.

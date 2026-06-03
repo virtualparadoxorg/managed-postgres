@@ -56,15 +56,13 @@ public final class DownloadedRuntimeCachePublisher {
 
         try {
             failIfStagingExists(checkedContext, staging);
-            final Path artifact = downloader.download(
-                    repositoryForCacheMiss(checkedContext),
-                    download,
-                    checkedContext.checksum());
-            checkedContext.signature()
-                    .ifPresent(signature -> verifySignature(artifact, signature));
+            final Path artifact =
+                    downloader.download(repositoryForCacheMiss(checkedContext), download, checkedContext.checksum());
+            checkedContext.signature().ifPresent(signature -> verifySignature(artifact, signature));
             ownership.writeMarker(staging, "install-runtime");
             extractor.extract(artifact, staging);
-            checkedContext.signature()
+            checkedContext
+                    .signature()
                     .ifPresent(signature -> signatureVerifier.writeVerifiedMarker(staging, signature));
             RuntimeValidator.requireUsableRuntimeDirectory(staging);
             new DirectoryPublisher().publish(staging, checkedContext.finalRuntime());
@@ -74,37 +72,29 @@ public final class DownloadedRuntimeCachePublisher {
         } catch (final IOException exception) {
             cleanupAfterFailure(staging, download, exception);
             throw DownloadedRuntimeResolutionDiagnostics.failure(
-                    "failed to resolve downloaded PostgreSQL runtime",
-                    checkedContext.runtimeSource(),
-                    exception);
+                    "failed to resolve downloaded PostgreSQL runtime", checkedContext.runtimeSource(), exception);
         } catch (final IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
             cleanupAfterFailure(staging, download, exception);
             throw DownloadedRuntimeResolutionDiagnostics.failure(
-                    "failed to resolve downloaded PostgreSQL runtime",
-                    checkedContext.runtimeSource(),
-                    exception);
+                    "failed to resolve downloaded PostgreSQL runtime", checkedContext.runtimeSource(), exception);
         }
     }
 
-    private static void failIfStagingExists(
-            final DownloadedRuntimeResolutionContext context,
-            final Path staging) {
+    private static void failIfStagingExists(final DownloadedRuntimeResolutionContext context, final Path staging) {
         if (Files.exists(staging)) {
             throw DownloadedRuntimeResolutionDiagnostics.failure(
-                    "downloaded runtime staging path already exists",
-                    context.runtimeSource());
+                    "downloaded runtime staging path already exists", context.runtimeSource());
         }
     }
 
     private static RuntimeRepository repositoryForCacheMiss(final DownloadedRuntimeResolutionContext context) {
-        return context.repository().orElseThrow(() -> DownloadedRuntimeResolutionDiagnostics.failure(
-                "downloaded runtime repository is not configured and cached runtime is absent",
-                context.runtimeSource()));
+        return context.repository()
+                .orElseThrow(() -> DownloadedRuntimeResolutionDiagnostics.failure(
+                        "downloaded runtime repository is not configured and cached runtime is absent",
+                        context.runtimeSource()));
     }
 
-    private void verifySignature(
-            final Path artifact,
-            final RuntimeSignature signature) {
+    private void verifySignature(final Path artifact, final RuntimeSignature signature) {
         try {
             signatureVerifier.verify(artifact, signature);
         } catch (final IOException exception) {

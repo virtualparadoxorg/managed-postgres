@@ -4,52 +4,45 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
+import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
-import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
 
 public final class PostgresStartupDiagnosticsTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresStartupDiagnosticsTest() {
-    }
+    PostgresStartupDiagnosticsTest() {}
 
     @Test
     void startupFailureReturnsExistingStartupException() {
         final PostgresStartupException existing = new PostgresStartupException(
-                "already classified",
-                PostgresStartupDiagnostics.diagnostic("existing", Map.of("key", "value")));
+                "already classified", PostgresStartupDiagnostics.diagnostic("existing", Map.of("key", "value")));
 
-        final PostgresStartupException result = PostgresStartupDiagnostics.startupFailure(
-                "wrapper",
-                existing,
-                "ignored",
-                Map.of("ignored", "value"));
+        final PostgresStartupException result =
+                PostgresStartupDiagnostics.startupFailure("wrapper", existing, "ignored", Map.of("ignored", "value"));
 
         assertThat(result).isSameAs(existing);
     }
 
     @Test
     void commandFailureKeepsNestedDiagnosticsAndExceptionMessage() {
-        final ManagedPostgresException cause = new DiagnosticManagedPostgresException(new DiagnosticReport(List.of(
-                new DiagnosticSection("nested", Map.of("path", "postgres.log")))));
+        final ManagedPostgresException cause = new DiagnosticManagedPostgresException(
+                new DiagnosticReport(List.of(new DiagnosticSection("nested", Map.of("path", "postgres.log")))));
 
-        final PostgresStartupException result = PostgresStartupDiagnostics.commandFailure(
-                "PostgreSQL command failed",
-                "pg_ctl",
-                cause);
+        final PostgresStartupException result =
+                PostgresStartupDiagnostics.commandFailure("PostgreSQL command failed", "pg_ctl", cause);
 
         assertThat(result.diagnosticReport().renderText())
                 .contains("pg_ctl")

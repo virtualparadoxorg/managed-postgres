@@ -1,5 +1,6 @@
 package eu.virtualparadox.managedpostgres.filesystem;
 
+import eu.virtualparadox.managedpostgres.filesystem.lock.FileSystemLockManager;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -10,7 +11,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.filesystem.lock.FileSystemLockManager;
 
 /**
  * A filesystem operation that tracks created staging directories until commit.
@@ -34,9 +34,7 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
      * @param services services value
      */
     public JournaledFileSystemOperation(
-            final String operationName,
-            final Path operationRoot,
-            final FileSystemOperationServices services) {
+            final String operationName, final Path operationRoot, final FileSystemOperationServices services) {
         this.operationName = requireOperationName(operationName);
         this.operationRoot = Objects.requireNonNull(operationRoot, "operationRoot");
         this.services = Objects.requireNonNull(services, "services");
@@ -72,11 +70,9 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
      * {@inheritDoc}
      */
     @Override
-    public void writeUtf8Atomically(
-            final Path target,
-            final String content,
-            final ManagedFilePermissions permissions) {
-        final Path checkedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+    public void writeUtf8Atomically(final Path target, final String content, final ManagedFilePermissions permissions) {
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final ManagedFilePermissions checkedPermissions = Objects.requireNonNull(permissions, "permissions");
 
         final FileSystemLockManager.FileSystemLock lock = services.lockManager().lock(checkedTarget);
@@ -92,8 +88,10 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
      */
     @Override
     public void publishDirectory(final Path staging, final Path target) {
-        final Path checkedStaging = Objects.requireNonNull(staging, "staging").toAbsolutePath().normalize();
-        final Path checkedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path checkedStaging =
+                Objects.requireNonNull(staging, "staging").toAbsolutePath().normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
 
         final FileSystemLockManager.FileSystemLock lock = services.lockManager().lock(checkedTarget);
         try {
@@ -112,9 +110,8 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
         final Path checkedStagingFile = Objects.requireNonNull(stagingFile, "stagingFile")
                 .toAbsolutePath()
                 .normalize();
-        final Path checkedTarget = Objects.requireNonNull(target, "target")
-                .toAbsolutePath()
-                .normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
 
         final FileSystemLockManager.FileSystemLock lock = services.lockManager().lock(checkedTarget);
         try {
@@ -158,7 +155,10 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
     }
 
     private boolean containsOnlyOwnershipMarker(final Path stagingDirectory) {
-        final Path ownershipMarker = services.ownership().markerPath(stagingDirectory).toAbsolutePath().normalize();
+        final Path ownershipMarker = services.ownership()
+                .markerPath(stagingDirectory)
+                .toAbsolutePath()
+                .normalize();
         try (Stream<Path> paths = Files.list(stagingDirectory)) {
             return paths.allMatch(path -> path.toAbsolutePath().normalize().equals(ownershipMarker));
         } catch (final IOException exception) {
@@ -178,11 +178,8 @@ public final class JournaledFileSystemOperation implements FileSystemOperation {
     }
 
     private Path stagingPathFor(final Path target) {
-        final String stagingName = ".%s.%s.%s%s".formatted(
-                fileName(target),
-                safeName(operationName),
-                UUID.randomUUID(),
-                STAGING_SUFFIX);
+        final String stagingName =
+                ".%s.%s.%s%s".formatted(fileName(target), safeName(operationName), UUID.randomUUID(), STAGING_SUFFIX);
 
         return target.resolveSibling(stagingName);
     }

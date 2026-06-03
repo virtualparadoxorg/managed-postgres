@@ -66,11 +66,11 @@ import org.apache.commons.lang3.StringUtils;
  * Starts a managed PostgreSQL instance in temporary or persistent local mode.
  */
 @SuppressWarnings({
-        // This workflow is the lifecycle orchestrator; the start ordering must remain explicit in one place.
-        "PMD.CouplingBetweenObjects",
-        // The class-total metric counts the many small lifecycle helper methods plus the nested immutable configuration
-        // record; per-method complexity is kept low and is the more meaningful signal here.
-        "PMD.CyclomaticComplexity"
+    // This workflow is the lifecycle orchestrator; the start ordering must remain explicit in one place.
+    "PMD.CouplingBetweenObjects",
+    // The class-total metric counts the many small lifecycle helper methods plus the nested immutable configuration
+    // record; per-method complexity is kept low and is the more meaningful signal here.
+    "PMD.CyclomaticComplexity"
 })
 public final class StartPostgresWorkflow {
 
@@ -136,12 +136,10 @@ public final class StartPostgresWorkflow {
             final PostgresLockService lockService,
             final Duration startupTimeout,
             final PostgresAttachCoordinator attachCoordinator) {
-        this(collaboratorsWithAttachCoordinator(
-                runtimeResolver,
-                fileSystem,
-                lockService,
-                startupTimeout,
-                attachCoordinator), startupTimeout);
+        this(
+                collaboratorsWithAttachCoordinator(
+                        runtimeResolver, fileSystem, lockService, startupTimeout, attachCoordinator),
+                startupTimeout);
     }
 
     private StartPostgresWorkflow(final Collaborators collaborators, final Duration startupTimeout) {
@@ -189,20 +187,15 @@ public final class StartPostgresWorkflow {
         }
     }
 
-    private RunningPostgres startLocked(
-            final Configuration configuration,
-            final PostgresLayout layout) {
+    private RunningPostgres startLocked(final Configuration configuration, final PostgresLayout layout) {
         recoverFileSystemOperations(layout);
         final ResolvedRuntime resolvedRuntime =
                 resolveRuntime(configuration.runtimeSource(), configuration.postgresqlVersion());
         final Path runtimeDirectory = resolvedRuntime.runtimeDirectory();
         final MetadataStore metadataStore = new MetadataStore(layout.metadataPath(), fileSystem);
         final Configuration effectiveConfiguration = loadPersistentCredentials(configuration, layout);
-        final Optional<RunningPostgres> attachedHandle = attachCoordinator.tryAttachExisting(
-                effectiveConfiguration,
-                layout,
-                runtimeDirectory,
-                metadataStore);
+        final Optional<RunningPostgres> attachedHandle =
+                attachCoordinator.tryAttachExisting(effectiveConfiguration, layout, runtimeDirectory, metadataStore);
         final RunningPostgres handle;
         boolean processStarted = false;
         if (attachedHandle.isPresent()) {
@@ -215,10 +208,7 @@ public final class StartPostgresWorkflow {
                             effectiveConfiguration.clusterBootstrap()),
                     effectiveConfiguration.logs());
         } else {
-            new PostgresStartPreflight().verifyBeforeStart(
-                    effectiveConfiguration,
-                    layout,
-                    metadataStore.read());
+            new PostgresStartPreflight().verifyBeforeStart(effectiveConfiguration, layout, metadataStore.read());
             PostmasterPidSafety.failIfLivePostmaster(layout);
             try (AllocatedPort allocatedPort =
                     new PostgresPortSelector().select(effectiveConfiguration, metadataStore)) {
@@ -229,11 +219,11 @@ public final class StartPostgresWorkflow {
                         effectiveConfiguration.clusterBootstrap());
                 boolean logBridgeTransferred = false;
                 try {
-                    final Map<String, String> settings = PostgresStartArtifacts.settings(
-                            effectiveConfiguration,
-                            allocatedPort);
-                    final String configHash = new ConfigHashCalculator().calculate(
-                            PostgresStartArtifacts.configHashSettings(effectiveConfiguration, allocatedPort));
+                    final Map<String, String> settings =
+                            PostgresStartArtifacts.settings(effectiveConfiguration, allocatedPort);
+                    final String configHash = new ConfigHashCalculator()
+                            .calculate(
+                                    PostgresStartArtifacts.configHashSettings(effectiveConfiguration, allocatedPort));
                     final PostgresConnectionInfo connectionInfo =
                             PostgresStartArtifacts.connectionInfo(effectiveConfiguration, allocatedPort);
 
@@ -241,13 +231,11 @@ public final class StartPostgresWorkflow {
                             .prepare(runtimeDirectory, layout, effectiveConfiguration.credentials(), settings);
                     startProcess(runtimeDirectory, layout, effectiveConfiguration.cleanupPolicy());
                     processStarted = true;
-                    final PostgresReadinessWaiter.ReadinessOutcome readinessOutcome =
-                            new PostgresReadinessWaiter(commandRunner, startupTimeout)
-                                    .await(runtimeDirectory, connectionInfo, layout);
+                    final PostgresReadinessWaiter.ReadinessOutcome readinessOutcome = new PostgresReadinessWaiter(
+                                    commandRunner, startupTimeout)
+                            .await(runtimeDirectory, connectionInfo, layout);
                     final PostgresConnectionInfo applicationConnectionInfo = new PostgresBootstrapServiceFactory(
-                                    fileSystem,
-                                    commandRunner,
-                                    startupTimeout)
+                                    fileSystem, commandRunner, startupTimeout)
                             .create(runtimeDirectory, layout, effectiveConfiguration.postgresqlVersion())
                             .bootstrap(connectionInfo, effectiveConfiguration.clusterBootstrap());
                     final PostgresInstanceMetadata metadata = PostgresStartArtifacts.metadata(
@@ -266,15 +254,9 @@ public final class StartPostgresWorkflow {
                                             configuration.stopPolicy(),
                                             TemporaryClusterClosePolicy.shouldDeleteOnClose(effectiveConfiguration),
                                             backupOperationProvider.create(new PostgresBackupOperationContext(
-                                                    applicationConnectionInfo,
-                                                    metadata,
-                                                    layout,
-                                                    runtimeDirectory)),
+                                                    applicationConnectionInfo, metadata, layout, runtimeDirectory)),
                                             restoreOperationProvider.create(new PostgresBackupOperationContext(
-                                                    applicationConnectionInfo,
-                                                    metadata,
-                                                    layout,
-                                                    runtimeDirectory)),
+                                                    applicationConnectionInfo, metadata, layout, runtimeDirectory)),
                                             new StartupTelemetry(
                                                     resolvedRuntime.installDuration(),
                                                     readinessOutcome.failedHealthcheckCount()))),
@@ -295,9 +277,7 @@ public final class StartPostgresWorkflow {
         return handle;
     }
 
-    private Configuration loadPersistentCredentials(
-            final Configuration configuration,
-            final PostgresLayout layout) {
+    private Configuration loadPersistentCredentials(final Configuration configuration, final PostgresLayout layout) {
         final Configuration effectiveConfiguration;
         if (configuration.credentials().persistent()) {
             effectiveConfiguration = readPersistentCredentials(configuration, layout);
@@ -308,14 +288,11 @@ public final class StartPostgresWorkflow {
         return effectiveConfiguration;
     }
 
-    private Configuration readPersistentCredentials(
-            final Configuration configuration,
-            final PostgresLayout layout) {
+    private Configuration readPersistentCredentials(final Configuration configuration, final PostgresLayout layout) {
         final Configuration effectiveConfiguration;
         try {
             effectiveConfiguration = new FileCredentialStore(
-                            layout.stateDirectory().resolve(CREDENTIALS_FILE),
-                            fileSystem)
+                            layout.stateDirectory().resolve(CREDENTIALS_FILE), fileSystem)
                     .read()
                     .filter(Credentials::persistent)
                     .map(configuration::withCredentials)
@@ -326,7 +303,11 @@ public final class StartPostgresWorkflow {
                     exception,
                     PostgresStartupDiagnostics.diagnostic(
                             "credentials",
-                            Map.of("path", layout.stateDirectory().resolve(CREDENTIALS_FILE).toString())));
+                            Map.of(
+                                    "path",
+                                    layout.stateDirectory()
+                                            .resolve(CREDENTIALS_FILE)
+                                            .toString())));
         }
 
         return effectiveConfiguration;
@@ -368,9 +349,8 @@ public final class StartPostgresWorkflow {
             if (runtimeResolver instanceof TelemetryRuntimeResolver telemetryRuntimeResolver) {
                 resolvedRuntime = telemetryRuntimeResolver.resolveWithTelemetry(runtimeSource, postgresqlVersion);
             } else {
-                resolvedRuntime = new ResolvedRuntime(
-                        runtimeResolver.resolve(runtimeSource, postgresqlVersion),
-                        Duration.ZERO);
+                resolvedRuntime =
+                        new ResolvedRuntime(runtimeResolver.resolve(runtimeSource, postgresqlVersion), Duration.ZERO);
             }
             return resolvedRuntime;
         } catch (final IllegalArgumentException exception) {
@@ -383,9 +363,7 @@ public final class StartPostgresWorkflow {
     }
 
     private void startProcess(
-            final Path runtimeDirectory,
-            final PostgresLayout layout,
-            final CleanupPolicy cleanupPolicy) {
+            final Path runtimeDirectory, final PostgresLayout layout, final CleanupPolicy cleanupPolicy) {
         final CommandResult result;
         try {
             new PostgresLogRetention().prepare(layout.stateDirectory().resolve(POSTGRES_LOG), cleanupPolicy);
@@ -393,14 +371,11 @@ public final class StartPostgresWorkflow {
                     .start(layout.dataDirectory(), layout.stateDirectory().resolve(POSTGRES_LOG), startupTimeout);
         } catch (final ManagedPostgresException exception) {
             throw PostgresStartupDiagnostics.commandFailure(
-                    "PostgreSQL pg_ctl start command failed",
-                    "pg_ctl-command-failure",
-                    exception);
+                    "PostgreSQL pg_ctl start command failed", "pg_ctl-command-failure", exception);
         }
         if (!result.successful()) {
             throw new PostgresStartupException(
-                    "PostgreSQL pg_ctl start failed",
-                    PostgresStartupDiagnostics.commandDiagnostic("pg_ctl", result));
+                    "PostgreSQL pg_ctl start failed", PostgresStartupDiagnostics.commandDiagnostic("pg_ctl", result));
         }
     }
 
@@ -446,8 +421,7 @@ public final class StartPostgresWorkflow {
                                 checkedCommandRunner,
                                 startupTimeout,
                                 new PostgresHandleOperationProviders(
-                                        backupOperationProvider,
-                                        restoreOperationProvider)))),
+                                        backupOperationProvider, restoreOperationProvider)))),
                 backupOperationProvider,
                 restoreOperationProvider);
     }
@@ -509,8 +483,8 @@ public final class StartPostgresWorkflow {
      * @param cleanupPolicy cleanup and retention policy
      */
     @SuppressWarnings({
-            // This immutable lifecycle configuration intentionally carries the full startup contract in one value.
-            "PMD.CouplingBetweenObjects"
+        // This immutable lifecycle configuration intentionally carries the full startup contract in one value.
+        "PMD.CouplingBetweenObjects"
     })
     public record Configuration(
             String name,
@@ -538,8 +512,8 @@ public final class StartPostgresWorkflow {
          * @param credentials PostgreSQL credentials
          */
         @SuppressWarnings({
-                // Backward-compatible immutable convenience constructor mirrors the startup record shape on purpose.
-                "PMD.ExcessiveParameterList"
+            // Backward-compatible immutable convenience constructor mirrors the startup record shape on purpose.
+            "PMD.ExcessiveParameterList"
         })
         public Configuration(
                 final String name,
@@ -581,8 +555,8 @@ public final class StartPostgresWorkflow {
          * @param cleanupPolicy cleanup and retention policy
          */
         @SuppressWarnings({
-                // Backward-compatible immutable convenience constructor mirrors the startup record shape on purpose.
-                "PMD.ExcessiveParameterList"
+            // Backward-compatible immutable convenience constructor mirrors the startup record shape on purpose.
+            "PMD.ExcessiveParameterList"
         })
         public Configuration(
                 final String name,
@@ -632,8 +606,8 @@ public final class StartPostgresWorkflow {
          * @param cleanupPolicy cleanup and retention policy
          */
         @SuppressWarnings({
-                // Backward-compatible immutable convenience constructor mirrors the previous public shape on purpose.
-                "PMD.ExcessiveParameterList"
+            // Backward-compatible immutable convenience constructor mirrors the previous public shape on purpose.
+            "PMD.ExcessiveParameterList"
         })
         public Configuration(
                 final String name,

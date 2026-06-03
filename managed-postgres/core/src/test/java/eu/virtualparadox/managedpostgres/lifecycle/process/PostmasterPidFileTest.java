@@ -5,26 +5,25 @@ import static org.assertj.core.api.Assertions.assertThatIOException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.Set;
 import java.util.OptionalLong;
+import java.util.Set;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
 
 public final class PostmasterPidFileTest {
 
     @TempDir
     private Path dataDirectory;
 
-    PostmasterPidFileTest() {
-    }
+    PostmasterPidFileTest() {}
 
     @Test
     void missingPostmasterPidFileHasNoPid() {

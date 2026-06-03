@@ -30,8 +30,8 @@ public record ClasspathRuntime(
     public ClasspathRuntime {
         resource = requireResource(resource);
         Objects.requireNonNull(cache, "cache");
-        final Optional<String> validatedChecksum = Objects.requireNonNull(checksum, "checksum")
-                .map(ClasspathRuntime::requireChecksum);
+        final Optional<String> validatedChecksum =
+                Objects.requireNonNull(checksum, "checksum").map(ClasspathRuntime::requireChecksum);
         checksum = validatedChecksum;
         Objects.requireNonNull(signature, "signature");
     }
@@ -44,9 +44,7 @@ public record ClasspathRuntime(
      * @param checksum expected runtime archive checksum, when configured
      */
     public ClasspathRuntime(
-            final String resource,
-            final Optional<RuntimeCache> cache,
-            final Optional<String> checksum) {
+            final String resource, final Optional<RuntimeCache> cache, final Optional<String> checksum) {
         this(resource, cache, checksum, Optional.empty());
     }
 
@@ -68,10 +66,7 @@ public record ClasspathRuntime(
      */
     public ClasspathRuntime cache(final RuntimeCache newCache) {
         return new ClasspathRuntime(
-                resource,
-                Optional.of(Objects.requireNonNull(newCache, "newCache")),
-                checksum,
-                signature);
+                resource, Optional.of(Objects.requireNonNull(newCache, "newCache")), checksum, signature);
     }
 
     /**
@@ -112,10 +107,7 @@ public record ClasspathRuntime(
      */
     public ClasspathRuntime signature(final RuntimeSignature newSignature) {
         return new ClasspathRuntime(
-                resource,
-                cache,
-                checksum,
-                Optional.of(Objects.requireNonNull(newSignature, "newSignature")));
+                resource, cache, checksum, Optional.of(Objects.requireNonNull(newSignature, "newSignature")));
     }
 
     /**

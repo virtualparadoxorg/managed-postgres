@@ -29,8 +29,7 @@ public final class ManagedPostgresAutoConfigurationTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(ManagedPostgresAutoConfiguration.class));
 
-    ManagedPostgresAutoConfigurationTest() {
-    }
+    ManagedPostgresAutoConfigurationTest() {}
 
     @AfterEach
     void resetBootstrapContext() {
@@ -76,8 +75,8 @@ public final class ManagedPostgresAutoConfigurationTest {
         final BootstrapFixture fixture = BootstrapFixture.create();
         ManagedPostgresBootstrapContextTestSupport.store(fixture.postgres(), fixture.runningPostgres());
 
-        contextRunner.withPropertyValues("managed-postgres.enabled=true").run(context ->
-                assertThat(context).hasSingleBean(RunningPostgres.class));
+        contextRunner.withPropertyValues("managed-postgres.enabled=true").run(context -> assertThat(context)
+                .hasSingleBean(RunningPostgres.class));
 
         verify(fixture.runningPostgres()).close();
     }
@@ -102,8 +101,7 @@ public final class ManagedPostgresAutoConfigurationTest {
     private static String autoConfigurationImports() throws IOException {
         final ClassLoader classLoader = ManagedPostgresAutoConfigurationTest.class.getClassLoader();
         final InputStream resourceStream = Objects.requireNonNull(
-                classLoader.getResourceAsStream(AUTO_CONFIGURATION_IMPORTS),
-                AUTO_CONFIGURATION_IMPORTS);
+                classLoader.getResourceAsStream(AUTO_CONFIGURATION_IMPORTS), AUTO_CONFIGURATION_IMPORTS);
 
         try (InputStream stream = resourceStream) {
             return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
@@ -114,12 +112,8 @@ public final class ManagedPostgresAutoConfigurationTest {
 
         private final ManagedPostgres postgres = mock(ManagedPostgres.class);
         private final RunningPostgres runningPostgres = mock(RunningPostgres.class);
-        private final PostgresConnectionInfo connectionInfo = new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of("boot-secret"));
+        private final PostgresConnectionInfo connectionInfo =
+                new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("boot-secret"));
 
         private BootstrapFixture() {
             when(runningPostgres.connectionInfo()).thenReturn(connectionInfo);

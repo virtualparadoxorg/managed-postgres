@@ -23,8 +23,7 @@ final class MesonSetupConflictResolver {
     private static final String CONFLICT_FOOTER = "The conflicting files need to be removed";
     private static final Pattern WHITESPACE = Pattern.compile("\\s+");
 
-    private MesonSetupConflictResolver() {
-    }
+    private MesonSetupConflictResolver() {}
 
     /**
      * Returns the in-tree files reported as conflicting by a Meson setup failure message.

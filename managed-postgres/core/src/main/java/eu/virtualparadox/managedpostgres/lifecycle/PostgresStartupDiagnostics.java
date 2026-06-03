@@ -2,24 +2,23 @@ package eu.virtualparadox.managedpostgres.lifecycle;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
 
 /**
  * Builds startup diagnostics for PostgreSQL lifecycle failures.
  */
 public final class PostgresStartupDiagnostics {
 
-    private PostgresStartupDiagnostics() {
-    }
+    private PostgresStartupDiagnostics() {}
 
     /**
      * Returns the diagnostic result.
@@ -40,11 +39,13 @@ public final class PostgresStartupDiagnostics {
      * @return command diagnostic result
      */
     public static DiagnosticReport commandDiagnostic(final String sectionName, final CommandResult commandResult) {
-        return diagnostic(sectionName, Map.of(
-                "command", commandResult.renderedCommand(),
-                "exitCode", Integer.toString(commandResult.exitCode()),
-                "stdout", commandResult.stdout(),
-                "stderr", commandResult.stderr()));
+        return diagnostic(
+                sectionName,
+                Map.of(
+                        "command", commandResult.renderedCommand(),
+                        "exitCode", Integer.toString(commandResult.exitCode()),
+                        "stdout", commandResult.stdout(),
+                        "stderr", commandResult.stderr()));
     }
 
     /**
@@ -56,13 +57,9 @@ public final class PostgresStartupDiagnostics {
      * @return command failure result
      */
     public static PostgresStartupException commandFailure(
-            final String message,
-            final String sectionName,
-            final ManagedPostgresException exception) {
+            final String message, final String sectionName, final ManagedPostgresException exception) {
         final List<DiagnosticSection> sections = new ArrayList<>();
-        sections.add(new DiagnosticSection(
-                sectionName,
-                Map.of("message", exceptionMessage(exception))));
+        sections.add(new DiagnosticSection(sectionName, Map.of("message", exceptionMessage(exception))));
         sections.addAll(exception.diagnosticReport().sections());
 
         return new PostgresStartupException(message, exception, new DiagnosticReport(sections));
@@ -116,11 +113,11 @@ public final class PostgresStartupDiagnostics {
         sections.addAll(lastProbeResult.diagnosticReport().sections());
 
         return new PostgresStartupException(
-                "Timed out waiting for PostgreSQL readiness",
-                new DiagnosticReport(sections));
+                "Timed out waiting for PostgreSQL readiness", new DiagnosticReport(sections));
     }
 
     private static String exceptionMessage(final RuntimeException exception) {
-        return Objects.requireNonNullElse(exception.getMessage(), exception.getClass().getSimpleName());
+        return Objects.requireNonNullElse(
+                exception.getMessage(), exception.getClass().getSimpleName());
     }
 }

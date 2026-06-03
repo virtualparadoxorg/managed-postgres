@@ -28,8 +28,7 @@ public final class DownloadedRuntimeResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DownloadedRuntimeResolverTest() {
-    }
+    DownloadedRuntimeResolverTest() {}
 
     @Test
     void cachedValidatedRuntimeIsReusedWithoutRedownload() throws IOException {
@@ -39,10 +38,8 @@ public final class DownloadedRuntimeResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum);
         RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
-        final RuntimeSource runtimeSource = downloadedSource(
-                temporaryDirectory.resolve("missing.zip"),
-                cacheRoot,
-                checksumText);
+        final RuntimeSource runtimeSource =
+                downloadedSource(temporaryDirectory.resolve("missing.zip"), cacheRoot, checksumText);
         final RuntimeArtifactDownloader downloader = (repository, target, expectedChecksum) -> {
             throw new AssertionError("cached runtime must not trigger download");
         };
@@ -61,9 +58,9 @@ public final class DownloadedRuntimeResolverTest {
         final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum);
         RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
 
-        final ResolvedRuntime resolvedRuntime = new DownloadedRuntimeResolver().resolveWithTelemetry(
-                downloadedSource(temporaryDirectory.resolve("unused.zip"), cacheRoot, checksumText),
-                "16.4");
+        final ResolvedRuntime resolvedRuntime = new DownloadedRuntimeResolver()
+                .resolveWithTelemetry(
+                        downloadedSource(temporaryDirectory.resolve("unused.zip"), cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime.runtimeDirectory()).isEqualTo(cachedRuntime);
         assertThat(resolvedRuntime.installDuration()).isZero();
@@ -120,9 +117,7 @@ public final class DownloadedRuntimeResolverTest {
     @Test
     void missingCacheDownloadsVerifiesExtractsValidatesAndPublishesRuntime() throws IOException {
         final Path archive = zipWithEntries(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+                entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
         final Path cacheRoot = temporaryDirectory.resolve("cache");
 
         assertDownloadedArchivePublishesRuntime(archive, cacheRoot);
@@ -131,14 +126,12 @@ public final class DownloadedRuntimeResolverTest {
     @Test
     void missingCacheDownloadReportsPositiveInstallDuration() throws IOException {
         final Path archive = zipWithEntries(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+                entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
         final Path cacheRoot = temporaryDirectory.resolve("cache");
 
-        final ResolvedRuntime resolvedRuntime = new DownloadedRuntimeResolver().resolveWithTelemetry(
-                downloadedSource(archive, cacheRoot, RuntimeArchiveTestSupport.checksumText(archive)),
-                "16.4");
+        final ResolvedRuntime resolvedRuntime = new DownloadedRuntimeResolver()
+                .resolveWithTelemetry(
+                        downloadedSource(archive, cacheRoot, RuntimeArchiveTestSupport.checksumText(archive)), "16.4");
 
         assertThat(resolvedRuntime.runtimeDirectory()).isDirectory();
         assertThat(resolvedRuntime.installDuration()).isPositive();
@@ -147,25 +140,20 @@ public final class DownloadedRuntimeResolverTest {
     @Test
     void missingCacheDownloadsTarGzipVerifiesExtractsValidatesAndPublishesRuntime() throws IOException {
         final Path archive = tarGzipWithEntries(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+                entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
         final Path cacheRoot = temporaryDirectory.resolve("cache");
 
         assertDownloadedArchivePublishesRuntime(archive, cacheRoot);
     }
 
-    private void assertDownloadedArchivePublishesRuntime(
-            final Path archive,
-            final Path cacheRoot) throws IOException {
+    private void assertDownloadedArchivePublishesRuntime(final Path archive, final Path cacheRoot) throws IOException {
         final String checksumText = RuntimeArchiveTestSupport.checksumText(archive);
         final Checksum checksum = Checksum.parse(checksumText);
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum);
 
-        final Path resolvedRuntime = new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, checksumText),
-                "16.4");
+        final Path resolvedRuntime =
+                new DownloadedRuntimeResolver().resolve(downloadedSource(archive, cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(finalRuntime);
         assertThat(finalRuntime.resolve("bin").resolve("pg_ctl")).isRegularFile();
@@ -177,18 +165,14 @@ public final class DownloadedRuntimeResolverTest {
     @Test
     void failedChecksumLeavesNoFinalRuntime() throws IOException {
         final Path archive = zipWithEntries(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+                entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
         final Path cacheRoot = temporaryDirectory.resolve("cache");
-        final String wrongChecksumText =
-                "sha256:0000000000000000000000000000000000000000000000000000000000000000";
+        final String wrongChecksumText = "sha256:0000000000000000000000000000000000000000000000000000000000000000";
         final Checksum wrongChecksum = Checksum.parse(wrongChecksumText);
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, wrongChecksumText),
-                "16.4"))
+        assertThatThrownBy(() -> new DownloadedRuntimeResolver()
+                        .resolve(downloadedSource(archive, cacheRoot, wrongChecksumText), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("failed to resolve")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -203,9 +187,8 @@ public final class DownloadedRuntimeResolverTest {
         final Path cacheRoot = temporaryDirectory.resolve("cache");
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, checksumText),
-                "16.4"))
+        assertThatThrownBy(() -> new DownloadedRuntimeResolver()
+                        .resolve(downloadedSource(archive, cacheRoot, checksumText), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("failed to resolve")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -220,51 +203,40 @@ public final class DownloadedRuntimeResolverTest {
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("checksum")
                 .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("downloaded"));
     }
 
     @Test
     void cacheOnlyDownloadedSourceWithoutCachedRuntimeFailsWithClearDiagnostic() {
         final Path cacheRoot = temporaryDirectory.resolve("cache");
-        final String checksumText =
-                "sha256:1111111111111111111111111111111111111111111111111111111111111111";
+        final String checksumText = "sha256:1111111111111111111111111111111111111111111111111111111111111111";
 
-        assertThatThrownBy(() -> new DefaultRuntimeResolver().resolve(
-                cacheOnlyDownloadedSource(cacheRoot, checksumText),
-                "16.4"))
+        assertThatThrownBy(() -> new DefaultRuntimeResolver()
+                        .resolve(cacheOnlyDownloadedSource(cacheRoot, checksumText), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("repository")
                 .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("cached runtime is absent"));
     }
 
-    private RuntimeSource downloadedSource(
-            final Path archive,
-            final Path cacheRoot,
-            final String checksumText) {
+    private RuntimeSource downloadedSource(final Path archive, final Path cacheRoot, final String checksumText) {
         return downloadedSource(archive, RuntimeCache.projectLocal(cacheRoot), checksumText);
     }
 
     private RuntimeSource downloadedSource(
-            final Path archive,
-            final RuntimeCache runtimeCache,
-            final String checksumText) {
-        return RuntimeSource.downloaded(runtime -> runtime
-                .repository(RuntimeRepository.custom(archive.toUri()))
+            final Path archive, final RuntimeCache runtimeCache, final String checksumText) {
+        return RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(archive.toUri()))
                 .cache(runtimeCache)
                 .checksum(checksumText));
     }
 
-    private RuntimeSource cacheOnlyDownloadedSource(
-            final Path cacheRoot,
-            final String checksumText) {
-        return RuntimeSource.downloaded(runtime -> runtime
-                .cache(RuntimeCache.projectLocal(cacheRoot))
-                .checksum(checksumText));
+    private RuntimeSource cacheOnlyDownloadedSource(final Path cacheRoot, final String checksumText) {
+        return RuntimeSource.downloaded(
+                runtime -> runtime.cache(RuntimeCache.projectLocal(cacheRoot)).checksum(checksumText));
     }
 
     private static void setModifiedTime(final Path directory, final String instant) throws IOException {
@@ -273,14 +245,12 @@ public final class DownloadedRuntimeResolverTest {
 
     private Path zipWithEntries(final EntrySpec... entries) throws IOException {
         return RuntimeArchiveTestSupport.zipWithEntries(
-                Files.createTempFile(temporaryDirectory, "runtime-", ".zip"),
-                entries);
+                Files.createTempFile(temporaryDirectory, "runtime-", ".zip"), entries);
     }
 
     private Path tarGzipWithEntries(final EntrySpec... entries) throws IOException {
         return TarGzipArchiveTestSupport.tarGzipWithEntries(
-                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"),
-                entries);
+                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"), entries);
     }
 
     private static EntrySpec entry(final String name, final String content) {

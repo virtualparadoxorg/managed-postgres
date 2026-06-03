@@ -27,7 +27,8 @@ public record Storage(Path path, boolean temporaryStorage) {
      * @return temporary storage
      */
     public static Storage temporary() {
-        final String temporaryDirectory = Objects.requireNonNull(System.getProperty("java.io.tmpdir"), "java.io.tmpdir");
+        final String temporaryDirectory =
+                Objects.requireNonNull(System.getProperty("java.io.tmpdir"), "java.io.tmpdir");
 
         return new Storage(Path.of(temporaryDirectory, "managed-postgres"), true);
     }

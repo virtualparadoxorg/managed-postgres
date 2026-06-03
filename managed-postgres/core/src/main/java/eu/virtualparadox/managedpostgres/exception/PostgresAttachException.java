@@ -28,9 +28,7 @@ public final class PostgresAttachException extends ManagedPostgresException {
      * @param diagnosticReport structured diagnostic report
      */
     public PostgresAttachException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

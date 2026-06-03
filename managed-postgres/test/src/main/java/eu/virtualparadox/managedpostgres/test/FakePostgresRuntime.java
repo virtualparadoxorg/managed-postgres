@@ -21,14 +21,8 @@ import java.util.zip.ZipOutputStream;
 public final class FakePostgresRuntime {
 
     private static final String FAKE_POSTGRES_VERSION = "16.0";
-    private static final List<String> EXECUTABLE_NAMES = List.of(
-            "pg_ctl",
-            "initdb",
-            "pg_isready",
-            "psql",
-            "pg_dump",
-            "pg_restore",
-            "postgres");
+    private static final List<String> EXECUTABLE_NAMES =
+            List.of("pg_ctl", "initdb", "pg_isready", "psql", "pg_dump", "pg_restore", "postgres");
 
     private final Path runtimeDirectory;
     private final PostgresRuntimeManifest manifest;
@@ -57,9 +51,8 @@ public final class FakePostgresRuntime {
      * @return fake runtime
      * @throws IOException when files cannot be created
      */
-    public static FakePostgresRuntime create(
-            final Path runtimeDirectory,
-            final FakePostgresScript... scripts) throws IOException {
+    public static FakePostgresRuntime create(final Path runtimeDirectory, final FakePostgresScript... scripts)
+            throws IOException {
         return create(runtimeDirectory, Arrays.asList(scripts));
     }
 
@@ -71,9 +64,8 @@ public final class FakePostgresRuntime {
      * @return fake runtime
      * @throws IOException when files cannot be created
      */
-    public static FakePostgresRuntime create(
-            final Path runtimeDirectory,
-            final List<FakePostgresScript> scripts) throws IOException {
+    public static FakePostgresRuntime create(final Path runtimeDirectory, final List<FakePostgresScript> scripts)
+            throws IOException {
         final Path checkedRuntimeDirectory = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory");
         final Map<String, FakePostgresScript> scriptByName = defaultScripts();
         for (final FakePostgresScript script : List.copyOf(Objects.requireNonNull(scripts, "scripts"))) {
@@ -91,8 +83,7 @@ public final class FakePostgresRuntime {
         }
 
         return new FakePostgresRuntime(
-                checkedRuntimeDirectory,
-                PostgresRuntimeManifest.existing(FAKE_POSTGRES_VERSION));
+                checkedRuntimeDirectory, PostgresRuntimeManifest.existing(FAKE_POSTGRES_VERSION));
     }
 
     /**

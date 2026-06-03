@@ -10,8 +10,7 @@ import java.util.Objects;
  */
 public final class DoctorReportJsonRenderer {
 
-    private DoctorReportJsonRenderer() {
-    }
+    private DoctorReportJsonRenderer() {}
 
     /**
      * Returns the render result.
@@ -24,21 +23,22 @@ public final class DoctorReportJsonRenderer {
         final String lineSeparator = System.lineSeparator();
         final StringBuilder builder = new StringBuilder();
 
-        builder.append("{").append(lineSeparator)
-                .append("  \"status\": ").append(JsonStrings.quote(checkedReport.status().name()))
-                .append(",").append(lineSeparator)
-                .append("  \"sections\": [").append(lineSeparator);
+        builder.append("{")
+                .append(lineSeparator)
+                .append("  \"status\": ")
+                .append(JsonStrings.quote(checkedReport.status().name()))
+                .append(",")
+                .append(lineSeparator)
+                .append("  \"sections\": [")
+                .append(lineSeparator);
         appendSections(builder, lineSeparator, checkedReport);
-        builder.append("  ]").append(lineSeparator)
-                .append("}").append(lineSeparator);
+        builder.append("  ]").append(lineSeparator).append("}").append(lineSeparator);
 
         return builder.toString();
     }
 
     private static void appendSections(
-            final StringBuilder builder,
-            final String lineSeparator,
-            final DoctorReport report) {
+            final StringBuilder builder, final String lineSeparator, final DoctorReport report) {
         for (int index = 0; index < report.sections().size(); index++) {
             appendSection(builder, lineSeparator, report.sections().get(index));
             if (index + 1 < report.sections().size()) {
@@ -49,21 +49,21 @@ public final class DoctorReportJsonRenderer {
     }
 
     private static void appendSection(
-            final StringBuilder builder,
-            final String lineSeparator,
-            final DiagnosticSection section) {
-        builder.append("    {").append(lineSeparator)
-                .append("      \"name\": ").append(JsonStrings.quote(section.name())).append(",").append(lineSeparator)
-                .append("      \"values\": {").append(lineSeparator);
+            final StringBuilder builder, final String lineSeparator, final DiagnosticSection section) {
+        builder.append("    {")
+                .append(lineSeparator)
+                .append("      \"name\": ")
+                .append(JsonStrings.quote(section.name()))
+                .append(",")
+                .append(lineSeparator)
+                .append("      \"values\": {")
+                .append(lineSeparator);
         appendValues(builder, lineSeparator, section.values());
-        builder.append("      }").append(lineSeparator)
-                .append("    }");
+        builder.append("      }").append(lineSeparator).append("    }");
     }
 
     private static void appendValues(
-            final StringBuilder builder,
-            final String lineSeparator,
-            final Map<String, String> values) {
+            final StringBuilder builder, final String lineSeparator, final Map<String, String> values) {
         final int[] index = {0};
         values.entrySet().stream()
                 .sorted(Comparator.comparing(Map.Entry::getKey))
@@ -76,7 +76,8 @@ public final class DoctorReportJsonRenderer {
             final int valueCount,
             final int[] index,
             final Map.Entry<String, String> entry) {
-        final String redactedValue = CommandRedactor.redact(CommandRedactor.redactValue(entry.getKey(), entry.getValue()));
+        final String redactedValue =
+                CommandRedactor.redact(CommandRedactor.redactValue(entry.getKey(), entry.getValue()));
         builder.append("        ")
                 .append(JsonStrings.quote(entry.getKey()))
                 .append(": ")
@@ -87,5 +88,4 @@ public final class DoctorReportJsonRenderer {
         }
         builder.append(lineSeparator);
     }
-
 }

@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public final class NetworkTest {
 
-    NetworkTest() {
-    }
+    NetworkTest() {}
 
     @Test
     void localhostNetworkSupportsImmutablePortPolicies() {
@@ -52,18 +51,14 @@ public final class NetworkTest {
 
     @Test
     void portSelectionRejectsInconsistentStates() {
-        assertThatThrownBy(() -> new Network.PortSelection(
-                Network.PortSelectionMode.RANDOM,
-                OptionalInt.of(15432),
-                false)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Network.PortSelection(
-                Network.PortSelectionMode.FIXED,
-                OptionalInt.empty(),
-                false)).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> new Network.PortSelection(
-                Network.PortSelectionMode.STABLE_RANDOM,
-                OptionalInt.empty(),
-                true)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(
+                        () -> new Network.PortSelection(Network.PortSelectionMode.RANDOM, OptionalInt.of(15432), false))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new Network.PortSelection(Network.PortSelectionMode.FIXED, OptionalInt.empty(), false))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() ->
+                        new Network.PortSelection(Network.PortSelectionMode.STABLE_RANDOM, OptionalInt.empty(), true))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static void assign(final Network network) {

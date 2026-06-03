@@ -20,10 +20,7 @@ public final class TestManagedPostgres implements ManagedPostgres {
     private int destroyInvocations;
     private int closeInvocations;
 
-    TestManagedPostgres(
-            final DoctorReport report,
-            final TestRunningPostgres runningPostgres,
-            final Failures failures) {
+    TestManagedPostgres(final DoctorReport report, final TestRunningPostgres runningPostgres, final Failures failures) {
         this.report = Objects.requireNonNull(report, "report");
         this.runningPostgres = Objects.requireNonNull(runningPostgres, "runningPostgres");
         this.failures = Objects.requireNonNull(failures, "failures");
@@ -100,20 +97,9 @@ public final class TestManagedPostgres implements ManagedPostgres {
      * @param close number of `close()` invocations
      * @param runningClose number of `RunningPostgres.close()` invocations
      */
-    public record Invocations(
-            int start,
-            int stop,
-            int cleanup,
-            int destroy,
-            int close,
-            int runningClose) {
-    }
+    public record Invocations(int start, int stop, int cleanup, int destroy, int close, int runningClose) {}
 
-    record Failures(
-            Runnable start,
-            Runnable stop,
-            Runnable cleanup,
-            Runnable destroy) {
+    record Failures(Runnable start, Runnable stop, Runnable cleanup, Runnable destroy) {
 
         Failures {
             Objects.requireNonNull(start, "start");

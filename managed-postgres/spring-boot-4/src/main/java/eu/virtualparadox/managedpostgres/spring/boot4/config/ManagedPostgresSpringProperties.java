@@ -117,10 +117,7 @@ public record ManagedPostgresSpringProperties(
                 runtime,
                 new NetworkProperties(
                         stringProperty(checkedEnvironment, NETWORK_HOST, DEFAULT_NETWORK_HOST),
-                        stringProperty(
-                                checkedEnvironment,
-                                NETWORK_PORT_SELECTION,
-                                DEFAULT_NETWORK_PORT_SELECTION),
+                        stringProperty(checkedEnvironment, NETWORK_PORT_SELECTION, DEFAULT_NETWORK_PORT_SELECTION),
                         optionalIntegerProperty(checkedEnvironment, NETWORK_PORT),
                         booleanProperty(checkedEnvironment, NETWORK_FALLBACK_TO_RANDOM, false)),
                 configurationProperties(checkedEnvironment),
@@ -130,7 +127,7 @@ public record ManagedPostgresSpringProperties(
                 cluster,
                 new LifecycleProperties(
                         booleanProperty(checkedEnvironment, LIFECYCLE_REUSE_EXISTING, false),
-                booleanProperty(checkedEnvironment, LIFECYCLE_KEEP_RUNNING, false)));
+                        booleanProperty(checkedEnvironment, LIFECYCLE_KEEP_RUNNING, false)));
     }
 
     private static ConfigurationProperties configurationProperties(final ConfigurableEnvironment environment) {
@@ -145,19 +142,18 @@ public record ManagedPostgresSpringProperties(
 
     private static ClusterProperties clusterProperties(final ConfigurableEnvironment environment) {
         final Optional<String> owner = optionalStringProperty(environment, CLUSTER_OWNER);
-        final Optional<Secret> password = optionalStringProperty(environment, CLUSTER_PASSWORD).map(Secret::of);
+        final Optional<Secret> password =
+                optionalStringProperty(environment, CLUSTER_PASSWORD).map(Secret::of);
         validateCredentialPair(owner, password);
 
-        return new ClusterProperties(
-                stringProperty(environment, CLUSTER_DATABASE, DEFAULT_DATABASE),
-                owner,
-                password);
+        return new ClusterProperties(stringProperty(environment, CLUSTER_DATABASE, DEFAULT_DATABASE), owner, password);
     }
 
     private static ManagedPostgresSpringRuntimeSourceProperties runtimeSourceProperties(
             final ConfigurableEnvironment environment) {
         return new ManagedPostgresSpringRuntimeSourceProperties(
-                optionalStringProperty(environment, RUNTIME_SOURCE).map(ManagedPostgresSpringProperties::normalizedSource),
+                optionalStringProperty(environment, RUNTIME_SOURCE)
+                        .map(ManagedPostgresSpringProperties::normalizedSource),
                 optionalPathProperty(environment, RUNTIME_PATH),
                 optionalStringProperty(environment, RUNTIME_RESOURCE),
                 optionalStringProperty(environment, RUNTIME_REPOSITORY),
@@ -193,9 +189,7 @@ public record ManagedPostgresSpringProperties(
     }
 
     private static boolean booleanProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName,
-            final boolean defaultValue) {
+            final ConfigurableEnvironment environment, final String propertyName, final boolean defaultValue) {
         final Boolean value = environment.getProperty(propertyName, Boolean.class);
         final boolean resolvedValue;
         if (value == null) {
@@ -208,37 +202,29 @@ public record ManagedPostgresSpringProperties(
     }
 
     private static String stringProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName,
-            final String defaultValue) {
+            final ConfigurableEnvironment environment, final String propertyName, final String defaultValue) {
         return optionalStringProperty(environment, propertyName).orElse(defaultValue);
     }
 
     private static Optional<String> optionalStringProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName) {
+            final ConfigurableEnvironment environment, final String propertyName) {
         return Optional.ofNullable(environment.getProperty(propertyName))
                 .map(value -> requireNonBlank(propertyName, value));
     }
 
     private static Optional<Integer> optionalIntegerProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName) {
+            final ConfigurableEnvironment environment, final String propertyName) {
         return Optional.ofNullable(environment.getProperty(propertyName, Integer.class));
     }
 
     private static Path pathProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName,
-            final Path defaultValue) {
+            final ConfigurableEnvironment environment, final String propertyName, final Path defaultValue) {
         return optionalPathProperty(environment, propertyName).orElse(defaultValue);
     }
 
     private static Optional<Path> optionalPathProperty(
-            final ConfigurableEnvironment environment,
-            final String propertyName) {
-        return optionalStringProperty(environment, propertyName)
-                .map(value -> pathValue(propertyName, value));
+            final ConfigurableEnvironment environment, final String propertyName) {
+        return optionalStringProperty(environment, propertyName).map(value -> pathValue(propertyName, value));
     }
 
     private static Path pathValue(final String propertyName, final String value) {
@@ -365,10 +351,7 @@ public record ManagedPostgresSpringProperties(
      * @param fallbackToRandom whether preferred port selection may fall back to random
      */
     public record NetworkProperties(
-            String host,
-            String portSelection,
-            Optional<Integer> port,
-            boolean fallbackToRandom) {
+            String host, String portSelection, Optional<Integer> port, boolean fallbackToRandom) {
 
         /**
          * Creates immutable network properties.
@@ -380,7 +363,8 @@ public record ManagedPostgresSpringProperties(
          */
         public NetworkProperties {
             host = requireNonBlank(NETWORK_HOST, host);
-            portSelection = requireNonBlank(NETWORK_PORT_SELECTION, portSelection).toLowerCase(Locale.ROOT);
+            portSelection =
+                    requireNonBlank(NETWORK_PORT_SELECTION, portSelection).toLowerCase(Locale.ROOT);
             Objects.requireNonNull(port, "port");
         }
     }
@@ -438,8 +422,7 @@ public record ManagedPostgresSpringProperties(
      * @param enabled whether datasource properties should be published
      * @param overrideExisting whether existing datasource properties may be replaced
      */
-    public record DatasourceProperties(boolean enabled, boolean overrideExisting) {
-    }
+    public record DatasourceProperties(boolean enabled, boolean overrideExisting) {}
 
     /**
      * Immutable cluster bootstrap properties.
@@ -482,6 +465,5 @@ public record ManagedPostgresSpringProperties(
      * @param reuseExisting whether a compatible existing managed PostgreSQL instance may be reused
      * @param keepRunning whether PostgreSQL should be left running when closed
      */
-    public record LifecycleProperties(boolean reuseExisting, boolean keepRunning) {
-    }
+    public record LifecycleProperties(boolean reuseExisting, boolean keepRunning) {}
 }

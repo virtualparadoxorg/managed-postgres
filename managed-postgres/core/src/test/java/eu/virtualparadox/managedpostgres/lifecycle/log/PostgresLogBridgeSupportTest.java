@@ -22,8 +22,7 @@ public final class PostgresLogBridgeSupportTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresLogBridgeSupportTest() {
-    }
+    PostgresLogBridgeSupportTest() {}
 
     @Test
     void startReturnsNoOpCloseActionWhenSlf4jBridgeDisabled() {
@@ -61,7 +60,7 @@ public final class PostgresLogBridgeSupportTest {
     void wrapReturnsOriginalHandleWhenSlf4jBridgeDisabled() {
         final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
         final RecordingRunningPostgres handle = new RecordingRunningPostgres();
-        try (RunningPostgres wrapped = support.wrap(handle, () -> { }, PostgresLogs.defaults())) {
+        try (RunningPostgres wrapped = support.wrap(handle, () -> {}, PostgresLogs.defaults())) {
 
             assertThat(wrapped).isSameAs(handle);
         }
@@ -73,9 +72,7 @@ public final class PostgresLogBridgeSupportTest {
         final AtomicInteger stopCloseCalls = new AtomicInteger();
         final RecordingRunningPostgres handle = new RecordingRunningPostgres();
         try (RunningPostgres wrapped = support.wrap(
-                handle,
-                stopCloseCalls::incrementAndGet,
-                PostgresLogs.defaults().toSlf4j())) {
+                handle, stopCloseCalls::incrementAndGet, PostgresLogs.defaults().toSlf4j())) {
 
             wrapped.stop();
 

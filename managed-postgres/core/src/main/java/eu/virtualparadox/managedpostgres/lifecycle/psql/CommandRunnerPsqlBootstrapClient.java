@@ -1,11 +1,11 @@
 package eu.virtualparadox.managedpostgres.lifecycle.psql;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.identity.PostgresIdentifier;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.identity.PostgresIdentifier;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -68,19 +68,17 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      */
     @Override
     public boolean roleCanLogin(final PostgresConnectionInfo adminConnectionInfo, final String roleName) {
-        final String query = "SELECT rolcanlogin FROM pg_roles WHERE rolname = "
-                + PostgresSqlLiteral.quote(roleName);
+        final String query = "SELECT rolcanlogin FROM pg_roles WHERE rolname = " + PostgresSqlLiteral.quote(roleName);
 
-        return "t".equals(queryScalar(adminConnectionInfo, query, ROLE_CAN_LOGIN).orElse(""));
+        return "t"
+                .equals(queryScalar(adminConnectionInfo, query, ROLE_CAN_LOGIN).orElse(""));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Optional<String> databaseOwner(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final String databaseName) {
+    public Optional<String> databaseOwner(final PostgresConnectionInfo adminConnectionInfo, final String databaseName) {
         final String query = "SELECT pg_get_userbyid(datdba) FROM pg_database WHERE datname = "
                 + PostgresSqlLiteral.quote(databaseName);
 
@@ -92,9 +90,7 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      */
     @Override
     public void createRole(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final String roleName,
-            final Secret password) {
+            final PostgresConnectionInfo adminConnectionInfo, final String roleName, final Secret password) {
         final Secret checkedPassword = Objects.requireNonNull(password, "password");
         final String sql = "CREATE ROLE %s LOGIN PASSWORD %s;"
                 .formatted(PostgresIdentifier.quote(roleName), PostgresSqlLiteral.quote(checkedPassword.reveal()));
@@ -112,9 +108,7 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      */
     @Override
     public void createDatabase(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final String databaseName,
-            final String ownerName) {
+            final PostgresConnectionInfo adminConnectionInfo, final String databaseName, final String ownerName) {
         final String sql = "CREATE DATABASE %s OWNER %s"
                 .formatted(PostgresIdentifier.quote(databaseName), PostgresIdentifier.quote(ownerName));
         commandRunner.run(
@@ -129,10 +123,9 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      */
     @Override
     public boolean extensionAvailable(
-            final PostgresConnectionInfo applicationConnectionInfo,
-            final String extensionName) {
-        final String query = "SELECT 1 FROM pg_available_extensions WHERE name = "
-                + PostgresSqlLiteral.quote(extensionName);
+            final PostgresConnectionInfo applicationConnectionInfo, final String extensionName) {
+        final String query =
+                "SELECT 1 FROM pg_available_extensions WHERE name = " + PostgresSqlLiteral.quote(extensionName);
 
         return exists(applicationConnectionInfo, query, EXTENSION_AVAILABLE);
     }
@@ -142,10 +135,8 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      */
     @Override
     public boolean extensionInstalled(
-            final PostgresConnectionInfo applicationConnectionInfo,
-            final String extensionName) {
-        final String query = "SELECT 1 FROM pg_extension WHERE extname = "
-                + PostgresSqlLiteral.quote(extensionName);
+            final PostgresConnectionInfo applicationConnectionInfo, final String extensionName) {
+        final String query = "SELECT 1 FROM pg_extension WHERE extname = " + PostgresSqlLiteral.quote(extensionName);
 
         return exists(applicationConnectionInfo, query, EXTENSION_INSTALLED);
     }
@@ -154,11 +145,8 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
      * {@inheritDoc}
      */
     @Override
-    public void createExtension(
-            final PostgresConnectionInfo applicationConnectionInfo,
-            final String extensionName) {
-        final String sql = "CREATE EXTENSION IF NOT EXISTS %s"
-                .formatted(PostgresIdentifier.quote(extensionName));
+    public void createExtension(final PostgresConnectionInfo applicationConnectionInfo, final String extensionName) {
+        final String sql = "CREATE EXTENSION IF NOT EXISTS %s".formatted(PostgresIdentifier.quote(extensionName));
         commandRunner.run(
                 commandFactory.inline(applicationConnectionInfo, sql),
                 applicationConnectionInfo,
@@ -167,21 +155,14 @@ public final class CommandRunnerPsqlBootstrapClient implements PsqlBootstrapClie
     }
 
     private boolean exists(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final String query,
-            final String operation) {
+            final PostgresConnectionInfo adminConnectionInfo, final String query, final String operation) {
         return "1".equals(queryScalar(adminConnectionInfo, query, operation).orElse(""));
     }
 
     private Optional<String> queryScalar(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final String query,
-            final String operation) {
+            final PostgresConnectionInfo adminConnectionInfo, final String query, final String operation) {
         final CommandResult result = commandRunner.run(
-                commandFactory.query(adminConnectionInfo, query),
-                adminConnectionInfo,
-                operation,
-                Secret.redacted());
+                commandFactory.query(adminConnectionInfo, query), adminConnectionInfo, operation, Secret.redacted());
         final String value = StringUtils.trim(result.stdout());
 
         return StringUtils.isBlank(value) ? Optional.empty() : Optional.of(value);

@@ -43,10 +43,7 @@ public record CleanupPolicy(
      */
     public static CleanupPolicy safeDefaults() {
         return new CleanupPolicy(
-                DEFAULT_RETAINED_RUNTIME_VERSIONS,
-                DEFAULT_RETAINED_LOG_FILES,
-                DEFAULT_ROTATE_LOG_ABOVE_BYTES,
-                true);
+                DEFAULT_RETAINED_RUNTIME_VERSIONS, DEFAULT_RETAINED_LOG_FILES, DEFAULT_ROTATE_LOG_ABOVE_BYTES, true);
     }
 
     /**

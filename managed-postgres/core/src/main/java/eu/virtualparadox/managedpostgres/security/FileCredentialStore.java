@@ -92,15 +92,17 @@ public final class FileCredentialStore implements CredentialStore {
     }
 
     private static String content(final Credentials credentials) {
-        return "username=%s%npassword=%s%npersistent=%s%nlocalTrustOnly=%s%n".formatted(
-                credentials.username(),
-                credentials.password().reveal(),
-                credentials.persistent(),
-                credentials.localTrustOnly());
+        return "username=%s%npassword=%s%npersistent=%s%nlocalTrustOnly=%s%n"
+                .formatted(
+                        credentials.username(),
+                        credentials.password().reveal(),
+                        credentials.persistent(),
+                        credentials.localTrustOnly());
     }
 
     private static Path operationRoot(final Path target) {
-        final Path normalizedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path normalizedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final Path parent = normalizedTarget.getParent();
         if (parent == null) {
             throw new IllegalArgumentException("target must have a parent directory");

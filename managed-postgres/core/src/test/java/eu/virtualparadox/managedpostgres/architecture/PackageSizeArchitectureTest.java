@@ -20,8 +20,7 @@ public final class PackageSizeArchitectureTest {
 
     private static final Set<String> SOURCE_ROOT_MARKERS = Set.of("/src/main/java/", "/src/test/java/");
 
-    PackageSizeArchitectureTest() {
-    }
+    PackageSizeArchitectureTest() {}
 
     @Test
     void sourcePackagesContainAtMostTenJavaFiles() throws IOException {
@@ -30,7 +29,8 @@ public final class PackageSizeArchitectureTest {
         final List<String> violations = violations(repositoryRoot, packageSizes);
 
         assertThat(violations)
-                .as("Packages must contain at most %s Java files; create subpackages when a package grows larger.",
+                .as(
+                        "Packages must contain at most %s Java files; create subpackages when a package grows larger.",
                         MAXIMUM_JAVA_FILES_PER_PACKAGE)
                 .isEmpty();
     }
@@ -48,13 +48,9 @@ public final class PackageSizeArchitectureTest {
         final Map<Path, Long> packageSizes;
 
         try (Stream<Path> files = Files.walk(repositoryRoot)) {
-            packageSizes = files
-                    .filter(Files::isRegularFile)
+            packageSizes = files.filter(Files::isRegularFile)
                     .filter(PackageSizeArchitectureTest::isSourceJavaFile)
-                    .collect(Collectors.groupingBy(
-                            Path::getParent,
-                            TreeMap::new,
-                            Collectors.counting()));
+                    .collect(Collectors.groupingBy(Path::getParent, TreeMap::new, Collectors.counting()));
         }
 
         return packageSizes;
@@ -81,8 +77,8 @@ public final class PackageSizeArchitectureTest {
     }
 
     private static String violation(final Path repositoryRoot, final Map.Entry<Path, Long> entry) {
-        final String violation = "%s contains %d Java files"
-                .formatted(repositoryRoot.relativize(entry.getKey()), entry.getValue());
+        final String violation =
+                "%s contains %d Java files".formatted(repositoryRoot.relativize(entry.getKey()), entry.getValue());
 
         return violation;
     }

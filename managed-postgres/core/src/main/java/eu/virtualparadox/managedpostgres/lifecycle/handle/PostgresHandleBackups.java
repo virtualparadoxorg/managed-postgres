@@ -1,19 +1,18 @@
 package eu.virtualparadox.managedpostgres.lifecycle.handle;
 
 import eu.virtualparadox.managedpostgres.PostgresStatus;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupFailures;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupFailures;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
 
 /**
  * Shared backup behavior for PostgreSQL handles.
  */
 public final class PostgresHandleBackups {
 
-    private PostgresHandleBackups() {
-    }
+    private PostgresHandleBackups() {}
 
     /**
      * Performs the backup to operation.

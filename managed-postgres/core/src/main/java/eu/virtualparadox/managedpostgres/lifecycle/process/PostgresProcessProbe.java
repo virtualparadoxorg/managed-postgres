@@ -33,7 +33,8 @@ public final class PostgresProcessProbe {
         if (checkedMetadata.pid() == 0L) {
             result = ProcessProbeResult.acceptedValidation("skipped", false);
         } else {
-            result = processLookup.find(checkedMetadata.pid())
+            result = processLookup
+                    .find(checkedMetadata.pid())
                     .map(this::validateProcessHandle)
                     .orElseGet(() -> ProcessProbeResult.safeFailedValidation("PID is not alive"));
         }
@@ -56,7 +57,8 @@ public final class PostgresProcessProbe {
     }
 
     private static boolean looksLikePostgres(final ProcessHandle processHandle) {
-        return processHandle.info()
+        return processHandle
+                .info()
                 .command()
                 .map(PostgresProcessProbe::commandLooksLikePostgres)
                 .orElse(true);
@@ -65,8 +67,7 @@ public final class PostgresProcessProbe {
     private static boolean commandLooksLikePostgres(final String command) {
         final String fileName = PathNames.fileName(command);
 
-        return Strings.CI.contains(fileName, "postgres")
-                || Strings.CI.contains(fileName, "postmaster");
+        return Strings.CI.contains(fileName, "postgres") || Strings.CI.contains(fileName, "postmaster");
     }
 
     /**
@@ -110,7 +111,8 @@ public final class PostgresProcessProbe {
          * @param knownAlivePostgresProcess known alive postgres process value
          * @return accepted validation result
          */
-        public static ProcessProbeResult acceptedValidation(final String status, final boolean knownAlivePostgresProcess) {
+        public static ProcessProbeResult acceptedValidation(
+                final String status, final boolean knownAlivePostgresProcess) {
             return new ProcessProbeResult(true, status, "Process accepted", false, knownAlivePostgresProcess);
         }
 
@@ -137,8 +139,7 @@ public final class PostgresProcessProbe {
 
     private static final class PathNames {
 
-        private PathNames() {
-        }
+        private PathNames() {}
 
         private static String fileName(final String path) {
             final String normalized = Strings.CS.replace(Objects.requireNonNull(path, "path"), "\\", "/");

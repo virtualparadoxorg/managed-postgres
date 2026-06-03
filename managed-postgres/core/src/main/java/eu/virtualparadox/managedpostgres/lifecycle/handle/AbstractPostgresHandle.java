@@ -4,11 +4,11 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 
 /**
  * Shared lifecycle handle behavior for managed PostgreSQL instances.
@@ -85,12 +85,9 @@ public abstract class AbstractPostgresHandle implements RunningPostgres {
      * @param updated updated value
      * @return compare and set status result
      */
-    protected final boolean compareAndSetStatus(
-            final PostgresStatus expected,
-            final PostgresStatus updated) {
+    protected final boolean compareAndSetStatus(final PostgresStatus expected, final PostgresStatus updated) {
         return status.compareAndSet(
-                Objects.requireNonNull(expected, "expected"),
-                Objects.requireNonNull(updated, "updated"));
+                Objects.requireNonNull(expected, "expected"), Objects.requireNonNull(updated, "updated"));
     }
 
     /**

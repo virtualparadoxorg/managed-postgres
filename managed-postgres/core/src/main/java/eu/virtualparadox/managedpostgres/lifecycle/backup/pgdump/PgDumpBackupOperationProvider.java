@@ -1,16 +1,16 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import java.time.Clock;
-import java.time.Duration;
-import java.util.Objects;
+import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresFrameworkVersion;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestSource;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperationContext;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperationProvider;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
-import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresFrameworkVersion;
+import java.time.Clock;
+import java.time.Duration;
+import java.util.Objects;
 
 /**
  * Creates {@code pg_dump}-backed logical backup operations.
@@ -70,9 +70,6 @@ public final class PgDumpBackupOperationProvider implements PostgresBackupOperat
 
     private BackupManifestSource manifestSource(final PostgresBackupOperationContext context) {
         return new BackupManifestSource(
-                context.connectionInfo(),
-                context.metadata(),
-                dependencies.clock(),
-                dependencies.frameworkVersion());
+                context.connectionInfo(), context.metadata(), dependencies.clock(), dependencies.frameworkVersion());
     }
 }

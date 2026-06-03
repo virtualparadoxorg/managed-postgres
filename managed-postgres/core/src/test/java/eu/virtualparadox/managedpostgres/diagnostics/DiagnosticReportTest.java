@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 
 public final class DiagnosticReportTest {
 
-    DiagnosticReportTest() {
-    }
+    DiagnosticReportTest() {}
 
     @Test
     void renderTextIncludesSectionNamesAndSafeValues() {
@@ -34,8 +33,8 @@ public final class DiagnosticReportTest {
 
     @Test
     void renderTextRedactsEntireSensitiveValueContainingSpaces() {
-        final DiagnosticReport report = new DiagnosticReport(List.of(
-                new DiagnosticSection("environment", Map.of("PGPASSWORD", "alpha beta"))));
+        final DiagnosticReport report =
+                new DiagnosticReport(List.of(new DiagnosticSection("environment", Map.of("PGPASSWORD", "alpha beta"))));
 
         final String rendered = report.renderText();
 
@@ -76,8 +75,8 @@ public final class DiagnosticReportTest {
 
     @Test
     void managedPostgresExceptionExposesDiagnosticReport() {
-        final DiagnosticReport report = new DiagnosticReport(List.of(
-                new DiagnosticSection("runtime", Map.of("binary", "postgres"))));
+        final DiagnosticReport report =
+                new DiagnosticReport(List.of(new DiagnosticSection("runtime", Map.of("binary", "postgres"))));
 
         final ManagedPostgresException exception = new ManagedPostgresException("failed", report);
 
@@ -87,8 +86,8 @@ public final class DiagnosticReportTest {
 
     @Test
     void managedPostgresExceptionRejectsNullDiagnosticReport() throws NoSuchMethodException {
-        final Constructor<ManagedPostgresException> constructor = ManagedPostgresException.class
-                .getConstructor(String.class, DiagnosticReport.class);
+        final Constructor<ManagedPostgresException> constructor =
+                ManagedPostgresException.class.getConstructor(String.class, DiagnosticReport.class);
 
         assertThatExceptionOfType(InvocationTargetException.class)
                 .isThrownBy(() -> constructor.newInstance("failed", (Object) null))

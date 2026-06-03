@@ -20,8 +20,7 @@ final class ScenarioJdbcProxies {
     private static final String SHOW_DATA_DIRECTORY = "SHOW data_directory";
     private static final String SHOW_SERVER_VERSION = "SHOW server_version";
 
-    private ScenarioJdbcProxies() {
-    }
+    private ScenarioJdbcProxies() {}
 
     static Connection connection(final Path dataDirectory, final String serverVersion) {
         return proxy(Connection.class, (proxy, method, arguments) -> {
@@ -49,10 +48,8 @@ final class ScenarioJdbcProxies {
         });
     }
 
-    private static ResultSet resultSet(
-            final Path dataDirectory,
-            final String serverVersion,
-            final String sql) throws SQLException {
+    private static ResultSet resultSet(final Path dataDirectory, final String serverVersion, final String sql)
+            throws SQLException {
         final ResultSet result;
         if (SHOW_DATA_DIRECTORY.equals(sql)) {
             result = resultSet(dataDirectory.toString());

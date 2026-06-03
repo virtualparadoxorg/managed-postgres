@@ -9,8 +9,7 @@ import java.util.Objects;
  */
 public final class RuntimeValidator {
 
-    private RuntimeValidator() {
-    }
+    private RuntimeValidator() {}
 
     /**
      * Requires a runtime directory containing the PostgreSQL control and server binaries.

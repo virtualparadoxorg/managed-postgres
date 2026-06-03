@@ -34,8 +34,7 @@ final class FakeRuntimeCliIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeCliIT() {
-    }
+    FakeRuntimeCliIT() {}
 
     @Test
     void cliWorkflowCoversPersistentLifecycleDiagnosticsBackupAndStop() throws IOException, SQLException {
@@ -77,31 +76,29 @@ final class FakeRuntimeCliIT {
                 ScenarioShell.recordingPgRestore(commandLog));
     }
 
-    private Path writeConfig(
-            final Path storageRoot,
-            final FakePostgresRuntime runtime) throws IOException {
+    private Path writeConfig(final Path storageRoot, final FakePostgresRuntime runtime) throws IOException {
         final Path config = temporaryDirectory.resolve("managed-postgres.yml");
-        Files.writeString(config, String.join(System.lineSeparator(),
-                "managed-postgres:",
-                "  name: app-db",
-                "  version: \"16.4\"",
-                "  storage:",
-                "    path: " + storageRoot,
-                "  runtime:",
-                "    source: existing",
-                "    path: " + runtime.runtimeDirectory(),
-                ""), StandardCharsets.UTF_8);
+        Files.writeString(
+                config,
+                String.join(
+                        System.lineSeparator(),
+                        "managed-postgres:",
+                        "  name: app-db",
+                        "  version: \"16.4\"",
+                        "  storage:",
+                        "    path: " + storageRoot,
+                        "  runtime:",
+                        "    source: existing",
+                        "    path: " + runtime.runtimeDirectory(),
+                        ""),
+                StandardCharsets.UTF_8);
 
         return config;
     }
 
-    private static CliRun runWithConfig(
-            final Path config,
-            final String command,
-            final String... commandArguments) {
+    private static CliRun runWithConfig(final Path config, final String command, final String... commandArguments) {
         final List<String> arguments = Stream.concat(
-                        Stream.of(command, "--config", config.toString()),
-                        Arrays.stream(commandArguments))
+                        Stream.of(command, "--config", config.toString()), Arrays.stream(commandArguments))
                 .toList();
 
         return run(arguments.toArray(String[]::new));
@@ -158,9 +155,7 @@ final class FakeRuntimeCliIT {
     }
 
     private static List<String> startCalls(final Path commandLog) throws IOException {
-        return Files.readAllLines(commandLog).stream()
-                .filter("start"::equals)
-                .toList();
+        return Files.readAllLines(commandLog).stream().filter("start"::equals).toList();
     }
 
     private static void assertNoSecrets(final CliRun run) {
@@ -184,6 +179,5 @@ final class FakeRuntimeCliIT {
         return output.toString(StandardCharsets.UTF_8);
     }
 
-    private record CliRun(int exitCode, String output, String errorOutput) {
-    }
+    private record CliRun(int exitCode, String output, String errorOutput) {}
 }

@@ -32,8 +32,8 @@ import org.apache.commons.lang3.StringUtils;
  * @param cleanupPolicy cleanup and retention policy
  */
 @SuppressWarnings({
-        // The immutable public configuration model intentionally gathers the full PostgreSQL lifecycle contract.
-        "PMD.CouplingBetweenObjects"
+    // The immutable public configuration model intentionally gathers the full PostgreSQL lifecycle contract.
+    "PMD.CouplingBetweenObjects"
 })
 public record ManagedPostgresConfiguration(
         String name,
@@ -103,8 +103,8 @@ public record ManagedPostgresConfiguration(
      * @param cleanupPolicy cleanup and retention policy
      */
     @SuppressWarnings({
-            // Backward-compatible immutable convenience constructor mirrors the record shape on purpose.
-            "PMD.ExcessiveParameterList"
+        // Backward-compatible immutable convenience constructor mirrors the record shape on purpose.
+        "PMD.ExcessiveParameterList"
     })
     public ManagedPostgresConfiguration(
             final String name,
@@ -154,8 +154,8 @@ public record ManagedPostgresConfiguration(
      * @param cleanupPolicy cleanup and retention policy
      */
     @SuppressWarnings({
-            // Backward-compatible immutable convenience constructor mirrors the previous public shape on purpose.
-            "PMD.ExcessiveParameterList"
+        // Backward-compatible immutable convenience constructor mirrors the previous public shape on purpose.
+        "PMD.ExcessiveParameterList"
     })
     public ManagedPostgresConfiguration(
             final String name,
@@ -362,7 +362,8 @@ public record ManagedPostgresConfiguration(
      * @param newPostgresConfiguration PostgreSQL server configuration settings
      * @return updated configuration
      */
-    public ManagedPostgresConfiguration withPostgresConfiguration(final PostgresConfiguration newPostgresConfiguration) {
+    public ManagedPostgresConfiguration withPostgresConfiguration(
+            final PostgresConfiguration newPostgresConfiguration) {
         return new ManagedPostgresConfiguration(
                 name,
                 postgresqlVersion,

@@ -13,23 +13,27 @@ import org.springframework.mock.env.MockEnvironment;
 
 public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
 
-    private static final String CHECKSUM =
-            "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+    private static final String CHECKSUM = "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
     private static final String SIGNATURE_PUBLIC_KEY = "public-key";
     private static final String SIGNATURE_VALUE = "signature-value";
 
-    ManagedPostgresSpringDownloadedRuntimePropertiesTest() {
-    }
+    ManagedPostgresSpringDownloadedRuntimePropertiesTest() {}
 
     @Test
     void downloadedRuntimeSourceReadsRepositoryChecksumAndCache() {
         final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM,
-                "managed-postgres.runtime.signature.public-key", SIGNATURE_PUBLIC_KEY,
-                "managed-postgres.runtime.signature.value", SIGNATURE_VALUE,
-                "managed-postgres.runtime.cache", ".local/runtime-cache")));
+                "managed-postgres.runtime.source",
+                "downloaded",
+                "managed-postgres.runtime.repository",
+                "file:///tmp/postgres.zip",
+                "managed-postgres.runtime.checksum",
+                CHECKSUM,
+                "managed-postgres.runtime.signature.public-key",
+                SIGNATURE_PUBLIC_KEY,
+                "managed-postgres.runtime.signature.value",
+                SIGNATURE_VALUE,
+                "managed-postgres.runtime.cache",
+                ".local/runtime-cache")));
 
         assertThat(properties.runtime().source()).isEqualTo("downloaded");
         assertThat(properties.runtime().path()).isEmpty();
@@ -43,18 +47,19 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
 
     @Test
     void downloadedRuntimeSourceRequiresRepositoryAndChecksum() {
-        final ManagedPostgresSpringProperties cacheOnlyProperties = ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.checksum", CHECKSUM,
-                "managed-postgres.runtime.cache", ".local/runtime-cache")));
+        final ManagedPostgresSpringProperties cacheOnlyProperties =
+                ManagedPostgresSpringProperties.from(environment(Map.of(
+                        "managed-postgres.runtime.source", "downloaded",
+                        "managed-postgres.runtime.checksum", CHECKSUM,
+                        "managed-postgres.runtime.cache", ".local/runtime-cache")));
 
         assertThat(cacheOnlyProperties.runtime().repository()).isEmpty();
         assertThat(cacheOnlyProperties.runtime().checksum()).contains(CHECKSUM);
         assertThat(cacheOnlyProperties.runtime().cache()).contains(Path.of(".local/runtime-cache"));
 
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
+                        "managed-postgres.runtime.source", "downloaded",
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.checksum");
     }
@@ -62,17 +67,17 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
     @Test
     void downloadedRuntimeSourceRejectsRuntimePathAndResource() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.path", "runtime/postgres-16.4",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM))))
+                        "managed-postgres.runtime.source", "downloaded",
+                        "managed-postgres.runtime.path", "runtime/postgres-16.4",
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
+                        "managed-postgres.runtime.checksum", CHECKSUM))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.path");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.resource", "/postgres-runtime.zip",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM))))
+                        "managed-postgres.runtime.source", "downloaded",
+                        "managed-postgres.runtime.resource", "/postgres-runtime.zip",
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
+                        "managed-postgres.runtime.checksum", CHECKSUM))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.resource");
     }
@@ -80,21 +85,21 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
     @Test
     void nonDownloadedRuntimeSourcesRejectRuntimeRepository() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
+                        "managed-postgres.runtime.source", "system",
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.repository");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "existing",
-                "managed-postgres.runtime.path", "runtime/postgres-16.4",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
+                        "managed-postgres.runtime.source", "existing",
+                        "managed-postgres.runtime.path", "runtime/postgres-16.4",
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.repository");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "classpath",
-                "managed-postgres.runtime.resource", "/postgres-runtime.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM,
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
+                        "managed-postgres.runtime.source", "classpath",
+                        "managed-postgres.runtime.resource", "/postgres-runtime.zip",
+                        "managed-postgres.runtime.checksum", CHECKSUM,
+                        "managed-postgres.runtime.repository", "file:///tmp/postgres.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.repository");
     }
@@ -102,10 +107,14 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
     @Test
     void runtimeSignaturePropertiesMustBeConfiguredTogether() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "downloaded",
-                "managed-postgres.runtime.repository", "file:///tmp/postgres.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM,
-                "managed-postgres.runtime.signature.value", SIGNATURE_VALUE))))
+                        "managed-postgres.runtime.source",
+                        "downloaded",
+                        "managed-postgres.runtime.repository",
+                        "file:///tmp/postgres.zip",
+                        "managed-postgres.runtime.checksum",
+                        CHECKSUM,
+                        "managed-postgres.runtime.signature.value",
+                        SIGNATURE_VALUE))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime signature public key and value must be configured together");
     }
@@ -113,9 +122,9 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
     @Test
     void runtimeSignaturePropertiesRequireDownloadedOrClasspathRuntimeSource() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.signature.public-key", SIGNATURE_PUBLIC_KEY,
-                "managed-postgres.runtime.signature.value", SIGNATURE_VALUE))))
+                        "managed-postgres.runtime.source", "system",
+                        "managed-postgres.runtime.signature.public-key", SIGNATURE_PUBLIC_KEY,
+                        "managed-postgres.runtime.signature.value", SIGNATURE_VALUE))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.signature is only valid for classpath or downloaded runtime source");
     }

@@ -10,8 +10,7 @@ public class MeterRegistry {
 
     private final Map<String, Gauge> gauges = new LinkedHashMap<>();
 
-    public MeterRegistry() {
-    }
+    public MeterRegistry() {}
 
     public Finder get(final String name) {
         return new Finder(this, name);

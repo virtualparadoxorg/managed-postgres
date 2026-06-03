@@ -110,9 +110,7 @@ public final class PortAllocator {
      * @param occupiedPortPolicy behavior when the preferred port is occupied
      * @return allocated port selection
      */
-    public AllocatedPort allocatePreferred(
-            final int preferredPort,
-            final OccupiedPortPolicy occupiedPortPolicy) {
+    public AllocatedPort allocatePreferred(final int preferredPort, final OccupiedPortPolicy occupiedPortPolicy) {
         validatePort(preferredPort);
         Objects.requireNonNull(occupiedPortPolicy, "occupiedPortPolicy");
 
@@ -161,17 +159,13 @@ public final class PortAllocator {
         return value;
     }
 
-    private static ManagedPostgresException portFailure(
-            final String message,
-            final int port,
-            final Throwable cause) {
+    private static ManagedPostgresException portFailure(final String message, final int port, final Throwable cause) {
         return new ManagedPostgresException(message, cause, diagnostic(port));
     }
 
     private static DiagnosticReport diagnostic(final int port) {
-        return new DiagnosticReport(List.of(new DiagnosticSection(
-                "postgres-port",
-                Map.of("host", LOOPBACK_HOST, "port", String.valueOf(port)))));
+        return new DiagnosticReport(List.of(
+                new DiagnosticSection("postgres-port", Map.of("host", LOOPBACK_HOST, "port", String.valueOf(port)))));
     }
 
     /**
@@ -214,8 +208,7 @@ public final class PortAllocator {
 
     private static final class NoopStablePortStore implements StablePortStore {
 
-        private NoopStablePortStore() {
-        }
+        private NoopStablePortStore() {}
 
         /**
          * {@inheritDoc}

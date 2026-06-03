@@ -13,8 +13,7 @@ import java.util.Map;
  */
 public final class ClasspathRuntimeResolutionDiagnostics {
 
-    private ClasspathRuntimeResolutionDiagnostics() {
-    }
+    private ClasspathRuntimeResolutionDiagnostics() {}
 
     /**
      * Creates a classpath runtime resolution failure.
@@ -36,9 +35,7 @@ public final class ClasspathRuntimeResolutionDiagnostics {
      * @return managed PostgreSQL exception
      */
     public static ManagedPostgresException failure(
-            final String message,
-            final RuntimeSource runtimeSource,
-            final Throwable cause) {
+            final String message, final RuntimeSource runtimeSource, final Throwable cause) {
         return new ManagedPostgresException(message, cause, diagnostic(runtimeSource));
     }
 

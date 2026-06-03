@@ -15,32 +15,35 @@ public final class DoctorRuntimeInspectorTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DoctorRuntimeInspectorTest() {
-    }
+    DoctorRuntimeInspectorTest() {}
 
     @Test
     void existingRuntimeWithRequiredBinariesReportsUsablePath() throws IOException {
         final Path runtimeDirectory = runtimeDirectoryWith("pg_ctl", "psql", "postgres");
 
-        final DiagnosticSection section = new DoctorRuntimeInspector().inspect(RuntimeSource.existing(runtimeDirectory));
+        final DiagnosticSection section =
+                new DoctorRuntimeInspector().inspect(RuntimeSource.existing(runtimeDirectory));
 
         assertThat(section.name()).isEqualTo("runtime");
         assertThat(section.values())
                 .containsEntry("source", "existing")
                 .containsEntry("status", "usable")
-                .containsEntry("path", runtimeDirectory.toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "path", runtimeDirectory.toAbsolutePath().normalize().toString());
     }
 
     @Test
     void existingRuntimeMissingPostgresReportsInvalidWithoutThrowing() throws IOException {
         final Path runtimeDirectory = runtimeDirectoryWith("pg_ctl", "psql");
 
-        final DiagnosticSection section = new DoctorRuntimeInspector().inspect(RuntimeSource.existing(runtimeDirectory));
+        final DiagnosticSection section =
+                new DoctorRuntimeInspector().inspect(RuntimeSource.existing(runtimeDirectory));
 
         assertThat(section.values())
                 .containsEntry("source", "existing")
                 .containsEntry("status", "invalid")
-                .containsEntry("path", runtimeDirectory.toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "path", runtimeDirectory.toAbsolutePath().normalize().toString());
         assertThat(section.values().get("message")).contains("bin/postgres");
     }
 
@@ -48,9 +51,7 @@ public final class DoctorRuntimeInspectorTest {
     void downloadedRuntimeReportsNotInspected() {
         final DiagnosticSection section = new DoctorRuntimeInspector().inspect(RuntimeSource.downloaded());
 
-        assertThat(section.values())
-                .containsEntry("source", "downloaded")
-                .containsEntry("status", "not-inspected");
+        assertThat(section.values()).containsEntry("source", "downloaded").containsEntry("status", "not-inspected");
         assertThat(section.values().get("message")).contains("download");
     }
 
@@ -58,9 +59,7 @@ public final class DoctorRuntimeInspectorTest {
     void systemRuntimeReportsNotInspected() {
         final DiagnosticSection section = new DoctorRuntimeInspector().inspect(RuntimeSource.system());
 
-        assertThat(section.values())
-                .containsEntry("source", "system")
-                .containsEntry("status", "not-inspected");
+        assertThat(section.values()).containsEntry("source", "system").containsEntry("status", "not-inspected");
         assertThat(section.values().get("message")).contains("PATH");
     }
 

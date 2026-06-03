@@ -1,7 +1,7 @@
 package eu.virtualparadox.managedpostgres.lifecycle.psql;
 
-import java.nio.file.Path;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import java.nio.file.Path;
 
 /**
  * Defines the psql sql file command contract for managed PostgreSQL internals.

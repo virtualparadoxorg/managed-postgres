@@ -20,8 +20,7 @@ final class CliRuntimeSourceFactoryDirectTest {
     private static final String SIGNATURE_PUBLIC_KEY = "public-key";
     private static final String SIGNATURE_VALUE = "signature-value";
 
-    CliRuntimeSourceFactoryDirectTest() {
-    }
+    CliRuntimeSourceFactoryDirectTest() {}
 
     @Test
     void directDownloadedRuntimeMapsSupplyChainFields() {
@@ -36,12 +35,12 @@ final class CliRuntimeSourceFactoryDirectTest {
 
         assertThat(runtimeSource.kind()).isEqualTo("downloaded");
         assertThat(runtimeSource.downloadedRuntime()).hasValueSatisfying(runtime -> {
-            assertThat(runtime.repository()).hasValueSatisfying(repository ->
-                    assertThat(repository.uri()).isEqualTo(URI.create("file:///opt/postgres/postgres-16.4.zip")));
+            assertThat(runtime.repository()).hasValueSatisfying(repository -> assertThat(repository.uri())
+                    .isEqualTo(URI.create("file:///opt/postgres/postgres-16.4.zip")));
             assertThat(runtime.checksum()).contains(DOWNLOADED_CHECKSUM);
             assertThat(runtime.signature()).contains(RuntimeSignature.ed25519(SIGNATURE_PUBLIC_KEY, SIGNATURE_VALUE));
-            assertThat(runtime.cache()).hasValueSatisfying(cache ->
-                    assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
+            assertThat(runtime.cache())
+                    .hasValueSatisfying(cache -> assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
         });
     }
 
@@ -61,8 +60,8 @@ final class CliRuntimeSourceFactoryDirectTest {
             assertThat(runtime.resource()).isEqualTo("/runtimes/postgres-16.4.zip");
             assertThat(runtime.checksum()).contains(CLASSPATH_CHECKSUM);
             assertThat(runtime.signature()).contains(RuntimeSignature.ed25519(SIGNATURE_PUBLIC_KEY, SIGNATURE_VALUE));
-            assertThat(runtime.cache()).hasValueSatisfying(cache ->
-                    assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
+            assertThat(runtime.cache())
+                    .hasValueSatisfying(cache -> assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
         });
     }
 
@@ -88,8 +87,8 @@ final class CliRuntimeSourceFactoryDirectTest {
         assertThat(runtimeSource.downloadedRuntime()).hasValueSatisfying(runtime -> {
             assertThat(runtime.repository()).isEmpty();
             assertThat(runtime.checksum()).contains(DOWNLOADED_CHECKSUM);
-            assertThat(runtime.cache()).hasValueSatisfying(cache ->
-                    assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
+            assertThat(runtime.cache())
+                    .hasValueSatisfying(cache -> assertThat(cache.root()).isEqualTo(Path.of(".local/runtime-cache")));
         });
     }
 
@@ -106,9 +105,9 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void downloadedRuntimeRequiresChecksum() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("downloaded")
-                        .withRepository("file:///opt/postgres/postgres-16.4.zip")))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("downloaded")
+                                .withRepository("file:///opt/postgres/postgres-16.4.zip")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.source=downloaded requires runtime.checksum");
     }
@@ -116,9 +115,9 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void classpathRuntimeRequiresChecksum() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("classpath")
-                        .withResource("/runtimes/postgres-16.4.zip")))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("classpath")
+                                .withResource("/runtimes/postgres-16.4.zip")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.source=classpath requires runtime.checksum");
     }
@@ -126,11 +125,11 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void downloadedRuntimeRejectsClasspathResource() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("downloaded")
-                        .withRepository("file:///opt/postgres/postgres-16.4.zip")
-                        .withResource("/runtimes/postgres-16.4.zip")
-                        .withChecksum(DOWNLOADED_CHECKSUM)))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("downloaded")
+                                .withRepository("file:///opt/postgres/postgres-16.4.zip")
+                                .withResource("/runtimes/postgres-16.4.zip")
+                                .withChecksum(DOWNLOADED_CHECKSUM)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.resource is only valid for classpath runtime source");
     }
@@ -138,11 +137,11 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void classpathRuntimeRejectsRepository() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("classpath")
-                        .withRepository("file:///opt/postgres/postgres-16.4.zip")
-                        .withResource("/runtimes/postgres-16.4.zip")
-                        .withChecksum(CLASSPATH_CHECKSUM)))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("classpath")
+                                .withRepository("file:///opt/postgres/postgres-16.4.zip")
+                                .withResource("/runtimes/postgres-16.4.zip")
+                                .withChecksum(CLASSPATH_CHECKSUM)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.repository is only valid for downloaded runtime source");
     }
@@ -150,11 +149,11 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void signatureFieldsMustBeConfiguredTogether() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("downloaded")
-                        .withRepository("file:///opt/postgres/postgres-16.4.zip")
-                        .withChecksum(DOWNLOADED_CHECKSUM)
-                        .withSignature(SIGNATURE_VALUE)))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("downloaded")
+                                .withRepository("file:///opt/postgres/postgres-16.4.zip")
+                                .withChecksum(DOWNLOADED_CHECKSUM)
+                                .withSignature(SIGNATURE_VALUE)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime signature public key and value must be configured together");
     }
@@ -162,11 +161,11 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void signatureFieldsRequireDownloadedOrClasspathRuntimeSource() {
         assertThatThrownBy(() -> new CliRuntimeSourceFactory()
-                .createDirect(CliRuntimeSourceOptions.empty()
-                        .withSource("existing")
-                        .withPath(Path.of("runtime"))
-                        .withSignaturePublicKey(SIGNATURE_PUBLIC_KEY)
-                        .withSignature(SIGNATURE_VALUE)))
+                        .createDirect(CliRuntimeSourceOptions.empty()
+                                .withSource("existing")
+                                .withPath(Path.of("runtime"))
+                                .withSignaturePublicKey(SIGNATURE_PUBLIC_KEY)
+                                .withSignature(SIGNATURE_VALUE)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("runtime.signature is only valid for downloaded or classpath runtime source");
     }
@@ -174,16 +173,16 @@ final class CliRuntimeSourceFactoryDirectTest {
     @Test
     void directOptionsReportsSignatureValuesAsPresent() {
         assertThat(CliRuntimeSourceOptions.empty()
-                .withSignaturePublicKey(SIGNATURE_PUBLIC_KEY)
-                .hasValues())
+                        .withSignaturePublicKey(SIGNATURE_PUBLIC_KEY)
+                        .hasValues())
                 .isTrue();
         assertThat(CliRuntimeSourceOptions.empty()
-                .withSignature(SIGNATURE_VALUE)
-                .hasValues())
+                        .withSignature(SIGNATURE_VALUE)
+                        .hasValues())
                 .isTrue();
         assertThat(CliRuntimeSourceOptions.empty()
-                .withCache(Path.of("runtime-cache"))
-                .hasValues())
+                        .withCache(Path.of("runtime-cache"))
+                        .hasValues())
                 .isTrue();
     }
 }

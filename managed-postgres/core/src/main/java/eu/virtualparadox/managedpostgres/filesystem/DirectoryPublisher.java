@@ -19,8 +19,7 @@ public final class DirectoryPublisher {
     /**
      * Creates a directory publisher.
      */
-    public DirectoryPublisher() {
-    }
+    public DirectoryPublisher() {}
 
     /**
      * Publishes the staging directory into the target path, preferring atomic moves.
@@ -29,8 +28,10 @@ public final class DirectoryPublisher {
      * @param target final target directory
      */
     public void publish(final Path staging, final Path target) {
-        final Path checkedStaging = Objects.requireNonNull(staging, "staging").toAbsolutePath().normalize();
-        final Path checkedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path checkedStaging =
+                Objects.requireNonNull(staging, "staging").toAbsolutePath().normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
 
         if (checkedStaging.equals(checkedTarget)) {
             throw new IllegalArgumentException("staging and target must differ");
@@ -40,7 +41,8 @@ public final class DirectoryPublisher {
         }
 
         if (Files.exists(checkedTarget)) {
-            throw new IllegalStateException("target already exists and cannot be replaced crash-safely: " + checkedTarget);
+            throw new IllegalStateException(
+                    "target already exists and cannot be replaced crash-safely: " + checkedTarget);
         }
 
         moveIfAbsent(checkedStaging, checkedTarget);
@@ -73,11 +75,7 @@ public final class DirectoryPublisher {
     public static void moveReplacingExisting(final Path source, final Path target) {
         try {
             Files.createDirectories(parentDirectory(target));
-            Files.move(
-                    source,
-                    target,
-                    StandardCopyOption.ATOMIC_MOVE,
-                    StandardCopyOption.REPLACE_EXISTING);
+            Files.move(source, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         } catch (final AtomicMoveNotSupportedException exception) {
             moveNonAtomically(source, target);
         } catch (final IOException exception) {
@@ -96,9 +94,8 @@ public final class DirectoryPublisher {
         }
 
         try (Stream<Path> paths = Files.walk(path)) {
-            final Iterable<Path> deletionOrder = paths
-                    .sorted(Comparator.reverseOrder())
-                    .toList();
+            final Iterable<Path> deletionOrder =
+                    paths.sorted(Comparator.reverseOrder()).toList();
             for (final Path current : deletionOrder) {
                 Files.deleteIfExists(current);
             }
@@ -137,5 +134,4 @@ public final class DirectoryPublisher {
             throw new UncheckedIOException("failed to move " + source + " to " + target, exception);
         }
     }
-
 }

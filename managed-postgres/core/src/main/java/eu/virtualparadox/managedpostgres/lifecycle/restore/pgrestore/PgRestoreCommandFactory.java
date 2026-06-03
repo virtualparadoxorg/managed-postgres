@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 
 /**
  * Builds {@code pg_restore} command requests for managed logical restores.
@@ -27,8 +27,7 @@ public final class PgRestoreCommandFactory {
      */
     public PgRestoreCommandFactory(final Path runtimeDirectory, final Duration timeout) {
         this.pgRestore = RuntimeBinaryLocator.resolveBinary(
-                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"),
-                "pg_restore");
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"), "pg_restore");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 
@@ -58,6 +57,7 @@ public final class PgRestoreCommandFactory {
         command.add(checkedBackup.toString());
 
         return CommandRequest.of(command, timeout)
-                .withEnvironmentVariable(PGPASSWORD, checkedConnectionInfo.password().reveal());
+                .withEnvironmentVariable(
+                        PGPASSWORD, checkedConnectionInfo.password().reveal());
     }
 }

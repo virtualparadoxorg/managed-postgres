@@ -5,8 +5,7 @@ package eu.virtualparadox.managedpostgres.config.postgresql;
  */
 public final class Resources {
 
-    private Resources() {
-    }
+    private Resources() {}
 
     /**
      * Returns a tiny preset intended for short-lived temporary test clusters.

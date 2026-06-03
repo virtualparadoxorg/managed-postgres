@@ -13,8 +13,7 @@ final class RuntimeValidatorTest {
     @TempDir
     Path tempDir;
 
-    RuntimeValidatorTest() {
-    }
+    RuntimeValidatorTest() {}
 
     @Test
     void acceptsWindowsStyleExecutablesWhenPlainBinaryNamesAreAbsent() throws IOException {

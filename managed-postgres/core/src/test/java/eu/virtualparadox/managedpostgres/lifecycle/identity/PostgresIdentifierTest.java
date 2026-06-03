@@ -3,13 +3,12 @@ package eu.virtualparadox.managedpostgres.lifecycle.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.Test;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PostgresSqlLiteral;
+import org.junit.jupiter.api.Test;
 
 public final class PostgresIdentifierTest {
 
-    PostgresIdentifierTest() {
-    }
+    PostgresIdentifierTest() {}
 
     @Test
     void identifierQuotingDoublesEmbeddedDoubleQuotes() {

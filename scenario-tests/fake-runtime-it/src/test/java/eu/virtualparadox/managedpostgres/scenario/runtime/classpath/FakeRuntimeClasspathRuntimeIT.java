@@ -27,15 +27,13 @@ final class FakeRuntimeClasspathRuntimeIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeClasspathRuntimeIT() {
-    }
+    FakeRuntimeClasspathRuntimeIT() {}
 
     @Test
     void classpathRuntimeArchiveInstallsStartsAndReusesCacheWhenResourceDisappears() throws IOException {
         final Path callLog = temporaryDirectory.resolve("pg_ctl-calls.log");
         final FakePostgresRuntime packagedRuntime = FakePostgresRuntime.create(
-                temporaryDirectory.resolve("packaged-runtime"),
-                ScenarioShell.recordingPgCtl(callLog));
+                temporaryDirectory.resolve("packaged-runtime"), ScenarioShell.recordingPgCtl(callLog));
         final Path resourceArchive = classpathResourceArchive();
         Files.deleteIfExists(resourceArchive);
         packagedRuntime.writeZipArchive(resourceArchive);
@@ -47,40 +45,38 @@ final class FakeRuntimeClasspathRuntimeIT {
         final Path cachedRuntime = cacheLayout.runtimeDirectory(POSTGRESQL_VERSION, checksum);
 
         try {
-            try (RunningPostgres first = startLocalPostgres(temporaryDirectory.resolve("first-cluster"), runtimeSource)) {
+            try (RunningPostgres first =
+                    startLocalPostgres(temporaryDirectory.resolve("first-cluster"), runtimeSource)) {
                 assertThat(first.status()).isEqualTo(PostgresStatus.RUNNING);
-                assertThat(ScenarioMetadata.metadataPath(temporaryDirectory.resolve("first-cluster"))).isRegularFile();
-                assertThat(cachedRuntime.resolve("bin").resolve("pg_ctl")).satisfies(
-                        ScenarioRuntimeArchives::isExecutable);
+                assertThat(ScenarioMetadata.metadataPath(temporaryDirectory.resolve("first-cluster")))
+                        .isRegularFile();
+                assertThat(cachedRuntime.resolve("bin").resolve("pg_ctl"))
+                        .satisfies(ScenarioRuntimeArchives::isExecutable);
             }
 
             Files.delete(resourceArchive);
 
-            try (RunningPostgres second = startLocalPostgres(temporaryDirectory.resolve("second-cluster"), runtimeSource)) {
+            try (RunningPostgres second =
+                    startLocalPostgres(temporaryDirectory.resolve("second-cluster"), runtimeSource)) {
                 assertThat(second.status()).isEqualTo(PostgresStatus.RUNNING);
-                assertThat(ScenarioMetadata.metadataPath(temporaryDirectory.resolve("second-cluster"))).isRegularFile();
+                assertThat(ScenarioMetadata.metadataPath(temporaryDirectory.resolve("second-cluster")))
+                        .isRegularFile();
             }
         } finally {
             Files.deleteIfExists(resourceArchive);
         }
 
         ScenarioRuntimeArchives.assertRuntimeCachePublished(
-                cacheLayout,
-                POSTGRESQL_VERSION,
-                checksum,
-                cachedRuntime,
-                callLog);
+                cacheLayout, POSTGRESQL_VERSION, checksum, cachedRuntime, callLog);
     }
 
-    private static RunningPostgres startLocalPostgres(
-            final Path storageRoot,
-            final RuntimeSource runtimeSource) {
-        return ScenarioManagedPostgres.localPostgres("classpath-db", storageRoot, runtimeSource).start();
+    private static RunningPostgres startLocalPostgres(final Path storageRoot, final RuntimeSource runtimeSource) {
+        return ScenarioManagedPostgres.localPostgres("classpath-db", storageRoot, runtimeSource)
+                .start();
     }
 
     private static RuntimeSource classpathRuntimeSource(final Path cacheRoot, final String checksumText) {
-        return RuntimeSource.classpath(RESOURCE_NAME, runtime -> runtime
-                .cache(RuntimeCache.projectLocal(cacheRoot))
+        return RuntimeSource.classpath(RESOURCE_NAME, runtime -> runtime.cache(RuntimeCache.projectLocal(cacheRoot))
                 .checksum(checksumText));
     }
 

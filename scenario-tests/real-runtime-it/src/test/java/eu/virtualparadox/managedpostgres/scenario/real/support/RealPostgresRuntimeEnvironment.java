@@ -26,14 +26,8 @@ public final class RealPostgresRuntimeEnvironment {
     private static final String REQUIRED_PROPERTY = "managed.postgres.realRuntime.required";
     private static final String RUNTIME_ENVIRONMENT = "MANAGED_POSTGRES_REAL_RUNTIME";
     private static final String PATH_ENVIRONMENT = "PATH";
-    private static final List<String> REQUIRED_EXECUTABLES = List.of(
-            "pg_ctl",
-            "initdb",
-            "postgres",
-            "pg_isready",
-            "psql",
-            "pg_dump",
-            "pg_restore");
+    private static final List<String> REQUIRED_EXECUTABLES =
+            List.of("pg_ctl", "initdb", "postgres", "pg_isready", "psql", "pg_dump", "pg_restore");
 
     private final Supplier<String> propertyRuntimeSupplier;
     private final Supplier<String> environmentRuntimeSupplier;
@@ -60,7 +54,8 @@ public final class RealPostgresRuntimeEnvironment {
             final Supplier<String> requiredSupplier,
             final Function<List<String>, RuntimeCommandResult> commandRunner) {
         this.propertyRuntimeSupplier = Objects.requireNonNull(propertyRuntimeSupplier, "propertyRuntimeSupplier");
-        this.environmentRuntimeSupplier = Objects.requireNonNull(environmentRuntimeSupplier, "environmentRuntimeSupplier");
+        this.environmentRuntimeSupplier =
+                Objects.requireNonNull(environmentRuntimeSupplier, "environmentRuntimeSupplier");
         this.pathSupplier = Objects.requireNonNull(pathSupplier, "pathSupplier");
         this.requiredSupplier = Objects.requireNonNull(requiredSupplier, "requiredSupplier");
         this.commandRunner = Objects.requireNonNull(commandRunner, "commandRunner");
@@ -138,8 +133,8 @@ public final class RealPostgresRuntimeEnvironment {
 
     private void requireRuntime(final Path runtimeRoot, final String source) {
         if (!Files.isDirectory(runtimeRoot.resolve("bin"))) {
-            throw new AssertionError("Configured PostgreSQL runtime from %s does not contain bin/: %s"
-                    .formatted(source, runtimeRoot));
+            throw new AssertionError(
+                    "Configured PostgreSQL runtime from %s does not contain bin/: %s".formatted(source, runtimeRoot));
         }
         REQUIRED_EXECUTABLES.forEach(executable -> requireExecutable(runtimeRoot, executable, source));
     }
@@ -154,8 +149,7 @@ public final class RealPostgresRuntimeEnvironment {
 
     private String postgresqlVersion(final Path runtimeRoot) {
         final RuntimeCommandResult result = commandRunner.apply(List.of(
-                RuntimeBinaryLocator.resolveBinary(runtimeRoot, "postgres").toString(),
-                "--version"));
+                RuntimeBinaryLocator.resolveBinary(runtimeRoot, "postgres").toString(), "--version"));
         if (!result.successful()) {
             throw new AssertionError("Could not run postgres --version for runtime: " + runtimeRoot);
         }
@@ -235,7 +229,8 @@ public final class RealPostgresRuntimeEnvironment {
         return Objects.toString(exception.getMessage(), exception.getClass().getSimpleName());
     }
 
-    private static String output(final eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult commandResult) {
+    private static String output(
+            final eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult commandResult) {
         return StringUtils.firstNonBlank(commandResult.stdout(), commandResult.stderr(), "");
     }
 

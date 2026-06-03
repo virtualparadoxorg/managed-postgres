@@ -1,9 +1,14 @@
 package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresUpgradeException;
-import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresUpgradeException;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresApplicationConnection;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.preflight.PostgresConfigDriftPreflight;
+import eu.virtualparadox.managedpostgres.lifecycle.preflight.PostgresVersionPreflight;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -12,11 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.PostgresApplicationConnection;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.preflight.PostgresConfigDriftPreflight;
-import eu.virtualparadox.managedpostgres.lifecycle.preflight.PostgresVersionPreflight;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Validates persisted metadata against the requested start configuration.
@@ -26,8 +26,7 @@ public final class PostgresAttachCompatibility {
     /**
      * Creates a PostgresAttachCompatibility instance.
      */
-    public PostgresAttachCompatibility() {
-    }
+    public PostgresAttachCompatibility() {}
 
     /**
      * Returns the mismatch result.
@@ -65,11 +64,13 @@ public final class PostgresAttachCompatibility {
             final PostgresInstanceMetadata metadata) {
         final List<Mismatch> mismatches = new ArrayList<>();
         requireSame(mismatches, "name", configuration.name(), metadata.name());
-        requireSame(mismatches, "dataDirectory", normalize(layout.dataDirectory()), normalize(metadata.dataDirectory()));
+        requireSame(
+                mismatches, "dataDirectory", normalize(layout.dataDirectory()), normalize(metadata.dataDirectory()));
         requireVersionCompatible(mismatches, configuration, metadata);
         requireSame(mismatches, "database", PostgresApplicationConnection.database(configuration), metadata.database());
         requireSame(mismatches, "owner", PostgresApplicationConnection.owner(configuration), metadata.owner());
-        new PostgresConfigDriftPreflight().mismatch(configuration, metadata)
+        new PostgresConfigDriftPreflight()
+                .mismatch(configuration, metadata)
                 .ifPresent(mismatch -> mismatches.add(Mismatch.message("configHash", mismatch)));
 
         return report(mismatches);
@@ -84,7 +85,8 @@ public final class PostgresAttachCompatibility {
         } catch (final PostgresUpgradeException exception) {
             mismatches.add(Mismatch.message(
                     "postgresqlVersion",
-                    Objects.toString(exception.getMessage(), exception.getClass().getName())));
+                    Objects.toString(
+                            exception.getMessage(), exception.getClass().getName())));
         }
     }
 
@@ -93,10 +95,7 @@ public final class PostgresAttachCompatibility {
     }
 
     private static void requireSame(
-            final List<Mismatch> mismatches,
-            final String field,
-            final String expected,
-            final String actual) {
+            final List<Mismatch> mismatches, final String field, final String expected, final String actual) {
         if (!Objects.equals(expected, actual)) {
             mismatches.add(Mismatch.field(field, expected, actual));
         }
@@ -108,7 +107,8 @@ public final class PostgresAttachCompatibility {
         if (compatible) {
             summary = "PostgreSQL metadata is compatible";
         } else {
-            summary = StringUtils.join(mismatches.stream().map(Mismatch::message).toList(), "; ");
+            summary =
+                    StringUtils.join(mismatches.stream().map(Mismatch::message).toList(), "; ");
         }
 
         return new AttachCompatibilityReport(compatible, summary, diagnostic(mismatches));
@@ -126,9 +126,7 @@ public final class PostgresAttachCompatibility {
     }
 
     private static void addMismatchValues(
-            final Map<String, String> values,
-            final int position,
-            final Mismatch mismatch) {
+            final Map<String, String> values, final int position, final Mismatch mismatch) {
         final String prefix = "mismatch.%d.".formatted(position);
         values.put(prefix + "field", mismatch.field());
         values.put(prefix + "message", mismatch.message());
@@ -136,11 +134,7 @@ public final class PostgresAttachCompatibility {
         mismatch.actual().ifPresent(actual -> values.put(prefix + "actual", actual));
     }
 
-    private record Mismatch(
-            String field,
-            Optional<String> expected,
-            Optional<String> actual,
-            String message) {
+    private record Mismatch(String field, Optional<String> expected, Optional<String> actual, String message) {
 
         private Mismatch {
             if (StringUtils.isBlank(field)) {
@@ -153,10 +147,7 @@ public final class PostgresAttachCompatibility {
             }
         }
 
-        private static Mismatch field(
-                final String field,
-                final String expected,
-                final String actual) {
+        private static Mismatch field(final String field, final String expected, final String actual) {
             return new Mismatch(
                     field,
                     Optional.of(Objects.requireNonNull(expected, "expected")),
@@ -169,10 +160,7 @@ public final class PostgresAttachCompatibility {
         }
     }
 
-    private record AttachCompatibilityReport(
-            boolean compatible,
-            String summary,
-            DiagnosticReport diagnosticReport) {
+    private record AttachCompatibilityReport(boolean compatible, String summary, DiagnosticReport diagnosticReport) {
 
         private AttachCompatibilityReport {
             if (StringUtils.isBlank(summary)) {

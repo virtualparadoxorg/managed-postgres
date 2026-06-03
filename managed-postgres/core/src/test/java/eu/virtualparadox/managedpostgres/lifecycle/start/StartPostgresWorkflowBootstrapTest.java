@@ -3,23 +3,22 @@ package eu.virtualparadox.managedpostgres.lifecycle.start;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.BootstrapStartConfigurationFactory;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartWorkflowBootstrapRuntime;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartWorkflowFactory;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartedPostgresMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.BootstrapStartConfigurationFactory;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartWorkflowBootstrapRuntime;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartWorkflowFactory;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartedPostgresMetadata;
 
 public final class StartPostgresWorkflowBootstrapTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowBootstrapTest() {
-    }
+    StartPostgresWorkflowBootstrapTest() {}
 
     @Test
     void customClusterBootstrapCreatesOwnerAndDatabaseBeforeMetadataIsWritten() throws IOException {
@@ -31,9 +30,9 @@ public final class StartPostgresWorkflowBootstrapTest {
                 .owner("app_owner")
                 .password(Secret.of("app-password"));
 
-        try (var handle = new StartWorkflowFactory().workflow().start(configurationFactory.configuration(
-                runtime.runtimeWithBootstrapPsql(),
-                clusterBootstrap))) {
+        try (var handle = new StartWorkflowFactory()
+                .workflow()
+                .start(configurationFactory.configuration(runtime.runtimeWithBootstrapPsql(), clusterBootstrap))) {
             assertThat(handle.connectionInfo().database()).isEqualTo("app");
             assertThat(handle.connectionInfo().username()).isEqualTo("app_owner");
             assertThat(handle.connectionInfo().password()).isEqualTo(Secret.of("app-password"));
@@ -43,14 +42,16 @@ public final class StartPostgresWorkflowBootstrapTest {
             assertThat(metadata.owner()).isEqualTo("app_owner");
         }
 
-        assertThat(runtime.calls()).anySatisfy(call -> assertThat(call).contains("pg_roles").contains("'app_owner'"));
-        assertThat(runtime.calls()).anySatisfy(call -> assertThat(call).contains("pg_database").contains("'app'"));
+        assertThat(runtime.calls())
+                .anySatisfy(call -> assertThat(call).contains("pg_roles").contains("'app_owner'"));
+        assertThat(runtime.calls())
+                .anySatisfy(call -> assertThat(call).contains("pg_database").contains("'app'"));
         assertThat(runtime.calls()).anySatisfy(call -> assertThat(call)
                 .contains("CREATE ROLE \"app_owner\" LOGIN PASSWORD")
                 .contains("'app-password'"));
-        assertThat(runtime.calls()).anySatisfy(call ->
-                assertThat(call).contains("CREATE DATABASE \"app\" OWNER \"app_owner\""));
-        assertThat(runtime.calls().stream().filter(call -> call.startsWith("psql "))).allSatisfy(call ->
-                assertThat(call).doesNotContain("app-password"));
+        assertThat(runtime.calls())
+                .anySatisfy(call -> assertThat(call).contains("CREATE DATABASE \"app\" OWNER \"app_owner\""));
+        assertThat(runtime.calls().stream().filter(call -> call.startsWith("psql ")))
+                .allSatisfy(call -> assertThat(call).doesNotContain("app-password"));
     }
 }

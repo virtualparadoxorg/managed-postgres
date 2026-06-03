@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -14,7 +15,6 @@ import java.nio.file.Path;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 
 public final class CommandRunnerPsqlBootstrapClientTest {
 
@@ -23,8 +23,7 @@ public final class CommandRunnerPsqlBootstrapClientTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CommandRunnerPsqlBootstrapClientTest() {
-    }
+    CommandRunnerPsqlBootstrapClientTest() {}
 
     @Test
     void roleAndDatabaseExistenceUsePsqlWithPasswordEnvironment() throws IOException {
@@ -50,8 +49,10 @@ public final class CommandRunnerPsqlBootstrapClientTest {
 
         assertThat(client.roleExists(adminConnectionInfo(), "app_owner")).isFalse();
         assertThat(client.databaseExists(adminConnectionInfo(), "app")).isFalse();
-        assertThat(client.extensionAvailable(applicationConnectionInfo(), "pgcrypto")).isFalse();
-        assertThat(client.extensionInstalled(applicationConnectionInfo(), "pgcrypto")).isFalse();
+        assertThat(client.extensionAvailable(applicationConnectionInfo(), "pgcrypto"))
+                .isFalse();
+        assertThat(client.extensionInstalled(applicationConnectionInfo(), "pgcrypto"))
+                .isFalse();
     }
 
     @Test
@@ -101,9 +102,7 @@ public final class CommandRunnerPsqlBootstrapClientTest {
         assertThat(Files.readString(testPsql.sqlLog()))
                 .contains("CREATE ROLE \"app_owner\" LOGIN PASSWORD")
                 .contains("'app-password'");
-        assertThat(Files.readString(testPsql.commandLog()))
-                .contains("-f")
-                .doesNotContain("app-password");
+        assertThat(Files.readString(testPsql.commandLog())).contains("-f").doesNotContain("app-password");
         assertThat(testPsql.sqlDirectory()).isEmptyDirectory();
     }
 
@@ -124,8 +123,10 @@ public final class CommandRunnerPsqlBootstrapClientTest {
         final TestPsql testPsql = createTestPsql("printf '%s\\n' '1'");
         final CommandRunnerPsqlBootstrapClient client = client(testPsql.runtimeDirectory(), testPsql.sqlDirectory());
 
-        assertThat(client.extensionAvailable(applicationConnectionInfo(), "pgcrypto")).isTrue();
-        assertThat(client.extensionInstalled(applicationConnectionInfo(), "pgcrypto")).isTrue();
+        assertThat(client.extensionAvailable(applicationConnectionInfo(), "pgcrypto"))
+                .isTrue();
+        assertThat(client.extensionInstalled(applicationConnectionInfo(), "pgcrypto"))
+                .isTrue();
 
         assertThat(Files.readString(testPsql.commandLog()))
                 .contains("pg_available_extensions")
@@ -150,15 +151,15 @@ public final class CommandRunnerPsqlBootstrapClientTest {
 
     @Test
     void failedCommandDiagnosticsRedactKnownPasswords() throws IOException {
-        final TestPsql testPsql = createTestPsql(
-                "printf '%s\\n' 'PGPASSWORD=admin-password password=app-password' >&2\nexit 7");
+        final TestPsql testPsql =
+                createTestPsql("printf '%s\\n' 'PGPASSWORD=admin-password password=app-password' >&2\nexit 7");
         final CommandRunnerPsqlBootstrapClient client = client(testPsql.runtimeDirectory(), testPsql.sqlDirectory());
 
         assertThatThrownBy(() -> client.createRole(adminConnectionInfo(), "app_owner", Secret.of("app-password")))
                 .isInstanceOf(PostgresStartupException.class)
                 .satisfies(throwable -> assertThat(((PostgresStartupException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("<redacted>")
                         .doesNotContain("admin-password")
                         .doesNotContain("app-password"));
@@ -209,27 +210,18 @@ public final class CommandRunnerPsqlBootstrapClientTest {
                 done
                 exit 0
                 """
-                .replace("__SQL_LOG__", temporaryDirectory.resolve("psql-sql.log").toString());
+                .replace(
+                        "__SQL_LOG__",
+                        temporaryDirectory.resolve("psql-sql.log").toString());
     }
 
     private static PostgresConnectionInfo adminConnectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                55432,
-                "postgres",
-                "postgres",
-                Secret.of("admin-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 55432, "postgres", "postgres", Secret.of("admin-password"));
     }
 
     private static PostgresConnectionInfo applicationConnectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                55432,
-                "app",
-                "app_owner",
-                Secret.of("app-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 55432, "app", "app_owner", Secret.of("app-password"));
     }
 
-    private record TestPsql(Path runtimeDirectory, Path commandLog, Path sqlLog, Path sqlDirectory) {
-    }
+    private record TestPsql(Path runtimeDirectory, Path commandLog, Path sqlLog, Path sqlDirectory) {}
 }

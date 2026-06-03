@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeCache;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.runtime.RuntimeSignature;
 import java.net.URI;
 import java.nio.file.Path;
@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringRuntimeMapperTest {
 
-    ManagedPostgresSpringRuntimeMapperTest() {
-    }
+    ManagedPostgresSpringRuntimeMapperTest() {}
 
     @Test
     void invalidRuntimeModelIsRejectedByFactory() {
@@ -63,7 +62,8 @@ public final class ManagedPostgresSpringRuntimeMapperTest {
                 .get()
                 .satisfies(classpathRuntime -> {
                     assertThat(classpathRuntime.resource()).isEqualTo("/postgres-runtime.zip");
-                    assertThat(classpathRuntime.cache()).contains(RuntimeCache.projectLocal(Path.of(".local/runtime-cache")));
+                    assertThat(classpathRuntime.cache())
+                            .contains(RuntimeCache.projectLocal(Path.of(".local/runtime-cache")));
                     assertThat(classpathRuntime.checksum())
                             .contains("sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
                     assertThat(classpathRuntime.signature()).contains(signature);

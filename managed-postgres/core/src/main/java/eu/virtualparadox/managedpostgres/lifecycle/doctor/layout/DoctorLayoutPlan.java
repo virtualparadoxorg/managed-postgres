@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.doctor.layout;
 
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 
 /**
  * Non-mutating doctor view of the managed PostgreSQL filesystem layout.

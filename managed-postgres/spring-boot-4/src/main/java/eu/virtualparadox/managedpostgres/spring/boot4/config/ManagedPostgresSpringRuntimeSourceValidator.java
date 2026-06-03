@@ -10,8 +10,7 @@ final class ManagedPostgresSpringRuntimeSourceValidator {
     private static final String DOWNLOADED = "downloaded";
     private static final String CLASSPATH = "classpath";
 
-    ManagedPostgresSpringRuntimeSourceValidator() {
-    }
+    ManagedPostgresSpringRuntimeSourceValidator() {}
 
     static void validate(final ManagedPostgresSpringRuntimeSourceProperties properties) {
         switch (properties.effectiveSource()) {

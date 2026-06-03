@@ -54,14 +54,14 @@ public final class PostgresSourceCatalog {
     }
 
     private static Map<String, PostgresRelease> officialReleases() {
-        return TRUSTED_SOURCE_CHECKSUMS.entrySet().stream().collect(
-                java.util.stream.Collectors.toUnmodifiableMap(
+        return TRUSTED_SOURCE_CHECKSUMS.entrySet().stream()
+                .collect(java.util.stream.Collectors.toUnmodifiableMap(
                         Map.Entry::getKey,
                         entry -> new PostgresRelease(
                                 majorOf(entry.getKey()),
                                 entry.getKey(),
-                                URI.create(OFFICIAL_SOURCE_ROOT + entry.getKey() + "/postgresql-"
-                                        + entry.getKey() + ".tar.gz"),
+                                URI.create(OFFICIAL_SOURCE_ROOT + entry.getKey() + "/postgresql-" + entry.getKey()
+                                        + ".tar.gz"),
                                 entry.getValue())));
     }
 

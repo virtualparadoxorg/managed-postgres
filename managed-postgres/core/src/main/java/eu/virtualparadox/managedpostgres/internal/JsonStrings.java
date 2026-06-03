@@ -27,8 +27,7 @@ public final class JsonStrings {
             'r', '\r',
             't', '\t');
 
-    private JsonStrings() {
-    }
+    private JsonStrings() {}
 
     /**
      * Escapes a value for embedding inside a JSON string literal.
@@ -79,8 +78,7 @@ public final class JsonStrings {
     }
 
     private static String escapeCharacter(final char character) {
-        return Optional.ofNullable(JSON_ESCAPES.get(character))
-                .orElseGet(() -> escapeControlCharacter(character));
+        return Optional.ofNullable(JSON_ESCAPES.get(character)).orElseGet(() -> escapeControlCharacter(character));
     }
 
     private static String escapeControlCharacter(final char character) {
@@ -94,10 +92,7 @@ public final class JsonStrings {
         return escaped;
     }
 
-    private static int appendEscapedCharacter(
-            final String value,
-            final int slashIndex,
-            final StringBuilder unescaped) {
+    private static int appendEscapedCharacter(final String value, final int slashIndex, final StringBuilder unescaped) {
         if (slashIndex + 1 >= value.length()) {
             throw new IllegalArgumentException("JSON escape sequence is incomplete");
         }
@@ -113,10 +108,7 @@ public final class JsonStrings {
         return nextIndex;
     }
 
-    private static int appendUnicodeEscape(
-            final String value,
-            final int slashIndex,
-            final StringBuilder unescaped) {
+    private static int appendUnicodeEscape(final String value, final int slashIndex, final StringBuilder unescaped) {
         final int unicodeStart = slashIndex + 2;
         final int unicodeEnd = unicodeStart + 4;
         if (unicodeEnd > value.length()) {

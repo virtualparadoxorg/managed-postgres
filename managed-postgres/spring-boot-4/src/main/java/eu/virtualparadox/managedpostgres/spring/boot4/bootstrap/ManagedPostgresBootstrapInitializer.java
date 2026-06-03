@@ -6,7 +6,8 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 
-final class ManagedPostgresBootstrapInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+final class ManagedPostgresBootstrapInitializer
+        implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
     private final ManagedPostgresBootstrapContext bootstrapContext;
 
@@ -22,9 +23,7 @@ final class ManagedPostgresBootstrapInitializer implements ApplicationContextIni
         if (registry.containsBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME)) {
             registry.removeBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME);
         }
-        registry.registerBeanDefinition(
-                ManagedPostgresBootstrapContext.BEAN_NAME,
-                bootstrapContextBeanDefinition());
+        registry.registerBeanDefinition(ManagedPostgresBootstrapContext.BEAN_NAME, bootstrapContextBeanDefinition());
     }
 
     private static BeanDefinitionRegistry registryOf(final ConfigurableApplicationContext applicationContext) {

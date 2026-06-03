@@ -21,8 +21,7 @@ public final class HostRuntimePlatform {
     private static final String MUSL = "musl";
     private static final String GLIBC = "glibc";
 
-    private HostRuntimePlatform() {
-    }
+    private HostRuntimePlatform() {}
 
     /**
      * Resolves the runtime bundle target identifier for the current host.

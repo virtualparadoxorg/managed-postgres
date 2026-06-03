@@ -3,27 +3,26 @@ package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
+import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.restore.PgRestoreBackupFixture;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.restore.PgRestoreRuntimeFixture;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.restore.PgRestoreBackupFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.restore.PgRestoreRuntimeFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 
 public final class PgRestoreServicePreflightTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    PgRestoreServicePreflightTest() {
-    }
+    PgRestoreServicePreflightTest() {}
 
     @Test
     void restoreValidatesBackupArtifactsBeforeRunningCommands() throws IOException {
@@ -32,8 +31,9 @@ public final class PgRestoreServicePreflightTest {
         final Path backup = backupFixture().writeValidBackup("managed backup\n");
         Files.writeString(Path.of(backup + ".sha256"), "wrong  app.dump\n", StandardCharsets.UTF_8);
 
-        assertThatThrownBy(() -> serviceFixture.service(runtime.runtimeDirectory())
-                .restoreFrom(backup, serviceFixture.destructiveOptions()))
+        assertThatThrownBy(() -> serviceFixture
+                        .service(runtime.runtimeDirectory())
+                        .restoreFrom(backup, serviceFixture.destructiveOptions()))
                 .isInstanceOf(PostgresRestoreException.class)
                 .hasMessageContaining("checksum");
 
@@ -50,7 +50,8 @@ public final class PgRestoreServicePreflightTest {
                 .createSafetyBackup(false)
                 .build();
 
-        assertThatThrownBy(() -> serviceFixture.service(runtime.runtimeDirectory()).restoreFrom(backup, options))
+        assertThatThrownBy(
+                        () -> serviceFixture.service(runtime.runtimeDirectory()).restoreFrom(backup, options))
                 .isInstanceOf(PostgresRestoreException.class)
                 .hasMessageContaining("safety backup");
 
@@ -65,8 +66,9 @@ public final class PgRestoreServicePreflightTest {
         final Path safetyBackup = temporaryDirectory.resolve("backups").resolve("app.before-restore.dump");
         Files.writeString(safetyBackup, "existing", StandardCharsets.UTF_8);
 
-        assertThatThrownBy(() -> serviceFixture.service(runtime.runtimeDirectory())
-                .restoreFrom(backup, serviceFixture.destructiveOptions()))
+        assertThatThrownBy(() -> serviceFixture
+                        .service(runtime.runtimeDirectory())
+                        .restoreFrom(backup, serviceFixture.destructiveOptions()))
                 .isInstanceOf(PostgresRestoreException.class)
                 .hasMessageContaining("safety backup");
 

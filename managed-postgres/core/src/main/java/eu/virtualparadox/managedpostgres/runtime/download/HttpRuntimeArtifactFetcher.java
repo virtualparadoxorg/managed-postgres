@@ -23,8 +23,7 @@ final class HttpRuntimeArtifactFetcher {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
-    private HttpRuntimeArtifactFetcher() {
-    }
+    private HttpRuntimeArtifactFetcher() {}
 
     static void copy(final URI uri, final Path target) throws IOException {
         final HttpResponse<InputStream> response = send(request(uri));
@@ -35,10 +34,7 @@ final class HttpRuntimeArtifactFetcher {
     }
 
     private static HttpRequest request(final URI uri) {
-        return HttpRequest.newBuilder(uri)
-                .timeout(READ_TIMEOUT)
-                .GET()
-                .build();
+        return HttpRequest.newBuilder(uri).timeout(READ_TIMEOUT).GET().build();
     }
 
     private static HttpResponse<InputStream> send(final HttpRequest request) throws IOException {

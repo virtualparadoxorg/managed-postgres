@@ -3,10 +3,10 @@ package eu.virtualparadox.managedpostgres.lifecycle.handle;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handle for a PostgreSQL instance attached by this JVM.

@@ -28,9 +28,9 @@ import java.util.function.Supplier;
  * Any other (custom) repository is returned unchanged.
  */
 @SuppressWarnings({
-        // The resolver intentionally orchestrates the runtime source, repository, platform and HTTP
-        // types to turn an official/github-release source into a concrete, verified download.
-        "PMD.CouplingBetweenObjects"
+    // The resolver intentionally orchestrates the runtime source, repository, platform and HTTP
+    // types to turn an official/github-release source into a concrete, verified download.
+    "PMD.CouplingBetweenObjects"
 })
 public final class OfficialRuntimeSourceResolver {
 
@@ -46,8 +46,7 @@ public final class OfficialRuntimeSourceResolver {
      * Its private counterpart is held only in the {@code RUNTIMES_SIGNING_SECRET} CI secret; the
      * publish job signs each bundle and uploads {@code <archive>.sig} next to it.
      */
-    static final String OFFICIAL_PUBLIC_KEY_BASE64 =
-            "MCowBQYDK2VwAyEAAgpqMJ/qvwiRr0DZvU10GnDcPpdKuzmbFSfGkvjrcGc=";
+    static final String OFFICIAL_PUBLIC_KEY_BASE64 = "MCowBQYDK2VwAyEAAgpqMJ/qvwiRr0DZvU10GnDcPpdKuzmbFSfGkvjrcGc=";
 
     private final String baseUrl;
     private final String revision;
@@ -59,8 +58,12 @@ public final class OfficialRuntimeSourceResolver {
      * Creates a resolver against the official GitHub release repository.
      */
     public OfficialRuntimeSourceResolver() {
-        this(DEFAULT_BASE_URL, DEFAULT_REVISION, HostRuntimePlatform::currentTargetIdentifier,
-                OfficialRuntimeSourceResolver::httpGet, OfficialRuntimeSourceResolver::httpGetBytes);
+        this(
+                DEFAULT_BASE_URL,
+                DEFAULT_REVISION,
+                HostRuntimePlatform::currentTargetIdentifier,
+                OfficialRuntimeSourceResolver::httpGet,
+                OfficialRuntimeSourceResolver::httpGetBytes);
     }
 
     OfficialRuntimeSourceResolver(
@@ -91,7 +94,8 @@ public final class OfficialRuntimeSourceResolver {
                 || !isManagedRelease(downloaded.orElseThrow().repository())) {
             result = source;
         } else {
-            final String releaseBaseUrl = baseUrlFor(downloaded.orElseThrow().repository().orElseThrow());
+            final String releaseBaseUrl =
+                    baseUrlFor(downloaded.orElseThrow().repository().orElseThrow());
             final String target = targetSupplier.get();
             final String tag = "pg" + postgresqlVersion + "-" + revision;
             final String archiveName =
@@ -99,12 +103,14 @@ public final class OfficialRuntimeSourceResolver {
             final URI archiveUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/" + archiveName);
             final URI checksumUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/SHA256SUMS");
             final String checksumHex = findChecksum(textFetcher.apply(checksumUri), archiveName, checksumUri);
-            final DownloadedRuntime base = downloaded.orElseThrow()
+            final DownloadedRuntime base = downloaded
+                    .orElseThrow()
                     .repository(RuntimeRepository.custom(archiveUri))
                     .checksum("sha256:" + checksumHex);
-            final DownloadedRuntime resolved = isOfficial(downloaded.orElseThrow().repository())
-                    ? base.signature(officialSignature(archiveUri))
-                    : base;
+            final DownloadedRuntime resolved =
+                    isOfficial(downloaded.orElseThrow().repository())
+                            ? base.signature(officialSignature(archiveUri))
+                            : base;
             result = new RuntimeSource(
                     source.kind(), source.existingPath(), Optional.of(resolved), source.classpathRuntime());
         }
@@ -127,7 +133,8 @@ public final class OfficialRuntimeSourceResolver {
     private static boolean isOfficial(final Optional<RuntimeRepository> repository) {
         // Only the framework's own official repo is signed with the pinned key; a custom
         // github-release repo carries no signature we can verify against that key.
-        return repository.isPresent() && OFFICIAL_SCHEME.equals(repository.orElseThrow().uri().getScheme());
+        return repository.isPresent()
+                && OFFICIAL_SCHEME.equals(repository.orElseThrow().uri().getScheme());
     }
 
     private RuntimeSignature officialSignature(final URI archiveUri) {
@@ -159,9 +166,8 @@ public final class OfficialRuntimeSourceResolver {
                 return hex;
             }
         }
-        throw new IllegalStateException(
-                "no published bundle '" + archiveName + "' found in " + checksumUri
-                        + " (platform/version may not be published yet)");
+        throw new IllegalStateException("no published bundle '" + archiveName + "' found in " + checksumUri
+                + " (platform/version may not be published yet)");
     }
 
     private static String httpGet(final URI uri) {

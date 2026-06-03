@@ -49,9 +49,7 @@ public final class ExternalPostgresValidator {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         final ExternalPostgresValidation validation;
         try {
-            validation = new ExternalPostgresValidation(
-                    checkedConnectionInfo,
-                    client.probe(checkedConnectionInfo));
+            validation = new ExternalPostgresValidation(checkedConnectionInfo, client.probe(checkedConnectionInfo));
         } catch (final ManagedPostgresException exception) {
             throw validationFailure(checkedConnectionInfo, exception);
         }
@@ -90,21 +88,16 @@ public final class ExternalPostgresValidator {
 
     private static DoctorReport successReport(final ExternalPostgresValidation validation) {
         return new DoctorReport(
-                PostgresStatus.RUNNING,
-                successSections(validation.connectionInfo(), validation.snapshot()));
+                PostgresStatus.RUNNING, successSections(validation.connectionInfo(), validation.snapshot()));
     }
 
     private static DoctorReport failureReport(
-            final PostgresConnectionInfo connectionInfo,
-            final ManagedPostgresException exception) {
-        return new DoctorReport(
-                PostgresStatus.FAILED,
-                failureSections(connectionInfo, exception));
+            final PostgresConnectionInfo connectionInfo, final ManagedPostgresException exception) {
+        return new DoctorReport(PostgresStatus.FAILED, failureSections(connectionInfo, exception));
     }
 
     private static PostgresAttachException validationFailure(
-            final PostgresConnectionInfo connectionInfo,
-            final ManagedPostgresException exception) {
+            final PostgresConnectionInfo connectionInfo, final ManagedPostgresException exception) {
         return new PostgresAttachException(
                 "External PostgreSQL validation failed",
                 exception,
@@ -112,8 +105,7 @@ public final class ExternalPostgresValidator {
     }
 
     private static List<DiagnosticSection> successSections(
-            final PostgresConnectionInfo connectionInfo,
-            final JdbcProbeSnapshot snapshot) {
+            final PostgresConnectionInfo connectionInfo, final JdbcProbeSnapshot snapshot) {
         final List<DiagnosticSection> sections = baseSections(connectionInfo);
         sections.add(new DiagnosticSection(
                 "external-postgres",
@@ -125,8 +117,7 @@ public final class ExternalPostgresValidator {
     }
 
     private static List<DiagnosticSection> failureSections(
-            final PostgresConnectionInfo connectionInfo,
-            final ManagedPostgresException exception) {
+            final PostgresConnectionInfo connectionInfo, final ManagedPostgresException exception) {
         final List<DiagnosticSection> sections = baseSections(connectionInfo);
         sections.addAll(exception.diagnosticReport().sections());
 
@@ -154,8 +145,7 @@ public final class ExternalPostgresValidator {
     }
 
     private record ExternalProbeAttempt(
-            Optional<ExternalPostgresValidation> validation,
-            Optional<ManagedPostgresException> failure) {
+            Optional<ExternalPostgresValidation> validation, Optional<ManagedPostgresException> failure) {
 
         private ExternalProbeAttempt {
             Objects.requireNonNull(validation, "validation");

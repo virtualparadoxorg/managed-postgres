@@ -8,13 +8,13 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresNetworkBuilderTest {
 
-    ManagedPostgresNetworkBuilderTest() {
-    }
+    ManagedPostgresNetworkBuilderTest() {}
 
     @Test
     void builderStoresNetworkConfiguration() {
         try (ManagedPostgres postgres = ManagedPostgres.builder()
-                .network(network -> network.host("127.0.0.1").preferredPort(15432).fallbackToRandom())
+                .network(network ->
+                        network.host("127.0.0.1").preferredPort(15432).fallbackToRandom())
                 .build()) {
             assertThat(postgres.toString())
                     .contains("network=Network")
@@ -35,7 +35,8 @@ public final class ManagedPostgresNetworkBuilderTest {
     }
 
     private static void invokeNetworkCustomizerWithNull() throws ReflectiveOperationException {
-        ManagedPostgresBuilder.class.getMethod("network", UnaryOperator.class)
+        ManagedPostgresBuilder.class
+                .getMethod("network", UnaryOperator.class)
                 .invoke(ManagedPostgres.builder(), new Object[] {null});
     }
 }

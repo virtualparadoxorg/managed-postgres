@@ -15,8 +15,7 @@ public final class PostgresLockServiceTest {
     @TempDir
     private Path storageRoot;
 
-    PostgresLockServiceTest() {
-    }
+    PostgresLockServiceTest() {}
 
     @Test
     void lockServiceRefusesConcurrentLockAcquisitionInSameJvm() throws IOException {
@@ -72,9 +71,7 @@ public final class PostgresLockServiceTest {
         final PostgresLockService service = new PostgresLockService();
 
         try (HeldPostgresLocks locks = service.acquireLifecycleLocks(layout)) {
-            assertThat(locks.locks())
-                    .extracting(HeldPostgresLock::path)
-                    .containsExactlyElementsOf(layout.lockOrder());
+            assertThat(locks.locks()).extracting(HeldPostgresLock::path).containsExactlyElementsOf(layout.lockOrder());
             assertThatExceptionOfType(ManagedPostgresException.class)
                     .isThrownBy(() -> service.acquireRuntimeInstallLock(layout))
                     .withMessageContaining("already held");

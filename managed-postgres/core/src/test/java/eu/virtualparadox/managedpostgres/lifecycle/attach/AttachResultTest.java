@@ -5,23 +5,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
-import java.util.Optional;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.NoopRunningPostgres;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.NoopRunningPostgres;
 
 public final class AttachResultTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    AttachResultTest() {
-    }
+    AttachResultTest() {}
 
     @Test
     void failedResultCanAllowSafeStartNew() {
@@ -34,9 +33,8 @@ public final class AttachResultTest {
 
     @Test
     void failedResultCarriesStructuredDiagnosticsIntoAttachException() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "postgres-attach-compatibility",
-                Map.of("status", "incompatible"))));
+        final DiagnosticReport diagnostics = new DiagnosticReport(
+                List.of(new DiagnosticSection("postgres-attach-compatibility", Map.of("status", "incompatible"))));
         final AttachResult result = AttachResult.failed("PostgreSQL metadata is incompatible", false, diagnostics);
         final var layout = PostgresLayoutFixture.createdLayout(temporaryDirectory.resolve("cluster"));
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());

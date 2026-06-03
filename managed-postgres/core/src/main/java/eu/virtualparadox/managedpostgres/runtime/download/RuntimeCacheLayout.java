@@ -24,9 +24,8 @@ public final class RuntimeCacheLayout {
      * @param cacheRoot framework-owned cache root
      */
     public RuntimeCacheLayout(final Path cacheRoot) {
-        this.cacheRoot = Objects.requireNonNull(cacheRoot, "cacheRoot")
-                .toAbsolutePath()
-                .normalize();
+        this.cacheRoot =
+                Objects.requireNonNull(cacheRoot, "cacheRoot").toAbsolutePath().normalize();
     }
 
     /**
@@ -76,9 +75,7 @@ public final class RuntimeCacheLayout {
      * @return partial download path
      */
     public Path downloadFile(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final RuntimeSignature signature) {
+            final String postgresqlVersion, final Checksum checksum, final RuntimeSignature signature) {
         return downloadFile(postgresqlVersion, checksum, Optional.of(signature));
     }
 
@@ -91,9 +88,7 @@ public final class RuntimeCacheLayout {
      * @return partial download path
      */
     public Path downloadFile(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final Optional<RuntimeSignature> signature) {
+            final String postgresqlVersion, final Checksum checksum, final Optional<RuntimeSignature> signature) {
         return downloadsDirectory().resolve(cacheName(postgresqlVersion, checksum, signature) + ".zip.download");
     }
 
@@ -117,9 +112,7 @@ public final class RuntimeCacheLayout {
      * @return final runtime directory
      */
     public Path runtimeDirectory(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final RuntimeSignature signature) {
+            final String postgresqlVersion, final Checksum checksum, final RuntimeSignature signature) {
         return runtimeDirectory(postgresqlVersion, checksum, Optional.of(signature));
     }
 
@@ -132,9 +125,7 @@ public final class RuntimeCacheLayout {
      * @return final runtime directory
      */
     public Path runtimeDirectory(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final Optional<RuntimeSignature> signature) {
+            final String postgresqlVersion, final Checksum checksum, final Optional<RuntimeSignature> signature) {
         return runtimesDirectory().resolve(cacheName(postgresqlVersion, checksum, signature));
     }
 
@@ -158,9 +149,7 @@ public final class RuntimeCacheLayout {
      * @return staging directory
      */
     public Path stagingDirectory(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final RuntimeSignature signature) {
+            final String postgresqlVersion, final Checksum checksum, final RuntimeSignature signature) {
         return stagingDirectory(postgresqlVersion, checksum, Optional.of(signature));
     }
 
@@ -173,16 +162,12 @@ public final class RuntimeCacheLayout {
      * @return staging directory
      */
     public Path stagingDirectory(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final Optional<RuntimeSignature> signature) {
+            final String postgresqlVersion, final Checksum checksum, final Optional<RuntimeSignature> signature) {
         return runtimesDirectory().resolve(cacheName(postgresqlVersion, checksum, signature) + ".staging");
     }
 
     private static String cacheName(
-            final String postgresqlVersion,
-            final Checksum checksum,
-            final Optional<RuntimeSignature> signature) {
+            final String postgresqlVersion, final Checksum checksum, final Optional<RuntimeSignature> signature) {
         final String checkedVersion = requireSafeVersion(postgresqlVersion);
         final Checksum checkedChecksum = Objects.requireNonNull(checksum, "checksum");
         final Optional<RuntimeSignature> checkedSignature = Objects.requireNonNull(signature, "signature");
@@ -205,7 +190,8 @@ public final class RuntimeCacheLayout {
 
     private static String requireSafeVersion(final String postgresqlVersion) {
         final String checkedVersion = Objects.requireNonNull(postgresqlVersion, "postgresqlVersion");
-        if (StringUtils.isBlank(checkedVersion) || !VERSION_PATTERN.matcher(checkedVersion).matches()) {
+        if (StringUtils.isBlank(checkedVersion)
+                || !VERSION_PATTERN.matcher(checkedVersion).matches()) {
             throw new IllegalArgumentException("postgresql version must be a safe cache path segment");
         }
 

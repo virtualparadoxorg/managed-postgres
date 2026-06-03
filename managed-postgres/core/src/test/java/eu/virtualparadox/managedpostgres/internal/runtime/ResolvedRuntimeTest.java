@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 final class ResolvedRuntimeTest {
 
-    ResolvedRuntimeTest() {
-    }
+    ResolvedRuntimeTest() {}
 
     @Test
     void createsResolvedRuntimeForNonNegativeInstallDuration() {

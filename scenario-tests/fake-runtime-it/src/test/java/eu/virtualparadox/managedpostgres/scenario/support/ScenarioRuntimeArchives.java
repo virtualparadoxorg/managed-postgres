@@ -16,8 +16,7 @@ public final class ScenarioRuntimeArchives {
 
     private static final int DIGEST_BUFFER_SIZE = 8_192;
 
-    private ScenarioRuntimeArchives() {
-    }
+    private ScenarioRuntimeArchives() {}
 
     public static String checksumText(final Path archive) throws IOException {
         final MessageDigest digest = sha256();
@@ -42,7 +41,8 @@ public final class ScenarioRuntimeArchives {
             final String postgresqlVersion,
             final Checksum checksum,
             final Path cachedRuntime,
-            final Path callLog) throws IOException {
+            final Path callLog)
+            throws IOException {
         assertThat(cacheLayout.downloadFile(postgresqlVersion, checksum)).doesNotExist();
         assertThat(cacheLayout.stagingDirectory(postgresqlVersion, checksum)).doesNotExist();
         assertThat(cachedRuntime).isDirectory();

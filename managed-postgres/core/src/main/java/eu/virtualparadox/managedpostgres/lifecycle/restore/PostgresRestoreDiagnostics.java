@@ -4,11 +4,11 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.CommandRedactor;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 
 /**
  * Builds redacted diagnostics for logical restore failures.
@@ -18,8 +18,7 @@ public final class PostgresRestoreDiagnostics {
     /**
      * Creates a PostgresRestoreDiagnostics instance.
      */
-    public PostgresRestoreDiagnostics() {
-    }
+    public PostgresRestoreDiagnostics() {}
 
     /**
      * Returns the invalid manifest result.
@@ -39,9 +38,13 @@ public final class PostgresRestoreDiagnostics {
      * @return missing artifact result
      */
     public DiagnosticReport missingArtifact(final String kind, final Path path) {
-        return diagnostic("restore-artifact", Map.of(
-                "kind", kind,
-                "path", Objects.requireNonNull(path, "path").toString()));
+        return diagnostic(
+                "restore-artifact",
+                Map.of(
+                        "kind",
+                        kind,
+                        "path",
+                        Objects.requireNonNull(path, "path").toString()));
     }
 
     /**
@@ -70,9 +73,13 @@ public final class PostgresRestoreDiagnostics {
      * @return existing safety backup artifact result
      */
     public DiagnosticReport existingSafetyBackupArtifact(final Path path) {
-        return diagnostic("restore-safety-backup", Map.of(
-                "reason", "safety backup artifact already exists",
-                "path", Objects.requireNonNull(path, "path").toString()));
+        return diagnostic(
+                "restore-safety-backup",
+                Map.of(
+                        "reason",
+                        "safety backup artifact already exists",
+                        "path",
+                        Objects.requireNonNull(path, "path").toString()));
     }
 
     /**
@@ -105,11 +112,13 @@ public final class PostgresRestoreDiagnostics {
      * @return command failure result
      */
     public DiagnosticReport commandFailure(final CommandResult result, final PostgresConnectionInfo connectionInfo) {
-        return diagnostic("pg-restore", Map.of(
-                "command", redact(result.renderedCommand(), connectionInfo),
-                "exitCode", Integer.toString(result.exitCode()),
-                "stdout", redact(result.stdout(), connectionInfo),
-                "stderr", redact(result.stderr(), connectionInfo)));
+        return diagnostic(
+                "pg-restore",
+                Map.of(
+                        "command", redact(result.renderedCommand(), connectionInfo),
+                        "exitCode", Integer.toString(result.exitCode()),
+                        "stdout", redact(result.stdout(), connectionInfo),
+                        "stderr", redact(result.stderr(), connectionInfo)));
     }
 
     /**
@@ -120,9 +129,13 @@ public final class PostgresRestoreDiagnostics {
      * @return lock failure result
      */
     public DiagnosticReport lockFailure(final String message, final Path path) {
-        return diagnostic("restore-lock", Map.of(
-                "message", message,
-                "path", Objects.requireNonNull(path, "path").toString()));
+        return diagnostic(
+                "restore-lock",
+                Map.of(
+                        "message",
+                        message,
+                        "path",
+                        Objects.requireNonNull(path, "path").toString()));
     }
 
     private static DiagnosticReport diagnostic(final String sectionName, final Map<String, String> values) {

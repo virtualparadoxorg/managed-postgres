@@ -23,8 +23,7 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
 
     private static final String RAW_PASSWORD = "boot-secret";
 
-    ManagedPostgresEnvironmentPostProcessorTest() {
-    }
+    ManagedPostgresEnvironmentPostProcessorTest() {}
 
     @AfterEach
     void resetBootstrapContext() {
@@ -49,8 +48,7 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
     @Test
     void enabledManagedPostgresStartsAndStoresRunningHandle() {
         final PostProcessorFixture fixture = PostProcessorFixture.create();
-        final MockEnvironment environment = environment(Map.of(
-                "managed-postgres.enabled", "true"));
+        final MockEnvironment environment = environment(Map.of("managed-postgres.enabled", "true"));
         final ManagedPostgresEnvironmentPostProcessor postProcessor =
                 new ManagedPostgresEnvironmentPostProcessor(properties -> fixture.postgres());
 
@@ -59,17 +57,20 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
         assertThat(ManagedPostgresBootstrapContext.current().managedPostgres()).contains(fixture.postgres());
         assertThat(ManagedPostgresBootstrapContext.current().runningPostgres()).contains(fixture.runningPostgres());
         assertThat(ManagedPostgresBootstrapContext.current()
-                .metrics()
-                .orElseThrow()
-                .startupDuration()).isGreaterThanOrEqualTo(Duration.ZERO);
+                        .metrics()
+                        .orElseThrow()
+                        .startupDuration())
+                .isGreaterThanOrEqualTo(Duration.ZERO);
         assertThat(ManagedPostgresBootstrapContext.current()
-                .metrics()
-                .orElseThrow()
-                .installDuration()).isZero();
+                        .metrics()
+                        .orElseThrow()
+                        .installDuration())
+                .isZero();
         assertThat(ManagedPostgresBootstrapContext.current()
-                .metrics()
-                .orElseThrow()
-                .healthcheckFailures()).isZero();
+                        .metrics()
+                        .orElseThrow()
+                        .healthcheckFailures())
+                .isZero();
     }
 
     @Test
@@ -82,8 +83,7 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
 
         postProcessor.postProcessEnvironment(environment, application());
 
-        assertThat(environment.getProperty("spring.datasource.url"))
-                .isEqualTo("jdbc:postgresql://127.0.0.1:15432/app");
+        assertThat(environment.getProperty("spring.datasource.url")).isEqualTo("jdbc:postgresql://127.0.0.1:15432/app");
         assertThat(environment.getProperty("spring.datasource.username")).isEqualTo("app");
         assertThat(environment.getProperty("spring.datasource.password")).isEqualTo(RAW_PASSWORD);
     }
@@ -113,8 +113,7 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
 
         postProcessor.postProcessEnvironment(environment, application());
 
-        assertThat(environment.getProperty("spring.datasource.url"))
-                .isEqualTo("jdbc:postgresql://127.0.0.1:15432/app");
+        assertThat(environment.getProperty("spring.datasource.url")).isEqualTo("jdbc:postgresql://127.0.0.1:15432/app");
     }
 
     @Test
@@ -173,12 +172,8 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
 
         private PostProcessorFixture() {
             when(postgres.start()).thenReturn(runningPostgres);
-            when(runningPostgres.connectionInfo()).thenReturn(new PostgresConnectionInfo(
-                    "127.0.0.1",
-                    15432,
-                    "app",
-                    "app",
-                    Secret.of(RAW_PASSWORD)));
+            when(runningPostgres.connectionInfo())
+                    .thenReturn(new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of(RAW_PASSWORD)));
         }
 
         private static PostProcessorFixture create() {

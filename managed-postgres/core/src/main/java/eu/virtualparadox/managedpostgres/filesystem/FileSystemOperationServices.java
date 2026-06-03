@@ -1,7 +1,7 @@
 package eu.virtualparadox.managedpostgres.filesystem;
 
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.filesystem.lock.FileSystemLockManager;
+import java.util.Objects;
 
 /**
  * Collaborators used by managed filesystem operations.

@@ -19,8 +19,7 @@ import java.util.zip.ZipOutputStream;
 
 public final class RuntimeArchiveTestSupport {
 
-    private RuntimeArchiveTestSupport() {
-    }
+    private RuntimeArchiveTestSupport() {}
 
     public static void createUsableRuntime(final Path runtimeDirectory) throws IOException {
         final Path binDirectory = runtimeDirectory.resolve("bin");
@@ -74,8 +73,10 @@ public final class RuntimeArchiveTestSupport {
 
     public static void assertRuntimeFiles(final Path runtimeDirectory) throws IOException {
         assertThat(Files.readString(runtimeDirectory.resolve("PG_VERSION"))).isEqualTo("16");
-        assertThat(Files.readString(runtimeDirectory.resolve("bin").resolve("pg_ctl"))).isEqualTo("pg_ctl");
-        assertThat(Files.readString(runtimeDirectory.resolve("bin").resolve("postgres"))).isEqualTo("postgres");
+        assertThat(Files.readString(runtimeDirectory.resolve("bin").resolve("pg_ctl")))
+                .isEqualTo("pg_ctl");
+        assertThat(Files.readString(runtimeDirectory.resolve("bin").resolve("postgres")))
+                .isEqualTo("postgres");
     }
 
     public static String checksumText(final Path archive) throws IOException {
@@ -98,8 +99,7 @@ public final class RuntimeArchiveTestSupport {
         return digest;
     }
 
-    public record EntrySpec(String name, String content, boolean directory) {
-    }
+    public record EntrySpec(String name, String content, boolean directory) {}
 
     private static final class MessageDigestOutputStream extends OutputStream {
 

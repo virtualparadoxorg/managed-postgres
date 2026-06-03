@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 public final class DoctorReportTest {
 
-    DoctorReportTest() {
-    }
+    DoctorReportTest() {}
 
     @Test
     void doctorReportCopiesSectionsAndExposesStatus() {
@@ -33,9 +32,7 @@ public final class DoctorReportTest {
     void renderTextUsesExistingRedactionRules() {
         final DoctorReport report = new DoctorReport(
                 PostgresStatus.FAILED,
-                List.of(new DiagnosticSection(
-                        "environment",
-                        Map.of("PGPASSWORD", "actual-secret"))));
+                List.of(new DiagnosticSection("environment", Map.of("PGPASSWORD", "actual-secret"))));
 
         final String rendered = report.renderText();
 
@@ -71,8 +68,8 @@ public final class DoctorReportTest {
 
     @Test
     void reportRejectsNullStatus() throws NoSuchMethodException {
-        final Constructor<DoctorReport> constructor = DoctorReport.class
-                .getConstructor(PostgresStatus.class, List.class);
+        final Constructor<DoctorReport> constructor =
+                DoctorReport.class.getConstructor(PostgresStatus.class, List.class);
 
         assertThatExceptionOfType(InvocationTargetException.class)
                 .isThrownBy(() -> constructor.newInstance(null, List.of()))
@@ -83,7 +80,6 @@ public final class DoctorReportTest {
 
     @Test
     void managedPostgresExposesDoctorMethod() throws NoSuchMethodException {
-        assertThat(ManagedPostgres.class.getMethod("doctor").getReturnType())
-                .isEqualTo(DoctorReport.class);
+        assertThat(ManagedPostgres.class.getMethod("doctor").getReturnType()).isEqualTo(DoctorReport.class);
     }
 }

@@ -19,8 +19,7 @@ public final class TailingPostgresLogBridgeTest {
     @TempDir
     private Path temporaryDirectory;
 
-    TailingPostgresLogBridgeTest() {
-    }
+    TailingPostgresLogBridgeTest() {}
 
     @Test
     void bridgeStreamsOnlyNewLogLinesAndRedactsSecrets() throws IOException {
@@ -89,9 +88,7 @@ public final class TailingPostgresLogBridgeTest {
             Files.writeString(logFile, "", StandardCharsets.UTF_8);
             appendLine(logFile, "new\n");
 
-            awaitLines(recordedLines, List.of(
-                    "managed.postgres.test:first line",
-                    "managed.postgres.test:new"));
+            awaitLines(recordedLines, List.of("managed.postgres.test:first line", "managed.postgres.test:new"));
         }
     }
 
@@ -128,8 +125,7 @@ public final class TailingPostgresLogBridgeTest {
 
     private static final class ThreadSupport {
 
-        private ThreadSupport() {
-        }
+        private ThreadSupport() {}
 
         private static void sleep(final Duration duration) {
             LockSupport.parkNanos(duration.toNanos());

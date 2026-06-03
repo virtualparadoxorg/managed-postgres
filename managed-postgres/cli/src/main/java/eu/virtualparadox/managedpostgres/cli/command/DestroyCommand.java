@@ -16,10 +16,7 @@ import picocli.CommandLine.Option;
 /**
  * Destroys persistent managed PostgreSQL cluster storage after explicit confirmation.
  */
-@Command(
-        name = "destroy",
-        description = "Destroy persistent managed PostgreSQL cluster storage.",
-        sortOptions = false)
+@Command(name = "destroy", description = "Destroy persistent managed PostgreSQL cluster storage.", sortOptions = false)
 public final class DestroyCommand implements Callable<Integer> {
 
     @Mixin

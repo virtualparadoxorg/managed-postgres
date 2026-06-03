@@ -20,8 +20,7 @@ public final class StartPostgresWorkflowPreflightTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowPreflightTest() {
-    }
+    StartPostgresWorkflowPreflightTest() {}
 
     @Test
     void existingDataDirectoryMajorMismatchFailsBeforeClusterFilesAreWritten() throws IOException {
@@ -32,15 +31,18 @@ public final class StartPostgresWorkflowPreflightTest {
         Files.createDirectories(dataDirectory);
         Files.writeString(dataDirectory.resolve("PG_VERSION"), "17%n".formatted(), StandardCharsets.UTF_8);
 
-        assertThatThrownBy(() -> new StartWorkflowFactory().workflow()
-                .start(StartConfigurationFixture.configuration(storageRoot, runtimeDirectory)))
+        assertThatThrownBy(() -> new StartWorkflowFactory()
+                        .workflow()
+                        .start(StartConfigurationFixture.configuration(storageRoot, runtimeDirectory)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("PG_VERSION"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("PG_VERSION"));
 
         assertThat(runtime.calls()).isEmpty();
-        assertThat(storageRoot.resolve("state").resolve("credentials.properties")).doesNotExist();
+        assertThat(storageRoot.resolve("state").resolve("credentials.properties"))
+                .doesNotExist();
         assertThat(dataDirectory.resolve("postgresql.conf")).doesNotExist();
         assertThat(dataDirectory.resolve("pg_hba.conf")).doesNotExist();
     }

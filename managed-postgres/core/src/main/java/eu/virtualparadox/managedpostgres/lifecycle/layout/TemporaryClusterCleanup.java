@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.lifecycle.layout;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.filesystem.DirectoryPublisher;
 import java.io.UncheckedIOException;
 import java.util.List;
@@ -14,8 +14,7 @@ import java.util.Objects;
  */
 public final class TemporaryClusterCleanup {
 
-    private TemporaryClusterCleanup() {
-    }
+    private TemporaryClusterCleanup() {}
 
     /**
      * Performs the delete operation.

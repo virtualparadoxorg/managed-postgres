@@ -1,5 +1,6 @@
 package eu.virtualparadox.managedpostgres.filesystem;
 
+import eu.virtualparadox.managedpostgres.filesystem.lock.FileSystemLockManager;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.filesystem.lock.FileSystemLockManager;
 
 /**
  * Creates managed filesystem operations and recovers abandoned staging paths.
@@ -39,9 +39,8 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
      */
     @Override
     public void createDirectories(final Path directory) {
-        final Path checkedDirectory = Objects.requireNonNull(directory, "directory")
-                .toAbsolutePath()
-                .normalize();
+        final Path checkedDirectory =
+                Objects.requireNonNull(directory, "directory").toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(checkedDirectory);
@@ -70,8 +69,7 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
                     .normalize();
         } catch (final IOException exception) {
             throw new UncheckedIOException(
-                    "failed to create temporary directory in " + checkedParentDirectory,
-                    exception);
+                    "failed to create temporary directory in " + checkedParentDirectory, exception);
         }
     }
 
@@ -82,9 +80,8 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
      */
     @Override
     public void deleteIfExists(final Path path) {
-        final Path checkedPath = Objects.requireNonNull(path, "path")
-                .toAbsolutePath()
-                .normalize();
+        final Path checkedPath =
+                Objects.requireNonNull(path, "path").toAbsolutePath().normalize();
         final FileSystemLockManager.FileSystemLock lock = services.lockManager().lock(checkedPath);
         try {
             Files.deleteIfExists(checkedPath);
@@ -108,10 +105,7 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
                 .toAbsolutePath()
                 .normalize();
 
-        return new JournaledFileSystemOperation(
-                operationName,
-                checkedOperationRoot,
-                services);
+        return new JournaledFileSystemOperation(operationName, checkedOperationRoot, services);
     }
 
     /**
@@ -131,17 +125,15 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
             try (Stream<Path> paths = Files.list(checkedOperationRoot)) {
                 recoverPaths(discarded, unknown, paths.toList());
             } catch (final IOException exception) {
-                throw new UncheckedIOException("failed to recover staging directories in " + checkedOperationRoot, exception);
+                throw new UncheckedIOException(
+                        "failed to recover staging directories in " + checkedOperationRoot, exception);
             }
         }
 
         return new RecoveryReport(discarded, unknown);
     }
 
-    private void recoverPaths(
-            final List<Path> discarded,
-            final List<Path> unknown,
-            final List<Path> paths) {
+    private void recoverPaths(final List<Path> discarded, final List<Path> unknown, final List<Path> paths) {
         for (final Path path : paths) {
             if (isStagingDirectory(path)) {
                 recoverStagingDirectory(discarded, unknown, path);
@@ -151,10 +143,7 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
         }
     }
 
-    private void recoverStagingDirectory(
-            final List<Path> discarded,
-            final List<Path> unknown,
-            final Path staging) {
+    private void recoverStagingDirectory(final List<Path> discarded, final List<Path> unknown, final Path staging) {
         if (services.ownership().isOwned(staging)) {
             DirectoryPublisher.deleteRecursivelyIfExists(staging);
             discarded.add(staging);
@@ -173,7 +162,9 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
 
     private static boolean isStagingDirectory(final Path path) {
         final Path fileName = path.getFileName();
-        return fileName != null && Files.isDirectory(path) && fileName.toString().endsWith(STAGING_SUFFIX);
+        return fileName != null
+                && Files.isDirectory(path)
+                && fileName.toString().endsWith(STAGING_SUFFIX);
     }
 
     private static boolean isAtomicTemporaryFile(final Path path) {
@@ -207,10 +198,10 @@ public final class FileSystemOperationJournal implements ManagedFileSystem {
          * @param unknownStagingDirectories staging directories without ownership markers
          */
         public RecoveryReport {
-            discardedStagingDirectories = List.copyOf(
-                    Objects.requireNonNull(discardedStagingDirectories, "discardedStagingDirectories"));
-            unknownStagingDirectories = List.copyOf(
-                    Objects.requireNonNull(unknownStagingDirectories, "unknownStagingDirectories"));
+            discardedStagingDirectories =
+                    List.copyOf(Objects.requireNonNull(discardedStagingDirectories, "discardedStagingDirectories"));
+            unknownStagingDirectories =
+                    List.copyOf(Objects.requireNonNull(unknownStagingDirectories, "unknownStagingDirectories"));
         }
     }
 }

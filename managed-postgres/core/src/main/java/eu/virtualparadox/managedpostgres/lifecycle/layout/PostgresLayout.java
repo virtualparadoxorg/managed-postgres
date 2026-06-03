@@ -232,9 +232,7 @@ public final class PostgresLayout {
         }
     }
 
-    private static Path createTemporaryRoot(
-            final Path configuredRoot,
-            final ManagedFileSystem fileSystem) {
+    private static Path createTemporaryRoot(final Path configuredRoot, final ManagedFileSystem fileSystem) {
         final Path temporaryRoot = normalize(configuredRoot);
 
         fileSystem.createDirectories(temporaryRoot);
@@ -247,11 +245,11 @@ public final class PostgresLayout {
     }
 
     private static ManagedPostgresException layoutFailure(
-            final String message,
-            final Path root,
-            final Throwable cause) {
-        return new ManagedPostgresException(message, cause, new DiagnosticReport(List.of(new DiagnosticSection(
-                "postgres-layout",
-                Map.of("root", normalize(root).toString())))));
+            final String message, final Path root, final Throwable cause) {
+        return new ManagedPostgresException(
+                message,
+                cause,
+                new DiagnosticReport(List.of(new DiagnosticSection(
+                        "postgres-layout", Map.of("root", normalize(root).toString())))));
     }
 }

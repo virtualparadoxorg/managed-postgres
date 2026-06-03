@@ -67,11 +67,11 @@ public final class ClasspathRuntimeCachePublisher {
             failIfStagingExists(checkedContext, staging);
             copyResource(checkedContext, artifact);
             checksumVerifier.verify(artifact, checkedContext.checksum());
-            checkedContext.signature()
-                    .ifPresent(signature -> verifySignature(artifact, signature));
+            checkedContext.signature().ifPresent(signature -> verifySignature(artifact, signature));
             ownership.writeMarker(staging, "install-classpath-runtime");
             extractor.extract(artifact, staging);
-            checkedContext.signature()
+            checkedContext
+                    .signature()
                     .ifPresent(signature -> signatureVerifier.writeVerifiedMarker(staging, signature));
             RuntimeValidator.requireUsableRuntimeDirectory(staging);
             new DirectoryPublisher().publish(staging, checkedContext.finalRuntime());
@@ -81,21 +81,15 @@ public final class ClasspathRuntimeCachePublisher {
         } catch (final IOException exception) {
             cleanupAfterFailure(staging, artifact, exception);
             throw ClasspathRuntimeResolutionDiagnostics.failure(
-                    "failed to resolve classpath PostgreSQL runtime",
-                    checkedContext.runtimeSource(),
-                    exception);
+                    "failed to resolve classpath PostgreSQL runtime", checkedContext.runtimeSource(), exception);
         } catch (final IllegalArgumentException | IllegalStateException | UncheckedIOException exception) {
             cleanupAfterFailure(staging, artifact, exception);
             throw ClasspathRuntimeResolutionDiagnostics.failure(
-                    "failed to resolve classpath PostgreSQL runtime",
-                    checkedContext.runtimeSource(),
-                    exception);
+                    "failed to resolve classpath PostgreSQL runtime", checkedContext.runtimeSource(), exception);
         }
     }
 
-    private void copyResource(
-            final ClasspathRuntimeResolutionContext context,
-            final Path artifact) throws IOException {
+    private void copyResource(final ClasspathRuntimeResolutionContext context, final Path artifact) throws IOException {
         final Path parent = artifact.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -114,19 +108,14 @@ public final class ClasspathRuntimeCachePublisher {
         return inputStream;
     }
 
-    private static void failIfStagingExists(
-            final ClasspathRuntimeResolutionContext context,
-            final Path staging) {
+    private static void failIfStagingExists(final ClasspathRuntimeResolutionContext context, final Path staging) {
         if (Files.exists(staging)) {
             throw ClasspathRuntimeResolutionDiagnostics.failure(
-                    "classpath runtime staging path already exists",
-                    context.runtimeSource());
+                    "classpath runtime staging path already exists", context.runtimeSource());
         }
     }
 
-    private void verifySignature(
-            final Path artifact,
-            final RuntimeSignature signature) {
+    private void verifySignature(final Path artifact, final RuntimeSignature signature) {
         try {
             signatureVerifier.verify(artifact, signature);
         } catch (final IOException exception) {

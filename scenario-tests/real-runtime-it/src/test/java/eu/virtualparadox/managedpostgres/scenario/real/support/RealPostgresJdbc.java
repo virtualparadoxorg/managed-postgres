@@ -16,8 +16,7 @@ public final class RealPostgresJdbc {
     private static final String SELECT_ONE = "SELECT 1";
     private static final String DATA_DIRECTORY = "SHOW data_directory";
 
-    private RealPostgresJdbc() {
-    }
+    private RealPostgresJdbc() {}
 
     /**
      * Opens a JDBC connection from managed PostgreSQL connection details.
@@ -28,10 +27,9 @@ public final class RealPostgresJdbc {
      */
     public static Connection connection(final PostgresConnectionInfo connectionInfo) throws SQLException {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
-        final String url = "jdbc:postgresql://%s:%d/%s".formatted(
-                checkedConnectionInfo.host(),
-                checkedConnectionInfo.port(),
-                checkedConnectionInfo.database());
+        final String url = "jdbc:postgresql://%s:%d/%s"
+                .formatted(
+                        checkedConnectionInfo.host(), checkedConnectionInfo.port(), checkedConnectionInfo.database());
 
         return DriverManager.getConnection(
                 url,
@@ -49,16 +47,14 @@ public final class RealPostgresJdbc {
      * @throws SQLException when JDBC connection creation fails
      */
     public static Connection connection(
-            final PostgresConnectionInfo connectionInfo,
-            final String username,
-            final String password) throws SQLException {
+            final PostgresConnectionInfo connectionInfo, final String username, final String password)
+            throws SQLException {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         final String checkedUsername = Objects.requireNonNull(username, "username");
         final String checkedPassword = Objects.requireNonNull(password, "password");
-        final String url = "jdbc:postgresql://%s:%d/%s".formatted(
-                checkedConnectionInfo.host(),
-                checkedConnectionInfo.port(),
-                checkedConnectionInfo.database());
+        final String url = "jdbc:postgresql://%s:%d/%s"
+                .formatted(
+                        checkedConnectionInfo.host(), checkedConnectionInfo.port(), checkedConnectionInfo.database());
 
         return DriverManager.getConnection(url, checkedUsername, checkedPassword);
     }
@@ -111,9 +107,8 @@ public final class RealPostgresJdbc {
      * @throws SQLException when query execution fails
      */
     public static String dataDirectory(
-            final PostgresConnectionInfo connectionInfo,
-            final String username,
-            final String password) throws SQLException {
+            final PostgresConnectionInfo connectionInfo, final String username, final String password)
+            throws SQLException {
         final String value;
         try (Connection connection = connection(connectionInfo, username, password);
                 Statement statement = connection.createStatement();

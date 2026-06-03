@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactVerifier;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestSource;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump.PgDumpBackupCreator;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
+import java.util.Objects;
 
 /**
  * Runtime collaborators for the logical restore service.

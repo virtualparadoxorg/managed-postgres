@@ -6,12 +6,11 @@ import java.util.Objects;
 
 public final class ScenarioShell {
 
-    private ScenarioShell() {
-    }
+    private ScenarioShell() {}
 
     public static FakePostgresScript recordingPgCtl(final Path callLog) {
-        return FakePostgresScript.named("pg_ctl").withBody(
-                "action=''\n"
+        return FakePostgresScript.named("pg_ctl")
+                .withBody("action=''\n"
                         + "for argument in \"$@\"; do\n"
                         + "  action=\"$argument\"\n"
                         + "done\n"
@@ -20,8 +19,8 @@ public final class ScenarioShell {
     }
 
     public static FakePostgresScript recordingBootstrapPsql(final Path callLog) {
-        return FakePostgresScript.named("psql").withBody(
-                "printf '%s %s\\n' psql \"$*\" >> " + quote(callLog) + "\n"
+        return FakePostgresScript.named("psql")
+                .withBody("printf '%s %s\\n' psql \"$*\" >> " + quote(callLog) + "\n"
                         + "case \"$*\" in\n"
                         + "  *pg_roles*) exit 0 ;;\n"
                         + "  *pg_database*) exit 0 ;;\n"
@@ -41,8 +40,8 @@ public final class ScenarioShell {
     }
 
     public static FakePostgresScript recordingPgDump(final Path callLog) {
-        return FakePostgresScript.named("pg_dump").withBody(
-                "printf 'PGPASSWORD=%s\\n' \"${PGPASSWORD:+set}\" >> " + quote(callLog) + "\n"
+        return FakePostgresScript.named("pg_dump")
+                .withBody("printf 'PGPASSWORD=%s\\n' \"${PGPASSWORD:+set}\" >> " + quote(callLog) + "\n"
                         + "printf '%s %s\\n' pg_dump \"$*\" >> " + quote(callLog) + "\n"
                         + "while [ \"$#\" -gt 0 ]; do\n"
                         + "  if [ \"$1\" = '-f' ]; then\n"
@@ -55,8 +54,8 @@ public final class ScenarioShell {
     }
 
     public static FakePostgresScript recordingPgRestore(final Path callLog) {
-        return FakePostgresScript.named("pg_restore").withBody(
-                "printf 'PGPASSWORD=%s\\n' \"${PGPASSWORD:+set}\" >> " + quote(callLog) + "\n"
+        return FakePostgresScript.named("pg_restore")
+                .withBody("printf 'PGPASSWORD=%s\\n' \"${PGPASSWORD:+set}\" >> " + quote(callLog) + "\n"
                         + "printf '%s %s\\n' pg_restore \"$*\" >> " + quote(callLog) + "\n"
                         + "exit 0\n");
     }

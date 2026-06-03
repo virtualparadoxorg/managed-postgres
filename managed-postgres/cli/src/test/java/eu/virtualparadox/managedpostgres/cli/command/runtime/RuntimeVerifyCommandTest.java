@@ -21,8 +21,7 @@ final class RuntimeVerifyCommandTest {
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeVerifyCommandTest() {
-    }
+    RuntimeVerifyCommandTest() {}
 
     @Test
     void verifyExistingRuntimePrintsResolvedPath() throws IOException {
@@ -79,9 +78,8 @@ final class RuntimeVerifyCommandTest {
 
         try (PrintWriter outputWriter = writer(output);
                 PrintWriter errorWriter = writer(errorOutput)) {
-            final CommandLine commandLine = new CommandLine(new RuntimeVerifyCommand(
-                    outputWriter,
-                    new CliYamlConfigurationLoader()));
+            final CommandLine commandLine =
+                    new CommandLine(new RuntimeVerifyCommand(outputWriter, new CliYamlConfigurationLoader()));
             commandLine.setOut(outputWriter);
             commandLine.setErr(errorWriter);
             commandLine.setParameterExceptionHandler((exception, commandArguments) -> {
@@ -108,6 +106,5 @@ final class RuntimeVerifyCommandTest {
         return output.toString(StandardCharsets.UTF_8);
     }
 
-    private record CliRun(int exitCode, String output, String errorOutput) {
-    }
+    private record CliRun(int exitCode, String output, String errorOutput) {}
 }

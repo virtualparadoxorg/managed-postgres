@@ -16,8 +16,7 @@ public final class FileSystemOperationTest {
     @TempDir
     private Path operationRoot;
 
-    FileSystemOperationTest() {
-    }
+    FileSystemOperationTest() {}
 
     @Test
     void operationCreatesStagingDirectoryAsSiblingOfTarget() {
@@ -110,7 +109,8 @@ public final class FileSystemOperationTest {
         Files.writeString(nonTemporaryHiddenFile, "keep");
         Files.writeString(visibleTemporaryFile, "keep");
 
-        final FileSystemOperationJournal.RecoveryReport missingReport = journal.recover(operationRoot.resolve("missing"));
+        final FileSystemOperationJournal.RecoveryReport missingReport =
+                journal.recover(operationRoot.resolve("missing"));
         final FileSystemOperationJournal.RecoveryReport report = journal.recover(operationRoot);
 
         assertThat(missingReport.discardedStagingDirectories()).isEmpty();
@@ -257,7 +257,8 @@ public final class FileSystemOperationTest {
                     .isInstanceOf(IllegalArgumentException.class);
             assertThatThrownBy(() -> operation.createStagingDirectory("runtime/bin"))
                     .isInstanceOf(IllegalArgumentException.class);
-            assertThatThrownBy(() -> operation.createStagingDirectory(operationRoot.resolve("runtime").toString()))
+            assertThatThrownBy(() -> operation.createStagingDirectory(
+                            operationRoot.resolve("runtime").toString()))
                     .isInstanceOf(IllegalArgumentException.class);
         }
     }

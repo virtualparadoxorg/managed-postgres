@@ -13,8 +13,7 @@ public final class PostgresPortSelector {
     /**
      * Creates a PostgreSQL port selector.
      */
-    public PostgresPortSelector() {
-    }
+    public PostgresPortSelector() {}
 
     /**
      * Selects an available PostgreSQL port according to the configured network policy.
@@ -24,13 +23,13 @@ public final class PostgresPortSelector {
      * @return allocated port
      */
     public AllocatedPort select(
-            final StartPostgresWorkflow.Configuration configuration,
-            final MetadataStore metadataStore) {
+            final StartPostgresWorkflow.Configuration configuration, final MetadataStore metadataStore) {
         final StartPostgresWorkflow.Configuration checkedConfiguration =
                 Objects.requireNonNull(configuration, "configuration");
-        final PortAllocator allocator = PortAllocator.metadataBacked(
-                Objects.requireNonNull(metadataStore, "metadataStore"));
-        final Network.PortSelection portSelection = checkedConfiguration.network().portSelection();
+        final PortAllocator allocator =
+                PortAllocator.metadataBacked(Objects.requireNonNull(metadataStore, "metadataStore"));
+        final Network.PortSelection portSelection =
+                checkedConfiguration.network().portSelection();
 
         return switch (portSelection.mode()) {
             case RANDOM -> allocator.allocateRandom();
@@ -41,11 +40,11 @@ public final class PostgresPortSelector {
     }
 
     private static AllocatedPort allocatePreferred(
-            final PortAllocator allocator,
-            final Network.PortSelection portSelection) {
+            final PortAllocator allocator, final Network.PortSelection portSelection) {
         final AllocatedPort allocatedPort;
         if (portSelection.fallbackToRandom()) {
-            allocatedPort = allocator.allocatePreferredWithFallback(portSelection.port().orElseThrow());
+            allocatedPort =
+                    allocator.allocatePreferredWithFallback(portSelection.port().orElseThrow());
         } else {
             allocatedPort = allocator.allocatePreferred(portSelection.port().orElseThrow());
         }

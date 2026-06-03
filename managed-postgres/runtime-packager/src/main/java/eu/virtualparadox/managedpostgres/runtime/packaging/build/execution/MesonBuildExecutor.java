@@ -58,7 +58,9 @@ public final class MesonBuildExecutor implements BuildExecutor {
 
         runMesonSetup(
                 setupCommand(validatedDriver, validatedSourceTree, mesonBuildDirectory, installDirectory),
-                validatedSourceTree, mesonBuildDirectory, validatedBuildDirectory);
+                validatedSourceTree,
+                mesonBuildDirectory,
+                validatedBuildDirectory);
         runCommand(mesonCommandWith("compile", "-C", mesonBuildDirectory.toString()), validatedBuildDirectory);
         runCommand(mesonCommandWith("install", "-C", mesonBuildDirectory.toString()), validatedBuildDirectory);
         return installDirectory;
@@ -75,7 +77,8 @@ public final class MesonBuildExecutor implements BuildExecutor {
         command.add(mesonBuildDirectory.toString());
         command.add(sourceTree.toString());
         command.add("--prefix=" + installDirectory);
-        for (final Map.Entry<String, String> entry : driver.mesonFeatureSettings().entrySet()) {
+        for (final Map.Entry<String, String> entry :
+                driver.mesonFeatureSettings().entrySet()) {
             if (declared.contains(entry.getKey())) {
                 command.add("-D" + entry.getKey() + "=" + entry.getValue());
             }

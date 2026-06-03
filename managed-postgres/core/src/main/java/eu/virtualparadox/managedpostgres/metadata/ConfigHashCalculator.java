@@ -16,8 +16,7 @@ public final class ConfigHashCalculator {
     /**
      * Creates a config hash calculator.
      */
-    public ConfigHashCalculator() {
-    }
+    public ConfigHashCalculator() {}
 
     /**
      * Calculates a SHA-256 hash that is stable across input map ordering.

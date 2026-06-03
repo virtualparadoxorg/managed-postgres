@@ -28,9 +28,7 @@ public final class PostgresDestroyException extends ManagedPostgresException {
      * @param diagnosticReport structured diagnostics
      */
     public PostgresDestroyException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

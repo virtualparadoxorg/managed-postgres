@@ -2,8 +2,8 @@ package eu.virtualparadox.managedpostgres.filesystem;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -22,8 +22,7 @@ public final class AtomicFileWriter {
     /**
      * Creates an atomic file writer.
      */
-    public AtomicFileWriter() {
-    }
+    public AtomicFileWriter() {}
 
     /**
      * Stages UTF-8 text into a sibling temporary file without exposing the target path.
@@ -44,10 +43,7 @@ public final class AtomicFileWriter {
      * @param permissions managed file permissions
      * @return pending staged write
      */
-    public PendingWrite stageUtf8(
-            final Path target,
-            final String content,
-            final ManagedFilePermissions permissions) {
+    public PendingWrite stageUtf8(final Path target, final String content, final ManagedFilePermissions permissions) {
         final Path checkedTarget = requireTargetWithParent(target);
         final String checkedContent = Objects.requireNonNull(content, "content");
         final ManagedFilePermissions requestedPermissions = Objects.requireNonNull(permissions, "permissions");
@@ -57,11 +53,7 @@ public final class AtomicFileWriter {
         try {
             Files.createDirectories(targetParent);
             createTemporaryFile(temporaryPath, requestedPermissions);
-            Files.writeString(
-                    temporaryPath,
-                    checkedContent,
-                    StandardCharsets.UTF_8,
-                    StandardOpenOption.WRITE);
+            Files.writeString(temporaryPath, checkedContent, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
             forceFile(temporaryPath);
         } catch (final IOException exception) {
             throw new UncheckedIOException("failed to stage file write for " + checkedTarget, exception);
@@ -89,17 +81,15 @@ public final class AtomicFileWriter {
      * @param content UTF-8 text content
      * @param permissions managed file permissions
      */
-    public void writeUtf8(
-            final Path target,
-            final String content,
-            final ManagedFilePermissions permissions) {
+    public void writeUtf8(final Path target, final String content, final ManagedFilePermissions permissions) {
         final PendingWrite write = stageUtf8(target, content, permissions);
 
         write.commit();
     }
 
     private static Path requireTargetWithParent(final Path target) {
-        final Path checkedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
 
         if (checkedTarget.getParent() == null) {
             throw new IllegalArgumentException("target must have a parent directory");
@@ -133,15 +123,13 @@ public final class AtomicFileWriter {
         return fileName.toString();
     }
 
-    private static void createTemporaryFile(
-            final Path temporaryPath,
-            final ManagedFilePermissions requestedPermissions) throws IOException {
+    private static void createTemporaryFile(final Path temporaryPath, final ManagedFilePermissions requestedPermissions)
+            throws IOException {
         if (!requestedPermissions.hasExplicitPermissions() || !supportsPosix(parentDirectory(temporaryPath))) {
             Files.createFile(temporaryPath);
         } else {
             Files.createFile(
-                    temporaryPath,
-                    PosixFilePermissions.asFileAttribute(requestedPermissions.posixPermissions()));
+                    temporaryPath, PosixFilePermissions.asFileAttribute(requestedPermissions.posixPermissions()));
         }
     }
 

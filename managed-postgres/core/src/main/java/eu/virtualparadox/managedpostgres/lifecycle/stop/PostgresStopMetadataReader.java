@@ -15,8 +15,7 @@ public final class PostgresStopMetadataReader {
     /**
      * Creates a PostgresStopMetadataReader instance.
      */
-    public PostgresStopMetadataReader() {
-    }
+    public PostgresStopMetadataReader() {}
 
     /**
      * Returns the read result.
@@ -32,7 +31,8 @@ public final class PostgresStopMetadataReader {
                     "PostgreSQL metadata could not be read before stop",
                     exception,
                     PostgresStopDiagnostics.wrappedFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
+                            Objects.toString(
+                                    exception.getMessage(), exception.getClass().getName()),
                             exception.diagnosticReport()));
         }
     }

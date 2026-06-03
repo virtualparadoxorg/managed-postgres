@@ -3,14 +3,14 @@ package eu.virtualparadox.managedpostgres.lifecycle.layout;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.config.bootstrap.BootstrapExtension;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.lifecycle.port.AllocatedPort;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.port.AllocatedPort;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Builds immutable startup artifacts derived from the selected port and user configuration.
@@ -20,8 +20,7 @@ public final class PostgresStartArtifacts {
     private static final String DEFAULT_DATABASE = "postgres";
     private static final String DEFAULT_ATTACHMENT_MODE = "STARTED_BY_THIS_JVM";
 
-    private PostgresStartArtifacts() {
-    }
+    private PostgresStartArtifacts() {}
 
     /**
      * Performs the validate operation.
@@ -50,8 +49,7 @@ public final class PostgresStartArtifacts {
      * @return settings result
      */
     public static Map<String, String> settings(
-            final StartPostgresWorkflow.Configuration configuration,
-            final AllocatedPort allocatedPort) {
+            final StartPostgresWorkflow.Configuration configuration, final AllocatedPort allocatedPort) {
         return settings(configuration, allocatedPort.host(), allocatedPort.port());
     }
 
@@ -63,10 +61,7 @@ public final class PostgresStartArtifacts {
      * @return settings result
      */
     public static Map<String, String> settings(final String host, final int port) {
-        return Map.of(
-                "listen_addresses", host,
-                "password_encryption", "scram-sha-256",
-                "port", Integer.toString(port));
+        return Map.of("listen_addresses", host, "password_encryption", "scram-sha-256", "port", Integer.toString(port));
     }
 
     /**
@@ -78,9 +73,7 @@ public final class PostgresStartArtifacts {
      * @return settings result
      */
     public static Map<String, String> settings(
-            final StartPostgresWorkflow.Configuration configuration,
-            final String host,
-            final int port) {
+            final StartPostgresWorkflow.Configuration configuration, final String host, final int port) {
         final Map<String, String> settings = new LinkedHashMap<>(settings(host, port));
         settings.putAll(postgresConfigurationSettings(configuration.postgresConfiguration()));
 
@@ -95,8 +88,7 @@ public final class PostgresStartArtifacts {
      * @return drift-hash settings
      */
     public static Map<String, String> configHashSettings(
-            final StartPostgresWorkflow.Configuration configuration,
-            final AllocatedPort allocatedPort) {
+            final StartPostgresWorkflow.Configuration configuration, final AllocatedPort allocatedPort) {
         return configHashSettings(configuration, allocatedPort.host(), allocatedPort.port());
     }
 
@@ -109,11 +101,9 @@ public final class PostgresStartArtifacts {
      * @return drift-hash settings
      */
     public static Map<String, String> configHashSettings(
-            final StartPostgresWorkflow.Configuration configuration,
-            final String host,
-            final int port) {
-        final Map<String, String> hashSettings = new LinkedHashMap<>(
-                legacyConfigHashSettings(configuration, host, port));
+            final StartPostgresWorkflow.Configuration configuration, final String host, final int port) {
+        final Map<String, String> hashSettings =
+                new LinkedHashMap<>(legacyConfigHashSettings(configuration, host, port));
         hashSettings.put("bootstrap.database", configuration.clusterBootstrap().database());
         hashSettings.put("bootstrap.owner", effectiveOwner(configuration));
 
@@ -130,9 +120,7 @@ public final class PostgresStartArtifacts {
      * @return legacy drift-hash settings
      */
     public static Map<String, String> legacyConfigHashSettings(
-            final StartPostgresWorkflow.Configuration configuration,
-            final String host,
-            final int port) {
+            final StartPostgresWorkflow.Configuration configuration, final String host, final int port) {
         final Map<String, String> hashSettings = new LinkedHashMap<>(settings(configuration, host, port));
         final String extensions = extensionHashInput(configuration);
         if (StringUtils.isNotBlank(extensions)) {
@@ -150,8 +138,7 @@ public final class PostgresStartArtifacts {
      * @return connection info result
      */
     public static PostgresConnectionInfo connectionInfo(
-            final StartPostgresWorkflow.Configuration configuration,
-            final AllocatedPort allocatedPort) {
+            final StartPostgresWorkflow.Configuration configuration, final AllocatedPort allocatedPort) {
         return new PostgresConnectionInfo(
                 allocatedPort.host(),
                 allocatedPort.port(),
@@ -218,12 +205,16 @@ public final class PostgresStartArtifacts {
     }
 
     private static String effectiveOwner(final StartPostgresWorkflow.Configuration configuration) {
-        return configuration.clusterBootstrap().owner().orElse(configuration.credentials().username());
+        return configuration
+                .clusterBootstrap()
+                .owner()
+                .orElse(configuration.credentials().username());
     }
 
     private static String extensionHashInput(final StartPostgresWorkflow.Configuration configuration) {
         final StringBuilder builder = new StringBuilder();
-        for (final BootstrapExtension extension : configuration.clusterBootstrap().extensions()) {
+        for (final BootstrapExtension extension :
+                configuration.clusterBootstrap().extensions()) {
             builder.append(extension.name())
                     .append(':')
                     .append(extension.policy().name())
@@ -236,7 +227,8 @@ public final class PostgresStartArtifacts {
     private static Map<String, String> postgresConfigurationSettings(
             final PostgresConfiguration postgresConfiguration) {
         final Map<String, String> settings = new LinkedHashMap<>();
-        for (Map.Entry<String, String> entry : postgresConfiguration.asSettings().entrySet()) {
+        for (Map.Entry<String, String> entry :
+                postgresConfiguration.asSettings().entrySet()) {
             settings.put(entry.getKey(), entry.getValue());
         }
 

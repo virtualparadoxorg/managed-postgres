@@ -6,16 +6,13 @@ import org.junit.jupiter.api.Test;
 
 public final class CommandRedactorTest {
 
-    CommandRedactorTest() {
-    }
+    CommandRedactorTest() {}
 
     @Test
     void redactsPgPasswordEnvironmentEntry() {
         final String redacted = CommandRedactor.redact("PGPASSWORD=actual-secret psql");
 
-        assertThat(redacted)
-                .contains("PGPASSWORD=<redacted>")
-                .doesNotContain("actual-secret");
+        assertThat(redacted).contains("PGPASSWORD=<redacted>").doesNotContain("actual-secret");
     }
 
     @Test
@@ -32,9 +29,7 @@ public final class CommandRedactorTest {
     void redactsPasswordAssignments() {
         final String redacted = CommandRedactor.redact("pg_ctl password=actual-secret --verbose");
 
-        assertThat(redacted)
-                .contains("password=<redacted>")
-                .doesNotContain("actual-secret");
+        assertThat(redacted).contains("password=<redacted>").doesNotContain("actual-secret");
     }
 
     @Test

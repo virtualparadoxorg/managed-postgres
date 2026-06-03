@@ -2,20 +2,19 @@ package eu.virtualparadox.managedpostgres.lifecycle.stop;
 
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
 
 /**
  * Builds diagnostics for configured PostgreSQL stop failures.
  */
 public final class PostgresStopDiagnostics {
 
-    private PostgresStopDiagnostics() {
-    }
+    private PostgresStopDiagnostics() {}
 
     /**
      * Returns the mismatch result.
@@ -38,8 +37,7 @@ public final class PostgresStopDiagnostics {
      */
     public static DiagnosticReport commandFailure(final CommandResult commandResult) {
         return PostgresStartupDiagnostics.commandDiagnostic(
-                "postgres-stop",
-                Objects.requireNonNull(commandResult, "commandResult"));
+                "postgres-stop", Objects.requireNonNull(commandResult, "commandResult"));
     }
 
     /**
@@ -51,9 +49,10 @@ public final class PostgresStopDiagnostics {
      */
     public static DiagnosticReport wrappedFailure(final String message, final DiagnosticReport diagnosticReport) {
         final List<DiagnosticSection> sections = new java.util.ArrayList<>();
-        sections.add(new DiagnosticSection("postgres-stop", Map.of(
-                "message", Objects.requireNonNull(message, "message"))));
-        sections.addAll(Objects.requireNonNull(diagnosticReport, "diagnosticReport").sections());
+        sections.add(
+                new DiagnosticSection("postgres-stop", Map.of("message", Objects.requireNonNull(message, "message"))));
+        sections.addAll(
+                Objects.requireNonNull(diagnosticReport, "diagnosticReport").sections());
 
         return new DiagnosticReport(sections);
     }

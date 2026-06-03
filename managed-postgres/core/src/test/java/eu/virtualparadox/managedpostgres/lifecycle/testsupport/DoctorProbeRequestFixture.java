@@ -1,17 +1,17 @@
 package eu.virtualparadox.managedpostgres.lifecycle.testsupport;
 
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorProbeRequest;
+import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartConfigurationFixture;
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
-import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorProbeRequest;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartConfigurationFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 public final class DoctorProbeRequestFixture {
 
@@ -57,8 +57,7 @@ public final class DoctorProbeRequestFixture {
 
     private StartPostgresWorkflow.Configuration configuration() {
         return StartConfigurationFixture.configuration(
-                temporaryDirectory.resolve("cluster"),
-                temporaryDirectory.resolve("runtime"));
+                temporaryDirectory.resolve("cluster"), temporaryDirectory.resolve("runtime"));
     }
 
     private PostgresLayout layout() {

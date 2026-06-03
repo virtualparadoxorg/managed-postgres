@@ -21,8 +21,7 @@ public final class DoctorRuntimeInspector {
     /**
      * Creates a DoctorRuntimeInspector instance.
      */
-    public DoctorRuntimeInspector() {
-    }
+    public DoctorRuntimeInspector() {}
 
     /**
      * Returns the inspect result.

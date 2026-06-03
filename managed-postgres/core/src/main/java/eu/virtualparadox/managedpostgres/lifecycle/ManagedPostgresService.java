@@ -3,12 +3,12 @@ package eu.virtualparadox.managedpostgres.lifecycle;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.CleanupManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.DestroyManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorService;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.stop.StopPostgresWorkflow;
+import java.util.Objects;
 
 /**
  * Internal service facade for managed PostgreSQL lifecycle workflows.
@@ -25,7 +25,8 @@ public final class ManagedPostgresService {
      * Creates a lifecycle service with default collaborators.
      */
     public ManagedPostgresService() {
-        this(ManagedPostgresLifecycleFactory.startWorkflow(),
+        this(
+                ManagedPostgresLifecycleFactory.startWorkflow(),
                 ManagedPostgresLifecycleFactory.stopWorkflow(),
                 ManagedPostgresLifecycleFactory.doctorService(),
                 ManagedPostgresLifecycleFactory.cleanupWorkflow(),
@@ -47,9 +48,7 @@ public final class ManagedPostgresService {
      * @param startWorkflow start workflow value
      * @param stopWorkflow stop workflow value
      */
-    public ManagedPostgresService(
-            final StartPostgresWorkflow startWorkflow,
-            final StopPostgresWorkflow stopWorkflow) {
+    public ManagedPostgresService(final StartPostgresWorkflow startWorkflow, final StopPostgresWorkflow stopWorkflow) {
         this(
                 startWorkflow,
                 stopWorkflow,
@@ -87,8 +86,7 @@ public final class ManagedPostgresService {
      * @return running PostgreSQL handle
      */
     public RunningPostgres start(final ManagedPostgresConfiguration configuration) {
-        return start(new StartPostgresWorkflow.Configuration(
-                configuration));
+        return start(new StartPostgresWorkflow.Configuration(configuration));
     }
 
     /**
@@ -137,5 +135,4 @@ public final class ManagedPostgresService {
     public void destroyCluster(final ManagedPostgresConfiguration configuration) {
         destroyWorkflow.destroyCluster(configuration);
     }
-
 }

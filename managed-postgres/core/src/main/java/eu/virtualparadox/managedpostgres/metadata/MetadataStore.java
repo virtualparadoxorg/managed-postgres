@@ -74,9 +74,8 @@ public final class MetadataStore {
 
     private void writeJsonAtomically(final Path target, final String operationName, final String content) {
         try {
-            try (FileSystemOperation operation = fileSystem.beginOperation(
-                    requireNotBlank(operationName, "operationName"),
-                    operationRoot(target))) {
+            try (FileSystemOperation operation =
+                    fileSystem.beginOperation(requireNotBlank(operationName, "operationName"), operationRoot(target))) {
                 operation.writeUtf8Atomically(target, content);
                 operation.commit();
             }
@@ -163,7 +162,8 @@ public final class MetadataStore {
     }
 
     private static Path operationRoot(final Path target) {
-        final Path normalizedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path normalizedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final Path parent = normalizedTarget.getParent();
         if (parent == null) {
             throw new IllegalArgumentException("target must have a parent directory");

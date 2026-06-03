@@ -14,8 +14,7 @@ import org.snakeyaml.engine.v2.api.LoadSettings;
 
 final class StatusCommandTest {
 
-    StatusCommandTest() {
-    }
+    StatusCommandTest() {}
 
     @Test
     void statusCommandPrintsStoppedWhenLifecycleReportsMissingMetadata() {
@@ -45,9 +44,7 @@ final class StatusCommandTest {
             final Object document = new Load(LoadSettings.builder().build()).loadFromString(run.output());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
-            assertThat(document)
-                    .asInstanceOf(InstanceOfAssertFactories.MAP)
-                    .containsEntry("status", "STOPPED");
+            assertThat(document).asInstanceOf(InstanceOfAssertFactories.MAP).containsEntry("status", "STOPPED");
         }
     }
 

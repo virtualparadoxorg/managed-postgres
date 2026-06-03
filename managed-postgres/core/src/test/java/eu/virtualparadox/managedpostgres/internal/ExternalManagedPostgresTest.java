@@ -23,21 +23,14 @@ import org.junit.jupiter.api.Test;
 
 public final class ExternalManagedPostgresTest {
 
-    private static final PostgresConnectionInfo CONNECTION_INFO = new PostgresConnectionInfo(
-            "127.0.0.1",
-            15432,
-            "app",
-            "app",
-            Secret.of("external-secret"));
+    private static final PostgresConnectionInfo CONNECTION_INFO =
+            new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("external-secret"));
 
-    ExternalManagedPostgresTest() {
-    }
+    ExternalManagedPostgresTest() {}
 
     @Test
     void startValidatesAndReturnsExternalHandle() {
-        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator());
+        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator());
 
         try (RunningPostgres handle = postgres.start()) {
             assertThat(handle.connectionInfo()).isEqualTo(CONNECTION_INFO);
@@ -47,9 +40,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void statusUsesExternalDoctorValidation() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator())) {
 
             assertThat(postgres.status()).isEqualTo(PostgresStatus.RUNNING);
         }
@@ -57,9 +48,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void stopDoesNotStopExternalPostgres() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator())) {
 
             postgres.stop();
 
@@ -69,9 +58,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void startFailsWhenExternalValidationFails() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                failingValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, failingValidator())) {
 
             assertThatExceptionOfType(PostgresAttachException.class)
                     .isThrownBy(postgres::start)
@@ -81,9 +68,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void externalHandleDetachDoesNotExposeStopSideEffects() {
-        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator());
+        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator());
 
         try (RunningPostgres handle = postgres.start()) {
             handle.stop();
@@ -94,9 +79,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void externalHandleBackupAndRestoreAreExplicitlyUnsupported() {
-        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator());
+        final ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator());
 
         try (RunningPostgres handle = postgres.start()) {
             assertThatExceptionOfType(PostgresBackupException.class)
@@ -110,9 +93,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void toStringRedactsExternalConnectionPassword() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator())) {
 
             assertThat(postgres.toString())
                     .contains("ExternalManagedPostgres")
@@ -123,9 +104,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void cleanupIsANoopForExternalMode() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator())) {
 
             postgres.cleanup();
 
@@ -135,9 +114,7 @@ public final class ExternalManagedPostgresTest {
 
     @Test
     void destroyClusterFailsForExternalMode() {
-        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(
-                CONNECTION_INFO,
-                successfulValidator())) {
+        try (ExternalManagedPostgres postgres = new ExternalManagedPostgres(CONNECTION_INFO, successfulValidator())) {
 
             assertThatExceptionOfType(PostgresDestroyException.class)
                     .isThrownBy(postgres::destroyCluster)
@@ -146,17 +123,15 @@ public final class ExternalManagedPostgresTest {
     }
 
     private static ExternalPostgresValidator successfulValidator() {
-        return new ExternalPostgresValidator(
-                connectionInfo -> new JdbcProbeSnapshot(Path.of("postgres-data"), "16.5"));
+        return new ExternalPostgresValidator(connectionInfo -> new JdbcProbeSnapshot(Path.of("postgres-data"), "16.5"));
     }
 
     private static ExternalPostgresValidator failingValidator() {
         return new ExternalPostgresValidator(connectionInfo -> {
             throw new PostgresAttachException(
                     "JDBC attach probe failed",
-                    new DiagnosticReport(List.of(new DiagnosticSection(
-                            "jdbc-attach-probe",
-                            Map.of("reason", "connection refused")))));
+                    new DiagnosticReport(List.of(
+                            new DiagnosticSection("jdbc-attach-probe", Map.of("reason", "connection refused")))));
         });
     }
 }

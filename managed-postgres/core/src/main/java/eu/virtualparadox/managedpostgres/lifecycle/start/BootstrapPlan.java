@@ -3,10 +3,10 @@ package eu.virtualparadox.managedpostgres.lifecycle.start;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.bootstrap.BootstrapExtension;
+import eu.virtualparadox.managedpostgres.lifecycle.identity.PostgresIdentifier;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.identity.PostgresIdentifier;
 
 /**
  * Captures bootstrap plan details for managed PostgreSQL internals.
@@ -52,12 +52,10 @@ public record BootstrapPlan(
      * @return from result
      */
     public static BootstrapPlan from(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final ClusterBootstrap clusterBootstrap) {
+            final PostgresConnectionInfo adminConnectionInfo, final ClusterBootstrap clusterBootstrap) {
         final PostgresConnectionInfo checkedAdminConnectionInfo =
                 Objects.requireNonNull(adminConnectionInfo, "adminConnectionInfo");
-        final ClusterBootstrap checkedClusterBootstrap =
-                Objects.requireNonNull(clusterBootstrap, "clusterBootstrap");
+        final ClusterBootstrap checkedClusterBootstrap = Objects.requireNonNull(clusterBootstrap, "clusterBootstrap");
         final String roleName = checkedClusterBootstrap.owner().orElse(checkedAdminConnectionInfo.username());
         final Secret ownerPassword = checkedClusterBootstrap.password().orElse(checkedAdminConnectionInfo.password());
         final String databaseName = checkedClusterBootstrap.database();
@@ -85,7 +83,7 @@ public record BootstrapPlan(
     @Override
     public String toString() {
         return ("BootstrapPlan[databaseName=%s, roleName=%s, ownerPassword=REDACTED, "
-                + "extensions=%s, requiresRoleBootstrap=%s, requiresDatabaseBootstrap=%s]")
+                        + "extensions=%s, requiresRoleBootstrap=%s, requiresDatabaseBootstrap=%s]")
                 .formatted(databaseName, roleName, extensions, requiresRoleBootstrap, requiresDatabaseBootstrap);
     }
 }

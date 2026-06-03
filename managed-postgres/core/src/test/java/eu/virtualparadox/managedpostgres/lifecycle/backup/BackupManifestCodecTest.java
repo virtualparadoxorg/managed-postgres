@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 
 public final class BackupManifestCodecTest {
 
-    BackupManifestCodecTest() {
-    }
+    BackupManifestCodecTest() {}
 
     @Test
     void deserializeRoundTripsSerializedManifest() {
@@ -33,8 +32,8 @@ public final class BackupManifestCodecTest {
 
     @Test
     void deserializeRejectsMissingRequiredValues() {
-        final String json = BackupManifestCodec.serialize(manifest())
-                .replace("  \"database\": \"app\",%n".formatted(), "");
+        final String json =
+                BackupManifestCodec.serialize(manifest()).replace("  \"database\": \"app\",%n".formatted(), "");
 
         assertThatThrownBy(() -> BackupManifestCodec.deserialize(json))
                 .isInstanceOf(PostgresRestoreException.class)
@@ -61,7 +60,9 @@ public final class BackupManifestCodecTest {
 
         final String json = BackupManifestCodec.serialize(manifest);
 
-        assertThat(json).isEqualTo("""
+        assertThat(json)
+                .isEqualTo(
+                        """
                 {
                   "manifestVersion": 1,
                   "createdAt": "2026-05-27T00:00:00Z",
@@ -94,9 +95,7 @@ public final class BackupManifestCodecTest {
 
         final String json = BackupManifestCodec.serialize(manifest);
 
-        assertThat(json)
-                .contains("\"clusterId\": \"cluster\\\"id\"")
-                .contains("\"database\": \"app\\\\db\\u0001\"");
+        assertThat(json).contains("\"clusterId\": \"cluster\\\"id\"").contains("\"database\": \"app\\\\db\\u0001\"");
     }
 
     @Test
@@ -113,50 +112,51 @@ public final class BackupManifestCodecTest {
                 "SHA-256",
                 "16a4b59753daf78e7e55b37c7f9bb2801f2d2968805a069713fd6e38f9837bb6");
 
-        assertThat(BackupManifestCodec.deserialize(BackupManifestCodec.serialize(manifest))).isEqualTo(manifest);
+        assertThat(BackupManifestCodec.deserialize(BackupManifestCodec.serialize(manifest)))
+                .isEqualTo(manifest);
     }
 
     @Test
     void backupManifestRejectsInvalidInvariantValues() {
         assertThatThrownBy(() -> new BackupManifest(
-                0,
-                Instant.parse("2026-05-27T00:00:00Z"),
-                "1.0-SNAPSHOT",
-                "16.4",
-                16,
-                "cluster-id",
-                "app",
-                BackupFormat.PG_DUMP_CUSTOM,
-                "SHA-256",
-                "checksum"))
+                        0,
+                        Instant.parse("2026-05-27T00:00:00Z"),
+                        "1.0-SNAPSHOT",
+                        "16.4",
+                        16,
+                        "cluster-id",
+                        "app",
+                        BackupFormat.PG_DUMP_CUSTOM,
+                        "SHA-256",
+                        "checksum"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("manifestVersion");
 
         assertThatThrownBy(() -> new BackupManifest(
-                1,
-                Instant.parse("2026-05-27T00:00:00Z"),
-                "1.0-SNAPSHOT",
-                "16.4",
-                0,
-                "cluster-id",
-                "app",
-                BackupFormat.PG_DUMP_CUSTOM,
-                "SHA-256",
-                "checksum"))
+                        1,
+                        Instant.parse("2026-05-27T00:00:00Z"),
+                        "1.0-SNAPSHOT",
+                        "16.4",
+                        0,
+                        "cluster-id",
+                        "app",
+                        BackupFormat.PG_DUMP_CUSTOM,
+                        "SHA-256",
+                        "checksum"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("postgresqlMajor");
 
         assertThatThrownBy(() -> new BackupManifest(
-                1,
-                Instant.parse("2026-05-27T00:00:00Z"),
-                "1.0-SNAPSHOT",
-                "16.4",
-                16,
-                "cluster-id",
-                " ",
-                BackupFormat.PG_DUMP_CUSTOM,
-                "SHA-256",
-                "checksum"))
+                        1,
+                        Instant.parse("2026-05-27T00:00:00Z"),
+                        "1.0-SNAPSHOT",
+                        "16.4",
+                        16,
+                        "cluster-id",
+                        " ",
+                        BackupFormat.PG_DUMP_CUSTOM,
+                        "SHA-256",
+                        "checksum"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("database");
     }

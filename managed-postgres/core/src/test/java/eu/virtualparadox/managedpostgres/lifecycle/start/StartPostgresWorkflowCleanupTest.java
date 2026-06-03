@@ -36,8 +36,7 @@ public final class StartPostgresWorkflowCleanupTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowCleanupTest() {
-    }
+    StartPostgresWorkflowCleanupTest() {}
 
     @Test
     void startupRotatesOversizedPostgresLogBeforeStartingProcess() throws IOException {
@@ -48,11 +47,12 @@ public final class StartPostgresWorkflowCleanupTest {
         Files.createDirectories(stateDirectory);
         Files.writeString(postgresLog, "0123456789", StandardCharsets.UTF_8);
 
-        try (RunningPostgres handle = workflow().start(configuration(
-                new Storage(storageRoot, false),
-                runtimeDirectory,
-                StopPolicy.STOP_ON_CLOSE,
-                CleanupPolicy.safeDefaults().rotateLogsAboveBytes(10L)))) {
+        try (RunningPostgres handle = workflow()
+                .start(configuration(
+                        new Storage(storageRoot, false),
+                        runtimeDirectory,
+                        StopPolicy.STOP_ON_CLOSE,
+                        CleanupPolicy.safeDefaults().rotateLogsAboveBytes(10L)))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
         }
 
@@ -66,11 +66,12 @@ public final class StartPostgresWorkflowCleanupTest {
     void closingStartedHandleStopsPostgres() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts();
 
-        try (RunningPostgres handle = workflow().start(configuration(
-                new Storage(temporaryDirectory.resolve("local-postgres"), false),
-                runtimeDirectory,
-                StopPolicy.STOP_ON_CLOSE,
-                CleanupPolicy.safeDefaults()))) {
+        try (RunningPostgres handle = workflow()
+                .start(configuration(
+                        new Storage(temporaryDirectory.resolve("local-postgres"), false),
+                        runtimeDirectory,
+                        StopPolicy.STOP_ON_CLOSE,
+                        CleanupPolicy.safeDefaults()))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
         }
 
@@ -82,11 +83,12 @@ public final class StartPostgresWorkflowCleanupTest {
     void closingStartedHandleKeepsRunningWhenStopPolicyRequestsIt() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts();
 
-        try (RunningPostgres handle = workflow().start(configuration(
-                new Storage(temporaryDirectory.resolve("local-postgres"), false),
-                runtimeDirectory,
-                StopPolicy.KEEP_RUNNING,
-                CleanupPolicy.safeDefaults()))) {
+        try (RunningPostgres handle = workflow()
+                .start(configuration(
+                        new Storage(temporaryDirectory.resolve("local-postgres"), false),
+                        runtimeDirectory,
+                        StopPolicy.KEEP_RUNNING,
+                        CleanupPolicy.safeDefaults()))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
         }
 
@@ -100,11 +102,12 @@ public final class StartPostgresWorkflowCleanupTest {
         final Storage storage = new Storage(temporaryDirectory.resolve("temporary-root"), true);
         final Path startedRoot;
 
-        try (RunningPostgres handle = workflow().start(configuration(
-                storage,
-                runtimeDirectory,
-                StopPolicy.STOP_ON_CLOSE,
-                CleanupPolicy.safeDefaults().deleteTemporaryClusterOnClose(false)))) {
+        try (RunningPostgres handle = workflow()
+                .start(configuration(
+                        storage,
+                        runtimeDirectory,
+                        StopPolicy.STOP_ON_CLOSE,
+                        CleanupPolicy.safeDefaults().deleteTemporaryClusterOnClose(false)))) {
             startedRoot = ((StartedPostgresHandle) handle).layout().root();
         }
 

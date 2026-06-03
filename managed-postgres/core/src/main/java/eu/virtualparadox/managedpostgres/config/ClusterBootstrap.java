@@ -17,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  * @param extensions PostgreSQL extension bootstrap requests
  */
 public record ClusterBootstrap(
-        String database,
-        Optional<String> owner,
-        Optional<Secret> password,
-        List<BootstrapExtension> extensions) {
+        String database, Optional<String> owner, Optional<Secret> password, List<BootstrapExtension> extensions) {
 
     private static final String DEFAULT_DATABASE = "postgres";
 
@@ -48,10 +45,7 @@ public record ClusterBootstrap(
      * @param owner optional application owner role override
      * @param password optional application owner password override
      */
-    public ClusterBootstrap(
-            final String database,
-            final Optional<String> owner,
-            final Optional<Secret> password) {
+    public ClusterBootstrap(final String database, final Optional<String> owner, final Optional<Secret> password) {
         this(database, owner, password, List.of());
     }
 
@@ -96,10 +90,7 @@ public record ClusterBootstrap(
      */
     public ClusterBootstrap password(final Secret newPassword) {
         return new ClusterBootstrap(
-                database,
-                owner,
-                Optional.of(Objects.requireNonNull(newPassword, "newPassword")),
-                extensions);
+                database, owner, Optional.of(Objects.requireNonNull(newPassword, "newPassword")), extensions);
     }
 
     /**
@@ -119,9 +110,7 @@ public record ClusterBootstrap(
      * @param policy behavior when the extension is unavailable
      * @return updated bootstrap configuration
      */
-    public ClusterBootstrap extension(
-            final String extensionName,
-            final BootstrapExtension.Policy policy) {
+    public ClusterBootstrap extension(final String extensionName, final BootstrapExtension.Policy policy) {
         return withExtension(new BootstrapExtension(extensionName, policy));
     }
 

@@ -1,12 +1,12 @@
 package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
-import java.util.Objects;
-import java.util.Optional;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.layout.DoctorLayoutPlan;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Internal doctor probe request.

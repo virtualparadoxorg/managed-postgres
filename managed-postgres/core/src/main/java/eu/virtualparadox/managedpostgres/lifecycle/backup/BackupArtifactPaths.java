@@ -16,11 +16,7 @@ import java.util.Objects;
  * @param backupFileName final backup file name
  */
 public record BackupArtifactPaths(
-        Path backupTarget,
-        Path manifestTarget,
-        Path checksumTarget,
-        Path operationRoot,
-        String backupFileName) {
+        Path backupTarget, Path manifestTarget, Path checksumTarget, Path operationRoot, String backupFileName) {
 
     private static final String CHECKSUM_SUFFIX = ".sha256";
     private static final String MANIFEST_SUFFIX = ".manifest.json";
@@ -44,12 +40,12 @@ public record BackupArtifactPaths(
      * @return from result
      */
     public static BackupArtifactPaths from(final Path target, final PostgresBackupDiagnostics diagnostics) {
-        final Path checkedTarget = Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final Path fileName = checkedTarget.getFileName();
         if (fileName == null) {
             throw new PostgresBackupException(
-                    "Invalid PostgreSQL backup target",
-                    diagnostics.invalidTarget(checkedTarget));
+                    "Invalid PostgreSQL backup target", diagnostics.invalidTarget(checkedTarget));
         }
 
         return new BackupArtifactPaths(
@@ -66,15 +62,13 @@ public record BackupArtifactPaths(
      * @param diagnostics diagnostics value
      */
     public void requireAbsent(final PostgresBackupDiagnostics diagnostics) {
-        List.of(backupTarget, manifestTarget, checksumTarget)
-                .forEach(path -> requireAbsent(path, diagnostics));
+        List.of(backupTarget, manifestTarget, checksumTarget).forEach(path -> requireAbsent(path, diagnostics));
     }
 
     private static void requireAbsent(final Path path, final PostgresBackupDiagnostics diagnostics) {
         if (Files.exists(path)) {
             throw new PostgresBackupException(
-                    "PostgreSQL backup artifact already exists",
-                    diagnostics.existingArtifact(path));
+                    "PostgreSQL backup artifact already exists", diagnostics.existingArtifact(path));
         }
     }
 }

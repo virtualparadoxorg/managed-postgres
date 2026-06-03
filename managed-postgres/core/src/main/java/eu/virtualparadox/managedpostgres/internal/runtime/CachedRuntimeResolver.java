@@ -55,7 +55,8 @@ public final class CachedRuntimeResolver {
             final Optional<RuntimeSignature> signature,
             final RuntimeCache runtimeCache,
             final Supplier<Path> publisher) {
-        return resolveWithTelemetry(layout, finalRuntime, signature, runtimeCache, publisher).runtimeDirectory();
+        return resolveWithTelemetry(layout, finalRuntime, signature, runtimeCache, publisher)
+                .runtimeDirectory();
     }
 
     /**
@@ -81,32 +82,25 @@ public final class CachedRuntimeResolver {
         final Supplier<Path> checkedPublisher = Objects.requireNonNull(publisher, "publisher");
 
         cleaner.clean(checkedLayout);
-        final ResolvedRuntime resolvedRuntime = resolveRuntimeDirectory(
-                checkedFinalRuntime,
-                checkedSignature,
-                checkedPublisher);
+        final ResolvedRuntime resolvedRuntime =
+                resolveRuntimeDirectory(checkedFinalRuntime, checkedSignature, checkedPublisher);
         retention.retain(checkedLayout, resolvedRuntime.runtimeDirectory(), checkedRuntimeCache.retainedVersions());
 
         return resolvedRuntime;
     }
 
     private ResolvedRuntime resolveRuntimeDirectory(
-            final Path finalRuntime,
-            final Optional<RuntimeSignature> signature,
-            final Supplier<Path> publisher) {
+            final Path finalRuntime, final Optional<RuntimeSignature> signature, final Supplier<Path> publisher) {
         final ResolvedRuntime resolvedRuntime;
         if (Files.exists(finalRuntime)) {
-            signature.ifPresent(runtimeSignature -> signatureVerifier.requireVerifiedMarker(
-                    finalRuntime,
-                    runtimeSignature));
-            resolvedRuntime = new ResolvedRuntime(
-                    RuntimeValidator.requireUsableRuntimeDirectory(finalRuntime),
-                    Duration.ZERO);
+            signature.ifPresent(
+                    runtimeSignature -> signatureVerifier.requireVerifiedMarker(finalRuntime, runtimeSignature));
+            resolvedRuntime =
+                    new ResolvedRuntime(RuntimeValidator.requireUsableRuntimeDirectory(finalRuntime), Duration.ZERO);
         } else {
             final long installStartedAt = System.nanoTime();
-            resolvedRuntime = new ResolvedRuntime(
-                    publisher.get(),
-                    Duration.ofNanos(System.nanoTime() - installStartedAt));
+            resolvedRuntime =
+                    new ResolvedRuntime(publisher.get(), Duration.ofNanos(System.nanoTime() - installStartedAt));
         }
 
         return resolvedRuntime;

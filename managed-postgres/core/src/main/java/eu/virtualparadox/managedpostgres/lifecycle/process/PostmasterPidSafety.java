@@ -1,21 +1,20 @@
 package eu.virtualparadox.managedpostgres.lifecycle.process;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 
 /**
  * Prevents start-new writes while a PostgreSQL data directory appears live.
  */
 public final class PostmasterPidSafety {
 
-    private PostmasterPidSafety() {
-    }
+    private PostmasterPidSafety() {}
 
     /**
      * Performs the fail if live postmaster operation.
@@ -24,8 +23,7 @@ public final class PostmasterPidSafety {
      */
     public static void failIfLivePostmaster(final PostgresLayout layout) {
         try {
-            PostmasterPidFile.readPidStrict(layout.dataDirectory())
-                    .stream()
+            PostmasterPidFile.readPidStrict(layout.dataDirectory()).stream()
                     .filter(PostmasterPidSafety::processIsAlive)
                     .findFirst()
                     .ifPresent(pid -> {
@@ -43,8 +41,7 @@ public final class PostmasterPidSafety {
     }
 
     private static PostgresAttachException unreadablePostmasterPid(
-            final PostgresLayout layout,
-            final IOException exception) {
+            final PostgresLayout layout, final IOException exception) {
         return new PostgresAttachException(
                 "PostgreSQL data directory has an unreadable postmaster.pid",
                 exception,
