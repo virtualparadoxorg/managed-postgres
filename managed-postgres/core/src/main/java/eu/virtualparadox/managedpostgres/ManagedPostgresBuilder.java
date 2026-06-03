@@ -14,6 +14,7 @@ import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
+import java.nio.file.Path;
 import java.util.function.UnaryOperator;
 
 /**
@@ -87,6 +88,21 @@ public interface ManagedPostgresBuilder {
      * @return downloaded runtime configuration step
      */
     public DownloadedRuntimeDsl withDownloadedRuntime();
+
+    /**
+     * Returns a builder that resolves the PostgreSQL runtime from the system PATH.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder withSystemRuntime();
+
+    /**
+     * Returns a builder that uses a previously extracted runtime in the given directory.
+     *
+     * @param runtimeDirectory directory containing the PostgreSQL runtime
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder withExistingRuntime(Path runtimeDirectory);
 
     /**
      * Returns a builder with the configured credentials.
