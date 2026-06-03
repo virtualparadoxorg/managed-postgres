@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.internal;
 
 import eu.virtualparadox.managedpostgres.ClasspathRuntimeDsl;
+import eu.virtualparadox.managedpostgres.LogsSection;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
@@ -24,7 +25,8 @@ import java.util.function.UnaryOperator;
     // including the runtime sub-DSLs (downloaded/classpath), so it touches many configuration types.
     "PMD.CouplingBetweenObjects"
 })
-public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder implements ClasspathRuntimeDsl {
+public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder
+        implements ClasspathRuntimeDsl, LogsSection {
 
     private final ManagedPostgresMode mode;
 
@@ -115,6 +117,39 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public DefaultManagedPostgresBuilder cacheProjectLocal(final String directory) {
         return cacheProjectLocal(Path.of(Objects.requireNonNull(directory, "directory")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder logs() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder toFiles() {
+        return copy(configuration().withLogs(configuration().logs().toFiles()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder toSlf4j() {
+        return copy(configuration().withLogs(configuration().logs().toSlf4j()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder loggerName(final String loggerName) {
+        return copy(configuration()
+                .withLogs(configuration().logs().loggerName(Objects.requireNonNull(loggerName, "loggerName"))));
     }
 
     /**

@@ -201,6 +201,13 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder cleanupPolicy(CleanupPolicy cleanupPolicy);
 
     /**
+     * Enters the fluent section for PostgreSQL process log handling.
+     *
+     * @return log handling section
+     */
+    public LogsSection logs();
+
+    /**
      * Returns a builder with customized PostgreSQL process log handling.
      *
      * @param customizer log handling customizer
