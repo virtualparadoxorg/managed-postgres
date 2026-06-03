@@ -6,6 +6,7 @@ import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
@@ -22,7 +23,7 @@ import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 public final class DefaultManagedPostgresConfigurations {
 
     private static final String DEFAULT_NAME = "default";
-    private static final String DEFAULT_VERSION = "16.4";
+    private static final String DEFAULT_VERSION = "18.4";
 
     private DefaultManagedPostgresConfigurations() {
     }
@@ -38,7 +39,7 @@ public final class DefaultManagedPostgresConfigurations {
                 DEFAULT_NAME,
                 DEFAULT_VERSION,
                 defaultStorage(mode),
-                RuntimeSource.system(),
+                RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())),
                 defaultCredentials(mode),
                 defaultNetwork(mode),
                 ClusterBootstrap.defaultCluster(),

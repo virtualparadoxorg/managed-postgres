@@ -125,6 +125,7 @@ public final class StartPostgresWorkflowNetworkTest {
             final Path runtimeDirectory,
             final Network network) {
         return ManagedPostgres.local()
+                .version("16.4")
                 .storage(new Storage(storageRoot, false))
                 .runtime(RuntimeSource.existing(runtimeDirectory))
                 .network(ignored -> network)

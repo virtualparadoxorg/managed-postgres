@@ -37,6 +37,26 @@ public final class ConfigPostgresModelTest {
         assertThat(configuration.postgresConfiguration()).isEqualTo(Resources.small());
     }
 
+    @Test
+    void defaultsUseLatestPublishedPostgresVersion() {
+        final ManagedPostgresConfiguration configuration =
+                DefaultManagedPostgresConfigurations.forMode(ManagedPostgresMode.PERSISTENT_LOCAL);
+
+        assertThat(configuration.postgresqlVersion()).isEqualTo("18.4");
+    }
+
+    @Test
+    void defaultsUseOfficialDownloadedRuntimeForZeroTouchStartup() {
+        final ManagedPostgresConfiguration configuration =
+                DefaultManagedPostgresConfigurations.forMode(ManagedPostgresMode.PERSISTENT_LOCAL);
+        final RuntimeSource runtimeSource = configuration.runtimeSource();
+
+        assertThat(runtimeSource.kind()).isEqualTo("downloaded");
+        assertThat(runtimeSource.downloadedRuntime()).isPresent();
+        assertThat(runtimeSource.downloadedRuntime().orElseThrow().repository())
+                .contains(RuntimeRepository.official());
+    }
+
     private static ManagedPostgresConfiguration configuration() {
         return new ManagedPostgresConfiguration(
                 "app-db",
