@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.runtime.download;
 import eu.virtualparadox.managedpostgres.config.DownloadedRuntime;
 import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
+import eu.virtualparadox.managedpostgres.config.runtime.RuntimeSignature;
 import eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -11,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -39,28 +41,39 @@ public final class OfficialRuntimeSourceResolver {
     private static final String DEFAULT_REVISION = "r1";
     private static final int SHA256_HEX_LENGTH = 64;
 
+    /**
+     * Base64-encoded X.509 (SubjectPublicKeyInfo) Ed25519 public key for the official runtimes repo.
+     * Its private counterpart is held only in the {@code RUNTIMES_SIGNING_SECRET} CI secret; the
+     * publish job signs each bundle and uploads {@code <archive>.sig} next to it.
+     */
+    static final String OFFICIAL_PUBLIC_KEY_BASE64 =
+            "MCowBQYDK2VwAyEAAgpqMJ/qvwiRr0DZvU10GnDcPpdKuzmbFSfGkvjrcGc=";
+
     private final String baseUrl;
     private final String revision;
     private final Supplier<String> targetSupplier;
     private final Function<URI, String> textFetcher;
+    private final Function<URI, byte[]> byteFetcher;
 
     /**
      * Creates a resolver against the official GitHub release repository.
      */
     public OfficialRuntimeSourceResolver() {
-        this(DEFAULT_BASE_URL, DEFAULT_REVISION,
-                HostRuntimePlatform::currentTargetIdentifier, OfficialRuntimeSourceResolver::httpGet);
+        this(DEFAULT_BASE_URL, DEFAULT_REVISION, HostRuntimePlatform::currentTargetIdentifier,
+                OfficialRuntimeSourceResolver::httpGet, OfficialRuntimeSourceResolver::httpGetBytes);
     }
 
     OfficialRuntimeSourceResolver(
             final String baseUrl,
             final String revision,
             final Supplier<String> targetSupplier,
-            final Function<URI, String> textFetcher) {
+            final Function<URI, String> textFetcher,
+            final Function<URI, byte[]> byteFetcher) {
         this.baseUrl = baseUrl;
         this.revision = revision;
         this.targetSupplier = targetSupplier;
         this.textFetcher = textFetcher;
+        this.byteFetcher = byteFetcher;
     }
 
     /**
@@ -86,9 +99,12 @@ public final class OfficialRuntimeSourceResolver {
             final URI archiveUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/" + archiveName);
             final URI checksumUri = URI.create(releaseBaseUrl + "/releases/download/" + tag + "/SHA256SUMS");
             final String checksumHex = findChecksum(textFetcher.apply(checksumUri), archiveName, checksumUri);
-            final DownloadedRuntime resolved = downloaded.orElseThrow()
+            final DownloadedRuntime base = downloaded.orElseThrow()
                     .repository(RuntimeRepository.custom(archiveUri))
                     .checksum("sha256:" + checksumHex);
+            final DownloadedRuntime resolved = isOfficial(downloaded.orElseThrow().repository())
+                    ? base.signature(officialSignature(archiveUri))
+                    : base;
             result = new RuntimeSource(
                     source.kind(), source.existingPath(), Optional.of(resolved), source.classpathRuntime());
         }
@@ -106,6 +122,18 @@ public final class OfficialRuntimeSourceResolver {
             managed = OFFICIAL_SCHEME.equals(scheme) || GITHUB_RELEASE_SCHEME.equals(scheme);
         }
         return managed;
+    }
+
+    private static boolean isOfficial(final Optional<RuntimeRepository> repository) {
+        // Only the framework's own official repo is signed with the pinned key; a custom
+        // github-release repo carries no signature we can verify against that key.
+        return repository.isPresent() && OFFICIAL_SCHEME.equals(repository.orElseThrow().uri().getScheme());
+    }
+
+    private RuntimeSignature officialSignature(final URI archiveUri) {
+        final URI signatureUri = URI.create(archiveUri + ".sig");
+        final String signatureBase64 = Base64.getEncoder().encodeToString(byteFetcher.apply(signatureUri));
+        return RuntimeSignature.ed25519(OFFICIAL_PUBLIC_KEY_BASE64, signatureBase64);
     }
 
     private String baseUrlFor(final RuntimeRepository repository) {
@@ -156,6 +184,32 @@ public final class OfficialRuntimeSourceResolver {
     }
 
     static String requireSuccessfulBody(final URI uri, final int statusCode, final String body) {
+        if (statusCode / 100 != 2) {
+            throw new IllegalStateException("failed to fetch " + uri + ": HTTP " + statusCode);
+        }
+        return body;
+    }
+
+    private static byte[] httpGetBytes(final URI uri) {
+        final HttpRequest request = HttpRequest.newBuilder(uri)
+                .timeout(Duration.ofSeconds(60))
+                .GET()
+                .build();
+        try (HttpClient client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(30))
+                .build()) {
+            final HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            return requireSuccessfulBytes(uri, response.statusCode(), response.body());
+        } catch (IOException exception) {
+            throw new UncheckedIOException("failed to fetch " + uri, exception);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("interrupted while fetching " + uri, exception);
+        }
+    }
+
+    static byte[] requireSuccessfulBytes(final URI uri, final int statusCode, final byte[] body) {
         if (statusCode / 100 != 2) {
             throw new IllegalStateException("failed to fetch " + uri + ": HTTP " + statusCode);
         }
