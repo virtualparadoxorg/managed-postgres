@@ -55,6 +55,17 @@ final class OfficialRuntimeSourceResolverTest {
     }
 
     @Test
+    void passesThroughDownloadedSourceWithoutRepositoryUnchanged() {
+        final RuntimeSource bare = RuntimeSource.downloaded();
+        final OfficialRuntimeSourceResolver resolver = new OfficialRuntimeSourceResolver(
+                BASE, "r1", () -> "linux-x86_64-glibc", uri -> {
+                    throw new AssertionError("must not fetch when no official repository is configured");
+                });
+
+        assertThat(resolver.resolve(bare, "18.4")).isSameAs(bare);
+    }
+
+    @Test
     void passesThroughNonDownloadedSourceUnchanged() {
         final RuntimeSource system = RuntimeSource.system();
         final OfficialRuntimeSourceResolver resolver = new OfficialRuntimeSourceResolver(
@@ -63,6 +74,16 @@ final class OfficialRuntimeSourceResolverTest {
                 });
 
         assertThat(resolver.resolve(system, "18.4")).isSameAs(system);
+    }
+
+    @Test
+    void requireSuccessfulBodyReturnsBodyOnSuccessAndThrowsOnError() {
+        assertThat(OfficialRuntimeSourceResolver.requireSuccessfulBody(URI.create("https://x/y"), 200, "ok"))
+                .isEqualTo("ok");
+        assertThatThrownBy(() ->
+                OfficialRuntimeSourceResolver.requireSuccessfulBody(URI.create("https://x/y"), 404, ""))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("HTTP 404");
     }
 
     @Test

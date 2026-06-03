@@ -36,4 +36,15 @@
         <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocatorTest"/>
         <Bug pattern="UNENCRYPTED_SOCKET"/>
     </Match>
+    <!-- musl detection must reference the absolute musl loader path under /lib by design. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform"/>
+        <Method name="muslLoaderPresent"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    <!-- Host OS/arch detection folds case on JVM-provided os.name/os.arch; not a security comparison. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform"/>
+        <Bug pattern="IMPROPER_UNICODE"/>
+    </Match>
 </FindBugsFilter>
