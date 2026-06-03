@@ -165,16 +165,20 @@ jobs:
       - name: Create or update GitHub release (single, race-free)
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
+          # Cross-repo publish: the default GITHUB_TOKEN is scoped to this repo only, so a token
+          # with contents:write on the public runtimes repo is required. Add a repository secret
+          # RUNTIMES_PUBLISH_TOKEN (fine-grained PAT or GitHub App token).
+          GH_TOKEN: ${{ secrets.RUNTIMES_PUBLISH_TOKEN }}
+          RUNTIMES_REPO: virtualparadoxorg/managed-postgres-runtimes
           POSTGRES_VERSION: ${{ inputs.postgres_version }}
           PACKAGING_REVISION: ${{ inputs.packaging_revision }}
         run: |
           set -euo pipefail
           tag="pg${POSTGRES_VERSION}-${PACKAGING_REVISION}"
-          if ! gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
-            gh release create "${tag}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" \
+          if ! gh release view "${tag}" --repo "${RUNTIMES_REPO}" >/dev/null 2>&1; then
+            gh release create "${tag}" --repo "${RUNTIMES_REPO}" --title "${tag}" \
               --notes "Managed Postgres runtime bundles for PostgreSQL ${POSTGRES_VERSION} (revision ${PACKAGING_REVISION}). Verify downloads against SHA256SUMS / manifest.json."
           fi
           gh release upload "${tag}" \
             dist-release/*.zip dist-release/SHA256SUMS dist-release/manifest.json \
-            --repo "${GITHUB_REPOSITORY}" --clobber
+            --repo "${RUNTIMES_REPO}" --clobber

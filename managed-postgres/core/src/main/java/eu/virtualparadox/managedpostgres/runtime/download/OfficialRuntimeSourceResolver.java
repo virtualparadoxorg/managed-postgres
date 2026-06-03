@@ -29,7 +29,7 @@ public final class OfficialRuntimeSourceResolver {
 
     static final String OFFICIAL_SCHEME = "managed-postgres";
     private static final String DOWNLOADED_KIND = "downloaded";
-    private static final String DEFAULT_BASE_URL = "https://github.com/virtualparadoxorg/managed-postgres";
+    private static final String DEFAULT_BASE_URL = "https://github.com/virtualparadoxorg/managed-postgres-runtimes";
     private static final String DEFAULT_REVISION = "r1";
     private static final int SHA256_HEX_LENGTH = 64;
 
