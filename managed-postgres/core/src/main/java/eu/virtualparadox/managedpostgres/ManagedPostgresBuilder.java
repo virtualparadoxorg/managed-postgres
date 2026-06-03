@@ -105,6 +105,15 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder withExistingRuntime(Path runtimeDirectory);
 
     /**
+     * Starts the fluent DSL for a classpath runtime archive (the checksum is mandatory).
+     *
+     * @param resource classpath ZIP archive resource (e.g. {@code /postgres-runtime.zip})
+     * @param checksum expected archive checksum
+     * @return classpath runtime configuration step
+     */
+    public ClasspathRuntimeDsl withClasspathRuntime(String resource, String checksum);
+
+    /**
      * Returns a builder with the configured credentials.
      *
      * @param credentials credentials
