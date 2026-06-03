@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.runtime.packaging.build.execution;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -37,14 +38,17 @@ public final class ProcessCommandExecutor {
         processBuilder.redirectErrorStream(true);
         processBuilder.environment().putAll(Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides")));
         try {
-            final Process process = processBuilder.start();
-            final String output;
-            try (var inputStream = process.getInputStream()) {
-                output = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-            }
-            final int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new IllegalStateException("command failed: " + String.join(" ", command) + "\n" + output);
+            final Path outputFile = Files.createTempFile("managed-postgres-build-", ".log");
+            try {
+                processBuilder.redirectOutput(outputFile.toFile());
+                final Process process = processBuilder.start();
+                final int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    throw new IllegalStateException("command failed: " + String.join(" ", command) + "\n"
+                            + Files.readString(outputFile, StandardCharsets.UTF_8));
+                }
+            } finally {
+                Files.deleteIfExists(outputFile);
             }
         } catch (IOException exception) {
             throw new UncheckedIOException(Objects.requireNonNull(failureMessage, "failureMessage"), exception);
