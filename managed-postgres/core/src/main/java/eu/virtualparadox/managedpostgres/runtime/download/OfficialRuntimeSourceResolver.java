@@ -65,26 +65,27 @@ public final class OfficialRuntimeSourceResolver {
      * @return a concrete downloaded source, or the input unchanged when not applicable
      */
     public RuntimeSource resolve(final RuntimeSource source, final String postgresqlVersion) {
-        if (!DOWNLOADED_KIND.equals(source.kind())) {
-            return source;
-        }
         final Optional<DownloadedRuntime> downloaded = source.downloadedRuntime();
-        if (downloaded.isEmpty() || !isOfficial(downloaded.orElseThrow().repository())) {
-            return source;
+        final RuntimeSource result;
+        if (!DOWNLOADED_KIND.equals(source.kind())
+                || downloaded.isEmpty()
+                || !isOfficial(downloaded.orElseThrow().repository())) {
+            result = source;
+        } else {
+            final String target = targetSupplier.get();
+            final String tag = "pg" + postgresqlVersion + "-" + revision;
+            final String archiveName =
+                    "managed-postgres-runtime-pg" + postgresqlVersion + "-" + target + "-" + revision + ".zip";
+            final URI archiveUri = URI.create(baseUrl + "/releases/download/" + tag + "/" + archiveName);
+            final URI checksumUri = URI.create(baseUrl + "/releases/download/" + tag + "/SHA256SUMS");
+            final String checksumHex = findChecksum(textFetcher.apply(checksumUri), archiveName, checksumUri);
+            final DownloadedRuntime resolved = downloaded.orElseThrow()
+                    .repository(RuntimeRepository.custom(archiveUri))
+                    .checksum("sha256:" + checksumHex);
+            result = new RuntimeSource(
+                    source.kind(), source.existingPath(), Optional.of(resolved), source.classpathRuntime());
         }
-
-        final String target = targetSupplier.get();
-        final String tag = "pg" + postgresqlVersion + "-" + revision;
-        final String archiveName =
-                "managed-postgres-runtime-pg" + postgresqlVersion + "-" + target + "-" + revision + ".zip";
-        final URI archiveUri = URI.create(baseUrl + "/releases/download/" + tag + "/" + archiveName);
-        final URI checksumUri = URI.create(baseUrl + "/releases/download/" + tag + "/SHA256SUMS");
-
-        final String checksumHex = findChecksum(textFetcher.apply(checksumUri), archiveName, checksumUri);
-        final DownloadedRuntime resolved = downloaded.orElseThrow()
-                .repository(RuntimeRepository.custom(archiveUri))
-                .checksum("sha256:" + checksumHex);
-        return new RuntimeSource(source.kind(), source.existingPath(), Optional.of(resolved), source.classpathRuntime());
+        return result;
     }
 
     private static boolean isOfficial(final Optional<RuntimeRepository> repository) {
@@ -111,25 +112,28 @@ public final class OfficialRuntimeSourceResolver {
     }
 
     private static String httpGet(final URI uri) {
-        final HttpClient client = HttpClient.newBuilder()
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .connectTimeout(Duration.ofSeconds(30))
-                .build();
         final HttpRequest request = HttpRequest.newBuilder(uri)
                 .timeout(Duration.ofSeconds(60))
                 .GET()
                 .build();
-        try {
+        try (HttpClient client = HttpClient.newBuilder()
+                .followRedirects(HttpClient.Redirect.NORMAL)
+                .connectTimeout(Duration.ofSeconds(30))
+                .build()) {
             final HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() / 100 != 2) {
-                throw new IllegalStateException("failed to fetch " + uri + ": HTTP " + response.statusCode());
-            }
-            return response.body();
+            return requireSuccessfulBody(uri, response.statusCode(), response.body());
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to fetch " + uri, exception);
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("interrupted while fetching " + uri, exception);
         }
+    }
+
+    static String requireSuccessfulBody(final URI uri, final int statusCode, final String body) {
+        if (statusCode / 100 != 2) {
+            throw new IllegalStateException("failed to fetch " + uri + ": HTTP " + statusCode);
+        }
+        return body;
     }
 }

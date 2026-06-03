@@ -47,36 +47,42 @@ public final class HostRuntimePlatform {
     static String detect(final String osName, final String osArch, final BooleanSupplier muslProbe) {
         final String operatingSystem = operatingSystem(Objects.requireNonNull(osName, "osName"));
         final String architecture = architecture(Objects.requireNonNull(osArch, "osArch"));
+        final String identifier;
         if ("linux".equals(operatingSystem)) {
             final String libc = Objects.requireNonNull(muslProbe, "muslProbe").getAsBoolean() ? MUSL : GLIBC;
-            return "linux-" + architecture + "-" + libc;
+            identifier = "linux-" + architecture + "-" + libc;
+        } else {
+            identifier = operatingSystem + "-" + architecture;
         }
-        return operatingSystem + "-" + architecture;
+        return identifier;
     }
 
     private static String operatingSystem(final String osName) {
         final String normalized = osName.toLowerCase(Locale.ROOT);
+        final String operatingSystem;
         if (normalized.contains("win")) {
-            return "windows";
+            operatingSystem = "windows";
+        } else if (normalized.contains("mac") || normalized.contains("darwin")) {
+            operatingSystem = "macos";
+        } else if (normalized.contains("linux")) {
+            operatingSystem = "linux";
+        } else {
+            throw new IllegalStateException("unsupported operating system: " + osName);
         }
-        if (normalized.contains("mac") || normalized.contains("darwin")) {
-            return "macos";
-        }
-        if (normalized.contains("linux")) {
-            return "linux";
-        }
-        throw new IllegalStateException("unsupported operating system: " + osName);
+        return operatingSystem;
     }
 
     private static String architecture(final String osArch) {
         final String normalized = osArch.toLowerCase(Locale.ROOT);
+        final String architecture;
         if ("aarch64".equals(normalized) || "arm64".equals(normalized)) {
-            return "aarch64";
+            architecture = "aarch64";
+        } else if ("amd64".equals(normalized) || "x86_64".equals(normalized) || "x64".equals(normalized)) {
+            architecture = "x86_64";
+        } else {
+            throw new IllegalStateException("unsupported architecture: " + osArch);
         }
-        if ("amd64".equals(normalized) || "x86_64".equals(normalized) || "x64".equals(normalized)) {
-            return "x86_64";
-        }
-        throw new IllegalStateException("unsupported architecture: " + osArch);
+        return architecture;
     }
 
     /**
@@ -86,14 +92,18 @@ public final class HostRuntimePlatform {
      * @return {@code true} when a musl loader is found under {@code /lib}
      */
     private static boolean muslLoaderPresent() {
-        final Path libDirectory = Path.of("/lib");
-        if (!Files.isDirectory(libDirectory)) {
-            return false;
+        return muslLoaderPresentIn(Path.of("/lib"));
+    }
+
+    static boolean muslLoaderPresentIn(final Path libDirectory) {
+        boolean present = false;
+        if (Files.isDirectory(libDirectory)) {
+            try (DirectoryStream<Path> entries = Files.newDirectoryStream(libDirectory, "ld-musl-*.so.1")) {
+                present = entries.iterator().hasNext();
+            } catch (IOException exception) {
+                present = false;
+            }
         }
-        try (DirectoryStream<Path> entries = Files.newDirectoryStream(libDirectory, "ld-musl-*.so.1")) {
-            return entries.iterator().hasNext();
-        } catch (IOException exception) {
-            return false;
-        }
+        return present;
     }
 }

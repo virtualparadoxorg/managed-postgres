@@ -3,11 +3,26 @@ package eu.virtualparadox.managedpostgres.runtime.platform;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 final class HostRuntimePlatformTest {
 
+    @TempDir
+    Path tempDir;
+
     HostRuntimePlatformTest() {
+    }
+
+    @Test
+    void detectsMuslByLoaderPresence() throws IOException {
+        assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir.resolve("absent"))).isFalse();
+        assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir)).isFalse();
+        Files.createFile(tempDir.resolve("ld-musl-x86_64.so.1"));
+        assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir)).isTrue();
     }
 
     @Test
