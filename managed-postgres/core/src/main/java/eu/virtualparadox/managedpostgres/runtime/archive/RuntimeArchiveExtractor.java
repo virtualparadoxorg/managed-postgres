@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.EnumSet;
@@ -140,7 +141,7 @@ public final class RuntimeArchiveExtractor {
             final InputStream inputStream,
             final Path target) throws IOException {
         Files.createDirectories(parentDirectory(target));
-        Files.copy(inputStream, target);
+        Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
         repairExecutablePermission(stagingDirectory, target);
     }
 
