@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Objects;
 import eu.virtualparadox.managedpostgres.runtime.classpath.ClasspathRuntimeResolver;
 import eu.virtualparadox.managedpostgres.runtime.download.DownloadedRuntimeResolver;
+import eu.virtualparadox.managedpostgres.runtime.download.OfficialRuntimeSourceResolver;
 
 /**
  * Resolves supported PostgreSQL runtime source kinds.
@@ -68,7 +69,9 @@ public final class DefaultRuntimeResolver implements RuntimeResolver, TelemetryR
                     new ExistingRuntimeResolver().resolve(checkedRuntimeSource),
                     Duration.ZERO);
         } else if (DOWNLOADED.equals(checkedRuntimeSource.kind())) {
-            resolvedRuntime = new DownloadedRuntimeResolver().resolveWithTelemetry(checkedRuntimeSource, postgresqlVersion);
+            final RuntimeSource downloadedSource =
+                    new OfficialRuntimeSourceResolver().resolve(checkedRuntimeSource, postgresqlVersion);
+            resolvedRuntime = new DownloadedRuntimeResolver().resolveWithTelemetry(downloadedSource, postgresqlVersion);
         } else if (CLASSPATH.equals(checkedRuntimeSource.kind())) {
             resolvedRuntime = new ClasspathRuntimeResolver().resolveWithTelemetry(checkedRuntimeSource, postgresqlVersion);
         } else {
