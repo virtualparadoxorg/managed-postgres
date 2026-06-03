@@ -162,6 +162,23 @@ jobs:
           RELEASE_DIR: dist-release
         run: ./scripts/runtime-packaging/finalize-release.sh
 
+      - name: Sign runtime bundles (detached Ed25519)
+        shell: bash
+        env:
+          # Private Ed25519 key (PEM) whose public counterpart is pinned in the core library.
+          RUNTIMES_SIGNING_SECRET: ${{ secrets.RUNTIMES_SIGNING_SECRET }}
+          RELEASE_DIR: dist-release
+        run: |
+          set -euo pipefail
+          if [ -z "${RUNTIMES_SIGNING_SECRET:-}" ]; then
+            echo "RUNTIMES_SIGNING_SECRET is not set; cannot sign runtime bundles" >&2
+            exit 1
+          fi
+          key_file="$(mktemp)"
+          trap 'rm -f "${key_file}"' EXIT
+          printf '%s\n' "${RUNTIMES_SIGNING_SECRET}" > "${key_file}"
+          SIGNING_KEY_FILE="${key_file}" ./scripts/runtime-packaging/sign-release.sh
+
       - name: Create or update GitHub release (single, race-free)
         shell: bash
         env:
@@ -180,5 +197,5 @@ jobs:
               --notes "Managed Postgres runtime bundles for PostgreSQL ${POSTGRES_VERSION} (revision ${PACKAGING_REVISION}). Verify downloads against SHA256SUMS / manifest.json."
           fi
           gh release upload "${tag}" \
-            dist-release/*.zip dist-release/SHA256SUMS dist-release/manifest.json \
+            dist-release/*.zip dist-release/*.sig dist-release/SHA256SUMS dist-release/manifest.json \
             --repo "${RUNTIMES_REPO}" --clobber
