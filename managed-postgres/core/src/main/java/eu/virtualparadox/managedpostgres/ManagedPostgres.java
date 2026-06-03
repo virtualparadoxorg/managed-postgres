@@ -51,6 +51,15 @@ public interface ManagedPostgres extends AutoCloseable {
     public void close();
 
     /**
+     * Starts the fluent managed PostgreSQL configuration DSL.
+     *
+     * @return managed PostgreSQL builder
+     */
+    public static ManagedPostgresBuilder create() {
+        return ManagedPostgresBuilder.builder();
+    }
+
+    /**
      * Creates a persistent local PostgreSQL builder.
      *
      * @return persistent local builder

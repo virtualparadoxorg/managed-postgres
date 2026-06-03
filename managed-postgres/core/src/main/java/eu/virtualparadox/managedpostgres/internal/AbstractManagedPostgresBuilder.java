@@ -1,15 +1,18 @@
 package eu.virtualparadox.managedpostgres.internal;
 
+import eu.virtualparadox.managedpostgres.DownloadedRuntimeDsl;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import java.net.URI;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
@@ -63,6 +66,43 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     @Override
     public final ManagedPostgresBuilder runtime(final RuntimeSource runtimeSource) {
         return copy(configuration.withRuntimeSource(runtimeSource));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final DownloadedRuntimeDsl withDownloadedRuntime() {
+        return new DownloadedRuntimeStep(this);
+    }
+
+    /**
+     * Fluent downloaded-runtime configuration step bound to a builder instance.
+     */
+    private static final class DownloadedRuntimeStep implements DownloadedRuntimeDsl {
+
+        private static final String GITHUB_RELEASE_SCHEME = "github-release";
+
+        private final ManagedPostgresBuilder builder;
+
+        private DownloadedRuntimeStep(final ManagedPostgresBuilder builder) {
+            this.builder = Objects.requireNonNull(builder, "builder");
+        }
+
+        @Override
+        public ManagedPostgresBuilder fromOfficialRepository() {
+            return builder.runtime(RuntimeSource.downloaded(
+                    runtime -> runtime.repository(RuntimeRepository.official())));
+        }
+
+        @Override
+        public ManagedPostgresBuilder fromGitHubRelease(final String owner, final String repo) {
+            final URI repository = URI.create(
+                    GITHUB_RELEASE_SCHEME + "://" + Objects.requireNonNull(owner, "owner")
+                            + "/" + Objects.requireNonNull(repo, "repo"));
+            return builder.runtime(RuntimeSource.downloaded(
+                    runtime -> runtime.repository(RuntimeRepository.custom(repository))));
+        }
     }
 
     /**

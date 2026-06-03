@@ -42,6 +42,22 @@ final class OfficialRuntimeSourceResolverTest {
     }
 
     @Test
+    void resolvesGitHubReleaseRepositoryToConcreteArchiveAndChecksum() {
+        final String sums = GLIBC_HEX + "  managed-postgres-runtime-pg18.4-linux-x86_64-glibc-r1.zip\n";
+        final OfficialRuntimeSourceResolver resolver = new OfficialRuntimeSourceResolver(
+                BASE, "r1", () -> "linux-x86_64-glibc", uri -> sums);
+
+        final RuntimeSource resolved = resolver.resolve(RuntimeSource.downloaded(runtime ->
+                runtime.repository(RuntimeRepository.custom(URI.create("github-release://acme/pgr")))), "18.4");
+
+        final DownloadedRuntime runtime = resolved.downloadedRuntime().orElseThrow();
+        assertThat(runtime.repository().orElseThrow().uri()).hasToString(
+                "https://github.com/acme/pgr/releases/download/pg18.4-r1/"
+                        + "managed-postgres-runtime-pg18.4-linux-x86_64-glibc-r1.zip");
+        assertThat(runtime.checksum().orElseThrow()).isEqualTo("sha256:" + GLIBC_HEX);
+    }
+
+    @Test
     void passesThroughCustomRepositoryUnchanged() {
         final RuntimeSource custom = RuntimeSource.downloaded(runtime -> runtime
                 .repository(RuntimeRepository.custom(URI.create("https://mirror.test/pg.zip")))

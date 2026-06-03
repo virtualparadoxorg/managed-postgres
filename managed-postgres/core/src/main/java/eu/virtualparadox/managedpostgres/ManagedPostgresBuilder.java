@@ -82,6 +82,13 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder runtime(RuntimeSource runtimeSource);
 
     /**
+     * Starts the fluent DSL for a downloaded runtime source.
+     *
+     * @return downloaded runtime configuration step
+     */
+    public DownloadedRuntimeDsl withDownloadedRuntime();
+
+    /**
      * Returns a builder with the configured credentials.
      *
      * @param credentials credentials
