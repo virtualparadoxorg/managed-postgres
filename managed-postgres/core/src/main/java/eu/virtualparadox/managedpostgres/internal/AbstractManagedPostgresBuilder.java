@@ -13,6 +13,7 @@ import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
@@ -82,6 +83,14 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     @Override
     public final ManagedPostgresBuilder withSystemRuntime() {
         return runtimeSource(RuntimeSource.system());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder withExistingRuntime(final Path runtimeDirectory) {
+        return runtimeSource(RuntimeSource.existing(Objects.requireNonNull(runtimeDirectory, "runtimeDirectory")));
     }
 
     final ManagedPostgresBuilder runtimeSource(final RuntimeSource source) {
