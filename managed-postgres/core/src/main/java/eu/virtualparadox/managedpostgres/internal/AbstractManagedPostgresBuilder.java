@@ -77,6 +77,18 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder withSystemRuntime() {
+        return runtimeSource(RuntimeSource.system());
+    }
+
+    final ManagedPostgresBuilder runtimeSource(final RuntimeSource source) {
+        return copy(configuration.withRuntimeSource(Objects.requireNonNull(source, "source")));
+    }
+
+    /**
      * Fluent downloaded-runtime configuration step bound to a builder instance.
      */
     private static final class DownloadedRuntimeStep implements DownloadedRuntimeDsl {

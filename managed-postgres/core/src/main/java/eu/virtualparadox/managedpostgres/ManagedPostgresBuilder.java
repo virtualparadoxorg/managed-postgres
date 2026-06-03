@@ -89,6 +89,13 @@ public interface ManagedPostgresBuilder {
     public DownloadedRuntimeDsl withDownloadedRuntime();
 
     /**
+     * Returns a builder that resolves the PostgreSQL runtime from the system PATH.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder withSystemRuntime();
+
+    /**
      * Returns a builder with the configured credentials.
      *
      * @param credentials credentials
