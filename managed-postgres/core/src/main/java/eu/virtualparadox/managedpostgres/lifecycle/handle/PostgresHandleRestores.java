@@ -2,19 +2,18 @@ package eu.virtualparadox.managedpostgres.lifecycle.handle;
 
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreFailures;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreFailures;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 
 /**
  * Shared restore behavior for PostgreSQL handles.
  */
 public final class PostgresHandleRestores {
 
-    private PostgresHandleRestores() {
-    }
+    private PostgresHandleRestores() {}
 
     /**
      * Performs the restore from operation.

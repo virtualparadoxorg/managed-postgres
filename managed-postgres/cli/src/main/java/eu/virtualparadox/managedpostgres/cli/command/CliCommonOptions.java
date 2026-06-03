@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.cli.command;
 
 import eu.virtualparadox.managedpostgres.cli.config.CliManagedPostgresConfiguration;
-import eu.virtualparadox.managedpostgres.cli.config.CliRuntimeSourceOptions;
 import eu.virtualparadox.managedpostgres.cli.config.CliRuntimeSourceFactory;
+import eu.virtualparadox.managedpostgres.cli.config.CliRuntimeSourceOptions;
 import eu.virtualparadox.managedpostgres.cli.config.CliYamlConfigurationLoader;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import java.io.IOException;

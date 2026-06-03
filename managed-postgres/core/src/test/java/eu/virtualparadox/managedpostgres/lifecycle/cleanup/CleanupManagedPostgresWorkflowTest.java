@@ -23,8 +23,7 @@ public final class CleanupManagedPostgresWorkflowTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CleanupManagedPostgresWorkflowTest() {
-    }
+    CleanupManagedPostgresWorkflowTest() {}
 
     @Test
     void cleanupRecoversOwnedClusterStagingAndPreservesPersistentData() throws IOException {
@@ -56,9 +55,7 @@ public final class CleanupManagedPostgresWorkflowTest {
     void cleanupTrimsRotatedLogHistoryWithoutTouchingActiveLog() throws IOException {
         final CleanupPolicy cleanupPolicy = CleanupPolicy.safeDefaults().keepLogFiles(2);
         final ManagedPostgresConfiguration configuration = persistentConfiguration(
-                temporaryDirectory.resolve("cluster-logs"),
-                cleanupPolicy,
-                RuntimeSource.system());
+                temporaryDirectory.resolve("cluster-logs"), cleanupPolicy, RuntimeSource.system());
         final PostgresLayout layout = PostgresLayout.create(configuration.storage(), new FileSystemOperationJournal());
         final Path activeLog = layout.stateDirectory().resolve("postgres.log");
         Files.writeString(activeLog, "active");
@@ -111,9 +108,7 @@ public final class CleanupManagedPostgresWorkflowTest {
     }
 
     private static ManagedPostgresConfiguration persistentConfiguration(
-            final Path storageRoot,
-            final CleanupPolicy cleanupPolicy,
-            final RuntimeSource runtimeSource) {
+            final Path storageRoot, final CleanupPolicy cleanupPolicy, final RuntimeSource runtimeSource) {
         return CleanupWorkflowTestConfigurations.persistentConfiguration(storageRoot, cleanupPolicy, runtimeSource);
     }
 }

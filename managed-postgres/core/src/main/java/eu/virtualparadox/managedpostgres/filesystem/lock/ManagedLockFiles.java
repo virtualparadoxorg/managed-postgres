@@ -16,8 +16,7 @@ public final class ManagedLockFiles {
     /**
      * Creates a managed lock-file adapter.
      */
-    public ManagedLockFiles() {
-    }
+    public ManagedLockFiles() {}
 
     /**
      * Opens a lifecycle lock file, creating its parent directory and the lock file when needed.
@@ -26,16 +25,12 @@ public final class ManagedLockFiles {
      * @return opened lock file channel
      */
     public FileChannel open(final Path lockFile) {
-        final Path normalizedLockFile = Objects.requireNonNull(lockFile, "lockFile")
-                .toAbsolutePath()
-                .normalize();
+        final Path normalizedLockFile =
+                Objects.requireNonNull(lockFile, "lockFile").toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(parentDirectory(normalizedLockFile));
-            return FileChannel.open(
-                    normalizedLockFile,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.WRITE);
+            return FileChannel.open(normalizedLockFile, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         } catch (IOException exception) {
             throw new UncheckedIOException("failed to open lifecycle lock file " + normalizedLockFile, exception);
         }

@@ -10,20 +10,14 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresExternalTest {
 
-    ManagedPostgresExternalTest() {
-    }
+    ManagedPostgresExternalTest() {}
 
     @Test
     void externalReturnsValidationOnlyManagedPostgres() {
-        final PostgresConnectionInfo connectionInfo = new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of("external-secret"));
+        final PostgresConnectionInfo connectionInfo =
+                new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("external-secret"));
         try (ManagedPostgres postgres = ManagedPostgres.external(connectionInfo)) {
-            assertThat(postgres)
-                    .isInstanceOf(ManagedPostgres.class);
+            assertThat(postgres).isInstanceOf(ManagedPostgres.class);
             assertThat(postgres.toString())
                     .contains("ExternalManagedPostgres")
                     .contains("REDACTED")

@@ -16,15 +16,15 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringClusterMapperTest {
 
-    ManagedPostgresSpringClusterMapperTest() {
-    }
+    ManagedPostgresSpringClusterMapperTest() {}
 
     @Test
     void clusterCredentialsMapToCoreCredentialsAndClusterBootstrap() {
         final ClusterFixture fixture = ClusterFixture.create();
         final Secret secret = Secret.of("app-password");
         final ManagedPostgresSpringProperties.ClusterProperties properties =
-                new ManagedPostgresSpringProperties.ClusterProperties("app", Optional.of("app_owner"), Optional.of(secret));
+                new ManagedPostgresSpringProperties.ClusterProperties(
+                        "app", Optional.of("app_owner"), Optional.of(secret));
 
         ManagedPostgresSpringClusterMapper.configure(fixture.builder(), properties);
 

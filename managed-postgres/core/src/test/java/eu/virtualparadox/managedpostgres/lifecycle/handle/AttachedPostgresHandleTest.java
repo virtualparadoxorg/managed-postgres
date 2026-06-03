@@ -3,24 +3,23 @@ package eu.virtualparadox.managedpostgres.lifecycle.handle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
+import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
+import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
 
 public final class AttachedPostgresHandleTest {
 
-    AttachedPostgresHandleTest() {
-    }
+    AttachedPostgresHandleTest() {}
 
     @Test
     void attachedHandleCloseFollowsKeepRunningStopPolicy() {
@@ -143,7 +142,8 @@ public final class AttachedPostgresHandleTest {
     void attachedHandleRestoreDelegatesWhenRunning() {
         final AtomicReference<Path> restoreBackup = new AtomicReference<>();
         final AtomicReference<RestoreOptions> restoreOptions = new AtomicReference<>();
-        final RestoreOptions options = RestoreOptions.builder().dropCurrentDatabase(true).build();
+        final RestoreOptions options =
+                RestoreOptions.builder().dropCurrentDatabase(true).build();
         final Path backup = Path.of("backup.dump");
 
         try (AttachedPostgresHandle handle = new AttachedPostgresHandle(
@@ -179,8 +179,8 @@ public final class AttachedPostgresHandleTest {
             handle.stop();
 
             assertThatThrownBy(() -> handle.restoreFrom(
-                    Path.of("backup.dump"),
-                    RestoreOptions.builder().dropCurrentDatabase(true).build()))
+                            Path.of("backup.dump"),
+                            RestoreOptions.builder().dropCurrentDatabase(true).build()))
                     .isInstanceOf(PostgresRestoreException.class)
                     .hasMessageContaining("not running");
         }
@@ -193,12 +193,7 @@ public final class AttachedPostgresHandleTest {
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "postgres",
-                "postgres",
-                Secret.of("test-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "postgres", "postgres", Secret.of("test-password"));
     }
 
     private static PostgresBackupOperation noopBackupOperation() {

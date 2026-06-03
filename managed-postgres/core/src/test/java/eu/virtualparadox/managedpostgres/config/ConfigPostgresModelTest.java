@@ -3,9 +3,9 @@ package eu.virtualparadox.managedpostgres.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
-import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
@@ -17,15 +17,16 @@ import org.junit.jupiter.api.Test;
 
 public final class ConfigPostgresModelTest {
 
-    ConfigPostgresModelTest() {
-    }
+    ConfigPostgresModelTest() {}
 
     @Test
     void managedPostgresConfigurationStoresImmutablePostgresSettings() {
         final ManagedPostgresConfiguration configuration = configuration();
         final PostgresConfiguration postgresConfiguration = Resources.ci().withStatementTimeoutSeconds(15);
 
-        assertThat(configuration.withPostgresConfiguration(postgresConfiguration).postgresConfiguration())
+        assertThat(configuration
+                        .withPostgresConfiguration(postgresConfiguration)
+                        .postgresConfiguration())
                 .isEqualTo(postgresConfiguration);
     }
 
@@ -53,8 +54,7 @@ public final class ConfigPostgresModelTest {
 
         assertThat(runtimeSource.kind()).isEqualTo("downloaded");
         assertThat(runtimeSource.downloadedRuntime()).isPresent();
-        assertThat(runtimeSource.downloadedRuntime().orElseThrow().repository())
-                .contains(RuntimeRepository.official());
+        assertThat(runtimeSource.downloadedRuntime().orElseThrow().repository()).contains(RuntimeRepository.official());
     }
 
     private static ManagedPostgresConfiguration configuration() {

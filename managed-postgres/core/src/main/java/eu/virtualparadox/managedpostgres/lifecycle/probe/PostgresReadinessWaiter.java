@@ -1,14 +1,14 @@
 package eu.virtualparadox.managedpostgres.lifecycle.probe;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.LockSupport;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
 
 /**
  * Polls PostgreSQL readiness until the configured startup timeout expires.
@@ -40,9 +40,7 @@ public final class PostgresReadinessWaiter {
      * @return final healthy probe result
      */
     public ReadinessOutcome await(
-            final Path runtimeDirectory,
-            final PostgresConnectionInfo connectionInfo,
-            final PostgresLayout layout) {
+            final Path runtimeDirectory, final PostgresConnectionInfo connectionInfo, final PostgresLayout layout) {
         final PgIsReadyProbe probe = new PgIsReadyProbe(runtimeDirectory, commandRunner);
         final long deadline = System.nanoTime() + startupTimeout.toNanos();
         PostgresProbeResult result = PostgresProbeResult.unhealthy(

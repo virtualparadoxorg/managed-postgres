@@ -18,10 +18,7 @@ import picocli.CommandLine.Mixin;
 /**
  * Prints the current managed PostgreSQL lifecycle status without starting PostgreSQL.
  */
-@Command(
-        name = "status",
-        description = "Print managed PostgreSQL status.",
-        sortOptions = false)
+@Command(name = "status", description = "Print managed PostgreSQL status.", sortOptions = false)
 public final class StatusCommand implements Callable<Integer> {
 
     @Mixin

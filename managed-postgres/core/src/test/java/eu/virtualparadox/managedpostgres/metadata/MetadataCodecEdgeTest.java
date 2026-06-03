@@ -12,8 +12,7 @@ public final class MetadataCodecEdgeTest {
 
     private static final Path METADATA_PATH = Path.of("state", "metadata.json");
 
-    MetadataCodecEdgeTest() {
-    }
+    MetadataCodecEdgeTest() {}
 
     @Test
     void metadataSerializationEscapesAndReadsStringFields() {
@@ -30,8 +29,7 @@ public final class MetadataCodecEdgeTest {
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("field instanceId");
         assertThatThrownBy(() -> MetadataJsonCodec.parse(
-                METADATA_PATH,
-                validJson().replace("2026-05-27T00:00:00Z", "not-an-instant")))
+                        METADATA_PATH, validJson().replace("2026-05-27T00:00:00Z", "not-an-instant")))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("Failed to parse");
         assertThatThrownBy(() -> MetadataFieldParser.stringField(METADATA_PATH, validJson(), " "))
@@ -61,43 +59,45 @@ public final class MetadataCodecEdgeTest {
     @Test
     void instanceMetadataRejectsInvalidIdentityValues() {
         assertThatThrownBy(() -> new PostgresInstanceMetadata(
-                0,
-                "instance-1",
-                "cluster-1",
-                "app-db",
-                Path.of("data"),
-                "127.0.0.1",
-                15432,
-                "postgres",
-                "postgres",
-                "16.4",
-                16,
-                "STARTED",
-                1L,
-                "hash",
-                Instant.EPOCH,
-                Instant.EPOCH)).isInstanceOf(IllegalArgumentException.class);
+                        0,
+                        "instance-1",
+                        "cluster-1",
+                        "app-db",
+                        Path.of("data"),
+                        "127.0.0.1",
+                        15432,
+                        "postgres",
+                        "postgres",
+                        "16.4",
+                        16,
+                        "STARTED",
+                        1L,
+                        "hash",
+                        Instant.EPOCH,
+                        Instant.EPOCH))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> metadata(" ", "hash")).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> metadataWithPort(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> metadataWithPort(65_536)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> metadataWithMajorVersion(0)).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new PostgresInstanceMetadata(
-                1,
-                "instance-1",
-                "cluster-1",
-                "app-db",
-                Path.of("data"),
-                "127.0.0.1",
-                15432,
-                "postgres",
-                "postgres",
-                "16.4",
-                16,
-                "STARTED",
-                -1L,
-                "hash",
-                Instant.EPOCH,
-                Instant.EPOCH)).isInstanceOf(IllegalArgumentException.class);
+                        1,
+                        "instance-1",
+                        "cluster-1",
+                        "app-db",
+                        Path.of("data"),
+                        "127.0.0.1",
+                        15432,
+                        "postgres",
+                        "postgres",
+                        "16.4",
+                        16,
+                        "STARTED",
+                        -1L,
+                        "hash",
+                        Instant.EPOCH,
+                        Instant.EPOCH))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static PostgresInstanceMetadata metadataWithPort(final int port) {

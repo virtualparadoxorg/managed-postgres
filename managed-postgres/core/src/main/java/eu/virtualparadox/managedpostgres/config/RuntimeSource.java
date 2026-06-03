@@ -55,9 +55,7 @@ public record RuntimeSource(
      * @param downloadedRuntime downloaded runtime configuration, when applicable
      */
     public RuntimeSource(
-            final String kind,
-            final Optional<Path> existingPath,
-            final Optional<DownloadedRuntime> downloadedRuntime) {
+            final String kind, final Optional<Path> existingPath, final Optional<DownloadedRuntime> downloadedRuntime) {
         this(kind, existingPath, downloadedRuntime, Optional.empty());
     }
 
@@ -67,9 +65,7 @@ public record RuntimeSource(
      * @param kind runtime source kind
      * @param existingPath configured existing runtime path, when applicable
      */
-    public RuntimeSource(
-            final String kind,
-            final Optional<Path> existingPath) {
+    public RuntimeSource(final String kind, final Optional<Path> existingPath) {
         this(kind, existingPath, defaultDownloadedRuntime(kind), Optional.empty());
     }
 
@@ -98,7 +94,8 @@ public record RuntimeSource(
      * @return downloaded runtime source
      */
     public static RuntimeSource downloaded() {
-        return new RuntimeSource(DOWNLOADED, Optional.empty(), Optional.of(DownloadedRuntime.empty()), Optional.empty());
+        return new RuntimeSource(
+                DOWNLOADED, Optional.empty(), Optional.of(DownloadedRuntime.empty()), Optional.empty());
     }
 
     /**
@@ -109,9 +106,8 @@ public record RuntimeSource(
      */
     public static RuntimeSource downloaded(final UnaryOperator<DownloadedRuntime> customizer) {
         final UnaryOperator<DownloadedRuntime> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final DownloadedRuntime downloadedRuntime = Objects.requireNonNull(
-                checkedCustomizer.apply(DownloadedRuntime.empty()),
-                "downloadedRuntime");
+        final DownloadedRuntime downloadedRuntime =
+                Objects.requireNonNull(checkedCustomizer.apply(DownloadedRuntime.empty()), "downloadedRuntime");
 
         return new RuntimeSource(DOWNLOADED, Optional.empty(), Optional.of(downloadedRuntime), Optional.empty());
     }
@@ -123,13 +119,10 @@ public record RuntimeSource(
      * @param customizer classpath runtime customizer
      * @return classpath runtime source
      */
-    public static RuntimeSource classpath(
-            final String resource,
-            final UnaryOperator<ClasspathRuntime> customizer) {
+    public static RuntimeSource classpath(final String resource, final UnaryOperator<ClasspathRuntime> customizer) {
         final UnaryOperator<ClasspathRuntime> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
         final ClasspathRuntime classpathRuntime = Objects.requireNonNull(
-                checkedCustomizer.apply(ClasspathRuntime.resource(resource)),
-                "classpathRuntime");
+                checkedCustomizer.apply(ClasspathRuntime.resource(resource)), "classpathRuntime");
 
         return new RuntimeSource(CLASSPATH, Optional.empty(), Optional.empty(), Optional.of(classpathRuntime));
     }
@@ -187,7 +180,8 @@ public record RuntimeSource(
 
     private static void requireNoDownloadedRuntime(final Optional<DownloadedRuntime> downloadedRuntime) {
         if (downloadedRuntime.isPresent()) {
-            throw new IllegalArgumentException("downloaded runtime configuration is only valid for downloaded runtime source");
+            throw new IllegalArgumentException(
+                    "downloaded runtime configuration is only valid for downloaded runtime source");
         }
     }
 
@@ -202,7 +196,8 @@ public record RuntimeSource(
 
     private static void requireNoClasspathRuntime(final Optional<ClasspathRuntime> classpathRuntime) {
         if (classpathRuntime.isPresent()) {
-            throw new IllegalArgumentException("classpath runtime configuration is only valid for classpath runtime source");
+            throw new IllegalArgumentException(
+                    "classpath runtime configuration is only valid for classpath runtime source");
         }
     }
 

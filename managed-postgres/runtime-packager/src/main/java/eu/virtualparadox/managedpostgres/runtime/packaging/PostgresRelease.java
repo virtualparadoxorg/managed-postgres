@@ -11,11 +11,7 @@ import java.util.Objects;
  * @param sourceTarball canonical source tarball URI
  * @param sourceTarballSha256 trusted source tarball SHA-256 checksum
  */
-public record PostgresRelease(
-        int majorVersion,
-        String version,
-        URI sourceTarball,
-        String sourceTarballSha256) {
+public record PostgresRelease(int majorVersion, String version, URI sourceTarball, String sourceTarballSha256) {
 
     /**
      * Creates release metadata.

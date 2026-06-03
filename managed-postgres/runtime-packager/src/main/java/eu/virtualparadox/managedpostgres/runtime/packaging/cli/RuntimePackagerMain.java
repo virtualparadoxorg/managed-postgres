@@ -67,10 +67,8 @@ public final class RuntimePackagerMain implements Callable<Integer> {
      * @param args command-line arguments
      */
     public static void main(final String[] args) {
-        final int exitCode = execute(
-                args,
-                standardPrintWriter(FileDescriptor.out),
-                standardPrintWriter(FileDescriptor.err));
+        final int exitCode =
+                execute(args, standardPrintWriter(FileDescriptor.out), standardPrintWriter(FileDescriptor.err));
         if (exitCode != 0) {
             throw new MainExecutionException(exitCode);
         }
@@ -97,10 +95,9 @@ public final class RuntimePackagerMain implements Callable<Integer> {
 
     private static PrintWriter standardPrintWriter(final FileDescriptor fileDescriptor) {
         return new PrintWriter(
-                new BufferedWriter(
-                        new java.io.OutputStreamWriter(
-                                new FileOutputStream(Objects.requireNonNull(fileDescriptor, "fileDescriptor")),
-                                StandardCharsets.UTF_8)),
+                new BufferedWriter(new java.io.OutputStreamWriter(
+                        new FileOutputStream(Objects.requireNonNull(fileDescriptor, "fileDescriptor")),
+                        StandardCharsets.UTF_8)),
                 true);
     }
 

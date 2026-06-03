@@ -28,9 +28,7 @@ public final class PsqlScriptFileStore {
      * @param diagnostics diagnostics value
      */
     public PsqlScriptFileStore(
-            final Path sqlDirectory,
-            final ManagedFileSystem fileSystem,
-            final PsqlBootstrapDiagnostics diagnostics) {
+            final Path sqlDirectory, final ManagedFileSystem fileSystem, final PsqlBootstrapDiagnostics diagnostics) {
         this.sqlDirectory = Objects.requireNonNull(sqlDirectory, "sqlDirectory");
         this.fileSystem = Objects.requireNonNull(fileSystem, "fileSystem");
         this.diagnostics = Objects.requireNonNull(diagnostics, "diagnostics");

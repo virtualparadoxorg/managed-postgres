@@ -17,8 +17,7 @@ public final class PostgresConfigWriter {
     /**
      * Creates a PostgreSQL config writer.
      */
-    public PostgresConfigWriter() {
-    }
+    public PostgresConfigWriter() {}
 
     /**
      * Renders the default {@code postgresql.conf} content.
@@ -39,11 +38,9 @@ public final class PostgresConfigWriter {
         Objects.requireNonNull(settings, "settings");
 
         final StringBuilder content = new StringBuilder();
-        new TreeMap<>(settings).forEach((key, value) -> content
-                .append(key)
-                .append('=')
-                .append(quote(value))
-                .append(System.lineSeparator()));
+        new TreeMap<>(settings)
+                .forEach((key, value) ->
+                        content.append(key).append('=').append(quote(value)).append(System.lineSeparator()));
 
         return content.toString();
     }

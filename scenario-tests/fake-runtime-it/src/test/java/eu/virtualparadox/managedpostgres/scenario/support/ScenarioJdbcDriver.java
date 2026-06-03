@@ -26,7 +26,8 @@ public final class ScenarioJdbcDriver implements Driver, AutoCloseable {
     }
 
     public static ScenarioJdbcDriver register(final PostgresInstanceMetadata metadata) throws SQLException {
-        final ScenarioJdbcDriver driver = new ScenarioJdbcDriver(metadata.dataDirectory(), metadata.postgresqlVersion());
+        final ScenarioJdbcDriver driver =
+                new ScenarioJdbcDriver(metadata.dataDirectory(), metadata.postgresqlVersion());
         DriverManager.registerDriver(driver);
 
         return driver;

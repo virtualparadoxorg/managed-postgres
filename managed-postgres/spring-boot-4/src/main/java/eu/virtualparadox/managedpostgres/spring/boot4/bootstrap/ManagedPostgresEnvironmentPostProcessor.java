@@ -44,9 +44,7 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Environmen
      * @param application Spring Boot application
      */
     @Override
-    public void postProcessEnvironment(
-            final ConfigurableEnvironment environment,
-            final SpringApplication application) {
+    public void postProcessEnvironment(final ConfigurableEnvironment environment, final SpringApplication application) {
         final ConfigurableEnvironment checkedEnvironment = Objects.requireNonNull(environment, "environment");
         final SpringApplication checkedApplication = Objects.requireNonNull(application, "application");
         final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(checkedEnvironment);
@@ -92,8 +90,7 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Environmen
     }
 
     private static void validateDatasourceOverride(
-            final ConfigurableEnvironment environment,
-            final ManagedPostgresSpringProperties properties) {
+            final ConfigurableEnvironment environment, final ManagedPostgresSpringProperties properties) {
         if (properties.datasource().enabled()
                 && !properties.datasource().overrideExisting()
                 && environment.containsProperty(DATASOURCE_URL)) {
@@ -120,19 +117,19 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Environmen
     }
 
     private static ManagedPostgresSpringException managedSpringException(
-            final Exception exception,
-            final ManagedPostgresSpringProperties properties) {
-        final String message = Objects.toString(exception.getMessage(), exception.getClass().getName());
+            final Exception exception, final ManagedPostgresSpringProperties properties) {
+        final String message =
+                Objects.toString(exception.getMessage(), exception.getClass().getName());
 
-        return new ManagedPostgresSpringException("Failed to start managed PostgreSQL: " + redacted(message, properties));
+        return new ManagedPostgresSpringException(
+                "Failed to start managed PostgreSQL: " + redacted(message, properties));
     }
 
-    private static String redacted(
-            final String message,
-            final ManagedPostgresSpringProperties properties) {
+    private static String redacted(final String message, final ManagedPostgresSpringProperties properties) {
         final String redactedMessage;
         if (properties.cluster().password().isPresent()) {
-            redactedMessage = message.replace(properties.cluster().password().orElseThrow().reveal(), "REDACTED");
+            redactedMessage = message.replace(
+                    properties.cluster().password().orElseThrow().reveal(), "REDACTED");
         } else {
             redactedMessage = message;
         }
@@ -140,8 +137,7 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Environmen
         return redactedMessage;
     }
 
-    private static RunningPostgres requireRunningPostgres(
-            final ManagedPostgresBootstrapContext bootstrapContext) {
+    private static RunningPostgres requireRunningPostgres(final ManagedPostgresBootstrapContext bootstrapContext) {
         return Objects.requireNonNull(bootstrapContext, "bootstrapContext")
                 .runningPostgres()
                 .orElseThrow(() -> new ManagedPostgresSpringException(

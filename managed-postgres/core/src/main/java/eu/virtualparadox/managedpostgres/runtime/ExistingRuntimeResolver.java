@@ -14,8 +14,7 @@ public final class ExistingRuntimeResolver implements RuntimeResolver {
     /**
      * Creates an existing runtime resolver.
      */
-    public ExistingRuntimeResolver() {
-    }
+    public ExistingRuntimeResolver() {}
 
     /**
      * {@inheritDoc}
@@ -27,7 +26,8 @@ public final class ExistingRuntimeResolver implements RuntimeResolver {
             throw new IllegalArgumentException("existing runtime resolver requires an existing runtime source");
         }
 
-        final Path runtimeDirectory = validatedRuntimeSource.existingPath()
+        final Path runtimeDirectory = validatedRuntimeSource
+                .existingPath()
                 .orElseThrow(() -> new IllegalArgumentException("existing runtime source requires a path"));
 
         return RuntimeValidator.requireUsableRuntimeDirectory(runtimeDirectory);

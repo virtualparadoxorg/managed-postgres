@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
@@ -16,15 +16,13 @@ public final class SystemRuntimeResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    SystemRuntimeResolverTest() {
-    }
+    SystemRuntimeResolverTest() {}
 
     @Test
     void systemRuntimeResolverFindsUsableRuntimeOnConfiguredPath() throws IOException {
         final Path runtimeDirectory = runtimeDirectory("postgres");
-        final String path = temporaryDirectory.resolve("missing-bin")
-                + File.pathSeparator
-                + runtimeDirectory.resolve("bin");
+        final String path =
+                temporaryDirectory.resolve("missing-bin") + File.pathSeparator + runtimeDirectory.resolve("bin");
 
         final Path resolved = new SystemRuntimeResolver(() -> path).resolve(RuntimeSource.system());
 

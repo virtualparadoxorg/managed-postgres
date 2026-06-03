@@ -19,8 +19,7 @@ public final class RuntimeSignatureVerifierTest {
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeSignatureVerifierTest() {
-    }
+    RuntimeSignatureVerifierTest() {}
 
     @Test
     void validEd25519SignatureVerifiesArtifact() throws IOException {
@@ -57,9 +56,8 @@ public final class RuntimeSignatureVerifierTest {
     void invalidBase64SignatureFailsClearly() throws IOException {
         final Path artifact = artifact("postgres-runtime");
         final RuntimeSignature validSignature = RuntimeSignatureTestSupport.validSignatureFor(artifact);
-        final RuntimeSignature invalidSignature = RuntimeSignature.ed25519(
-                validSignature.publicKeyBase64(),
-                "not base64");
+        final RuntimeSignature invalidSignature =
+                RuntimeSignature.ed25519(validSignature.publicKeyBase64(), "not base64");
 
         assertThatThrownBy(() -> new RuntimeSignatureVerifier().verify(artifact, invalidSignature))
                 .isInstanceOf(IllegalArgumentException.class)

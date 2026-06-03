@@ -28,9 +28,7 @@ public final class PostgresUpgradeException extends ManagedPostgresException {
      * @param diagnosticReport structured diagnostic report
      */
     public PostgresUpgradeException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachValidation;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.layout.DoctorLayoutPlan;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
+import java.util.Objects;
 
 /**
  * Inspects metadata-backed PostgreSQL health without attaching to or mutating the process.

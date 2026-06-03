@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.lifecycle.backup;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -9,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
 
 /**
  * Verifies logical backup artifacts before a restore operation may run.
@@ -36,10 +36,9 @@ public final class BackupArtifactVerifier {
      * @return verify result
      */
     public BackupManifest verify(
-            final Path backup,
-            final PostgresConnectionInfo connectionInfo,
-            final PostgresInstanceMetadata metadata) {
-        final Path checkedBackup = Objects.requireNonNull(backup, "backup").toAbsolutePath().normalize();
+            final Path backup, final PostgresConnectionInfo connectionInfo, final PostgresInstanceMetadata metadata) {
+        final Path checkedBackup =
+                Objects.requireNonNull(backup, "backup").toAbsolutePath().normalize();
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         final PostgresInstanceMetadata checkedMetadata = Objects.requireNonNull(metadata, "metadata");
         final Path manifestPath = manifestPath(checkedBackup);
@@ -117,24 +116,20 @@ public final class BackupArtifactVerifier {
             return BackupChecksum.sha256(backup);
         } catch (final UncheckedIOException exception) {
             throw new PostgresRestoreException(
-                    "Cannot checksum PostgreSQL backup",
-                    exception,
-                    diagnostics.missingArtifact("backup", backup));
+                    "Cannot checksum PostgreSQL backup", exception, diagnostics.missingArtifact("backup", backup));
         }
     }
 
     private void requireRegularFile(final Path path, final String kind) {
         if (!Files.isRegularFile(path)) {
             throw new PostgresRestoreException(
-                    "Missing PostgreSQL backup " + kind,
-                    diagnostics.missingArtifact(kind, path));
+                    "Missing PostgreSQL backup " + kind, diagnostics.missingArtifact(kind, path));
         }
     }
 
     private void fail(final String reason) {
         throw new PostgresRestoreException(
-                "Incompatible PostgreSQL backup artifact: " + reason,
-                diagnostics.incompatibleArtifact(reason));
+                "Incompatible PostgreSQL backup artifact: " + reason, diagnostics.incompatibleArtifact(reason));
     }
 
     private static Path manifestPath(final Path backup) {

@@ -1,22 +1,21 @@
 package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactVerifier;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactWriter;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestFactory;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump.PgDumpBackupCreator;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump.PgDumpCommandExecutor;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump.PgDumpCommandFactory;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
+import java.util.Objects;
 
 /**
  * Wires the internal {@code pg_restore} service collaborator graph.
  */
 public final class PgRestoreServiceFactory {
 
-    private PgRestoreServiceFactory() {
-    }
+    private PgRestoreServiceFactory() {}
 
     /**
      * Returns the create result.
@@ -34,8 +33,7 @@ public final class PgRestoreServiceFactory {
                 checkedDependencies.manifestSource().connectionInfo(),
                 backupDiagnostics);
         final BackupArtifactWriter safetyBackupArtifactWriter = new BackupArtifactWriter(
-                new BackupManifestFactory(checkedDependencies.manifestSource()),
-                backupDiagnostics);
+                new BackupManifestFactory(checkedDependencies.manifestSource()), backupDiagnostics);
 
         return new PgRestoreService(new PgRestoreServiceDependencies(
                 checkedDependencies.layout(),
@@ -45,8 +43,7 @@ public final class PgRestoreServiceFactory {
                 new PgDumpBackupCreator(safetyBackupCommandExecutor, safetyBackupArtifactWriter),
                 new PgRestoreCommandExecutor(
                         new PgRestoreCommandFactory(
-                                checkedDependencies.runtimeDirectory(),
-                                checkedDependencies.timeout()),
+                                checkedDependencies.runtimeDirectory(), checkedDependencies.timeout()),
                         checkedDependencies.commandRunner(),
                         checkedDependencies.manifestSource().connectionInfo(),
                         restoreDiagnostics),

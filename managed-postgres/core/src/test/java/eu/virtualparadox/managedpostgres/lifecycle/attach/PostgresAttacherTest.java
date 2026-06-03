@@ -7,6 +7,11 @@ import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.AttachedPostgresHandle;
+import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
+import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.process.TestProcessHandles;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
@@ -16,19 +21,13 @@ import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.AttachedPostgresHandle;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
-import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
-import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.process.TestProcessHandles;
 
 public final class PostgresAttacherTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresAttacherTest() {
-    }
+    PostgresAttacherTest() {}
 
     @Test
     void deadPidMetadataCannotBeAttached() {
@@ -135,8 +134,7 @@ public final class PostgresAttacherTest {
                 ProcessLookup.fixed(Optional.of(processHandle("postgres", true))),
                 metadata -> true,
                 metadata -> PostgresProbeResult.unhealthy(
-                        "JDBC probe found a different PostgreSQL data directory",
-                        new DiagnosticReport(List.of())),
+                        "JDBC probe found a different PostgreSQL data directory", new DiagnosticReport(List.of())),
                 metadata -> attachedHandle());
 
         final AttachResult result = attacher.tryAttach(metadata(123L));
@@ -148,25 +146,21 @@ public final class PostgresAttacherTest {
 
     @Test
     void unhealthyJdbcDiagnosticsArePreservedOnAttachResult() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "jdbc-probe",
-                Map.of("reason", "different data directory"))));
+        final DiagnosticReport diagnostics = new DiagnosticReport(
+                List.of(new DiagnosticSection("jdbc-probe", Map.of("reason", "different data directory"))));
         final PostgresAttacher attacher = new PostgresAttacher(
                 ProcessLookup.fixed(Optional.of(processHandle("postgres", true))),
                 metadata -> true,
                 metadata -> PostgresProbeResult.unhealthy(
-                        "JDBC probe found a different PostgreSQL data directory",
-                        diagnostics),
+                        "JDBC probe found a different PostgreSQL data directory", diagnostics),
                 metadata -> attachedHandle());
 
         final AttachResult result = attacher.tryAttach(metadata(123L));
 
-        assertThat(result.diagnosticReport().sections())
-                .singleElement()
-                .satisfies(section -> {
-                    assertThat(section.name()).isEqualTo("jdbc-probe");
-                    assertThat(section.values()).containsEntry("reason", "different data directory");
-                });
+        assertThat(result.diagnosticReport().sections()).singleElement().satisfies(section -> {
+            assertThat(section.name()).isEqualTo("jdbc-probe");
+            assertThat(section.values()).containsEntry("reason", "different data directory");
+        });
     }
 
     @Test
@@ -205,12 +199,7 @@ public final class PostgresAttacherTest {
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "postgres",
-                "postgres",
-                Secret.of("test-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "postgres", "postgres", Secret.of("test-password"));
     }
 
     private static PostgresBackupOperation noopBackupOperation() {
@@ -240,5 +229,4 @@ public final class PostgresAttacherTest {
                 now,
                 now);
     }
-
 }

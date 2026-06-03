@@ -10,14 +10,11 @@ import org.junit.jupiter.api.Test;
 
 final class ManagedPostgresSpringBoot4StarterTest {
 
-    ManagedPostgresSpringBoot4StarterTest() {
-    }
+    ManagedPostgresSpringBoot4StarterTest() {}
 
     @Test
     void exposesArtifactId() {
-        assertEquals(
-                "managed-postgres-spring-boot-4-starter",
-                ManagedPostgresSpringBoot4Starter.artifactId());
+        assertEquals("managed-postgres-spring-boot-4-starter", ManagedPostgresSpringBoot4Starter.artifactId());
     }
 
     @Test

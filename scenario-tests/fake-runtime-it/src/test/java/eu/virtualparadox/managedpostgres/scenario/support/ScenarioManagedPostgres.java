@@ -13,30 +13,20 @@ public final class ScenarioManagedPostgres {
 
     private static final String TEST_PASSWORD = "test-password";
 
-    private ScenarioManagedPostgres() {
-    }
+    private ScenarioManagedPostgres() {}
 
-    public static ManagedPostgresBuilder applicationCluster(
-            final Path storageRoot,
-            final FakePostgresRuntime runtime) {
+    public static ManagedPostgresBuilder applicationCluster(final Path storageRoot, final FakePostgresRuntime runtime) {
         return localPostgres("app-db", storageRoot, runtime)
-                .cluster(cluster -> cluster
-                        .database("app")
-                        .owner("app_owner")
-                        .password(Secret.of("app-password")));
+                .cluster(cluster -> cluster.database("app").owner("app_owner").password(Secret.of("app-password")));
     }
 
     public static ManagedPostgresBuilder localPostgres(
-            final String name,
-            final Path storageRoot,
-            final FakePostgresRuntime runtime) {
+            final String name, final Path storageRoot, final FakePostgresRuntime runtime) {
         return localPostgres(name, storageRoot, RuntimeSource.existing(runtime.runtimeDirectory()));
     }
 
     public static ManagedPostgresBuilder localPostgres(
-            final String name,
-            final Path storageRoot,
-            final RuntimeSource runtimeSource) {
+            final String name, final Path storageRoot, final RuntimeSource runtimeSource) {
         return ManagedPostgres.local()
                 .name(name)
                 .version("16.4")

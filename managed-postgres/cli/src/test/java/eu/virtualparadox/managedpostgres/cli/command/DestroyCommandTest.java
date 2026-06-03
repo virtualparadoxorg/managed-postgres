@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.cli.CliExitCode;
 import eu.virtualparadox.managedpostgres.cli.command.support.CliCommandTestSupport;
-import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgres;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFactory;
+import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.exception.PostgresDestroyException;
@@ -17,8 +17,7 @@ import org.junit.jupiter.api.Test;
 
 final class DestroyCommandTest {
 
-    DestroyCommandTest() {
-    }
+    DestroyCommandTest() {}
 
     @Test
     void destroyCommandRequiresForceFlag() {
@@ -44,20 +43,16 @@ final class DestroyCommandTest {
 
     @Test
     void destroyExceptionMapsToClusterError() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "storage-root",
-                Map.of("password", "secret-password"))));
-        final PostgresDestroyException failure = new PostgresDestroyException(
-                "destroy failed password=secret-password",
-                diagnostics);
+        final DiagnosticReport diagnostics = new DiagnosticReport(
+                List.of(new DiagnosticSection("storage-root", Map.of("password", "secret-password"))));
+        final PostgresDestroyException failure =
+                new PostgresDestroyException("destroy failed password=secret-password", diagnostics);
 
         try (TestManagedPostgres postgres = TestManagedPostgresFailureFactory.withDestroyFailure(failure)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runDestroy(postgres, "--force");
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.CLUSTER_ERROR.code());
-            assertThat(run.errorOutput())
-                    .contains("Managed Postgres error")
-                    .doesNotContain("secret-password");
+            assertThat(run.errorOutput()).contains("Managed Postgres error").doesNotContain("secret-password");
         }
     }
 }

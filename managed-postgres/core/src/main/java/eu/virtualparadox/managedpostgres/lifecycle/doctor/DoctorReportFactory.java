@@ -3,13 +3,13 @@ package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 
 /**
  * Creates stable doctor diagnostic sections.
@@ -18,8 +18,7 @@ public final class DoctorReportFactory {
 
     private static final String TEMPORARY_LAYOUT_NOT_CREATED = "not-created-temporary";
 
-    private DoctorReportFactory() {
-    }
+    private DoctorReportFactory() {}
 
     /**
      * Returns the configuration result.
@@ -36,21 +35,31 @@ public final class DoctorReportFactory {
         values.put("storageKind", storageKind(checkedConfiguration));
         values.put("runtimeSource", checkedConfiguration.runtimeSource().kind());
         values.put("networkHost", checkedConfiguration.network().host());
-        values.put("portSelection", checkedConfiguration.network().portSelection().mode().name());
-        checkedConfiguration.network().portSelection().port()
+        values.put(
+                "portSelection",
+                checkedConfiguration.network().portSelection().mode().name());
+        checkedConfiguration
+                .network()
+                .portSelection()
+                .port()
                 .ifPresent(port -> values.put("networkPort", Integer.toString(port)));
         values.put(
                 "fallbackToRandom",
                 Boolean.toString(checkedConfiguration.network().portSelection().fallbackToRandom()));
         values.put("attachPolicy", checkedConfiguration.attachPolicy().name());
         values.put("stopPolicy", checkedConfiguration.stopPolicy().name());
-        checkedConfiguration.postgresConfiguration().maxConnections()
+        checkedConfiguration
+                .postgresConfiguration()
+                .maxConnections()
                 .ifPresent(value -> values.put("maxConnections", Integer.toString(value)));
-        checkedConfiguration.postgresConfiguration().sharedBuffers()
+        checkedConfiguration
+                .postgresConfiguration()
+                .sharedBuffers()
                 .ifPresent(value -> values.put("sharedBuffers", value));
-        checkedConfiguration.postgresConfiguration().tempBuffers()
-                .ifPresent(value -> values.put("tempBuffers", value));
-        checkedConfiguration.postgresConfiguration().statementTimeoutSeconds()
+        checkedConfiguration.postgresConfiguration().tempBuffers().ifPresent(value -> values.put("tempBuffers", value));
+        checkedConfiguration
+                .postgresConfiguration()
+                .statementTimeoutSeconds()
                 .ifPresent(value -> values.put("statementTimeoutSeconds", Integer.toString(value)));
 
         return new DiagnosticSection("configuration", values);
@@ -109,9 +118,13 @@ public final class DoctorReportFactory {
      * @return metadata unreadable result
      */
     public static DiagnosticSection metadataUnreadable(final String message) {
-        return new DiagnosticSection("metadata", Map.of(
-                "status", "unreadable",
-                "message", StringUtils.defaultIfBlank(message, "metadata could not be read")));
+        return new DiagnosticSection(
+                "metadata",
+                Map.of(
+                        "status",
+                        "unreadable",
+                        "message",
+                        StringUtils.defaultIfBlank(message, "metadata could not be read")));
     }
 
     /**
@@ -138,8 +151,9 @@ public final class DoctorReportFactory {
      * @return status result
      */
     public static DiagnosticSection status(final PostgresStatus status) {
-        return new DiagnosticSection("status", Map.of(
-                "value", Objects.requireNonNull(status, "status").name()));
+        return new DiagnosticSection(
+                "status",
+                Map.of("value", Objects.requireNonNull(status, "status").name()));
     }
 
     private static String storageKind(final ManagedPostgresConfiguration configuration) {

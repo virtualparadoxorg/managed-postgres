@@ -2,15 +2,15 @@ package eu.virtualparadox.managedpostgres.lifecycle.stop;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.start.PgCtlController;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeResolver;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.start.PgCtlController;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Resolves a PostgreSQL runtime and executes the configured {@code pg_ctl stop}.
@@ -48,13 +48,13 @@ public final class PostgresStopCommand {
                     "PostgreSQL pg_ctl stop command failed",
                     exception,
                     PostgresStopDiagnostics.wrappedFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
+                            Objects.toString(
+                                    exception.getMessage(), exception.getClass().getName()),
                             exception.diagnosticReport()));
         }
         if (!result.successful()) {
             throw new PostgresShutdownException(
-                    "PostgreSQL pg_ctl stop failed",
-                    PostgresStopDiagnostics.commandFailure(result));
+                    "PostgreSQL pg_ctl stop failed", PostgresStopDiagnostics.commandFailure(result));
         }
     }
 
@@ -66,7 +66,8 @@ public final class PostgresStopCommand {
                     "PostgreSQL runtime resolution failed before stop",
                     exception,
                     PostgresStopDiagnostics.wrappedFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
+                            Objects.toString(
+                                    exception.getMessage(), exception.getClass().getName()),
                             exception.diagnosticReport()));
         }
     }

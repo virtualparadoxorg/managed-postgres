@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public final class PostgresValueObjectTest {
 
-    PostgresValueObjectTest() {
-    }
+    PostgresValueObjectTest() {}
 
     @Test
     void connectionInfoRejectsInvalidRequiredValues() {
@@ -25,10 +24,7 @@ public final class PostgresValueObjectTest {
     }
 
     private static PostgresConnectionInfo connectionInfo(
-            final String host,
-            final int port,
-            final String database,
-            final String username) {
+            final String host, final int port, final String database, final String username) {
         return new PostgresConnectionInfo(host, port, database, username, Secret.of("secret"));
     }
 }

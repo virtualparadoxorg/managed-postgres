@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.start;
 
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 
 /**
  * Builds and runs {@code pg_ctl} lifecycle commands.
@@ -60,14 +60,8 @@ public final class PgCtlController {
      */
     public CommandResult stop(final Path dataDirectory, final Duration timeout) {
         final Path checkedDataDirectory = Objects.requireNonNull(dataDirectory, "dataDirectory");
-        final List<String> command = List.of(
-                pgCtlBinary().toString(),
-                "-D",
-                checkedDataDirectory.toString(),
-                "-m",
-                "fast",
-                "-w",
-                "stop");
+        final List<String> command =
+                List.of(pgCtlBinary().toString(), "-D", checkedDataDirectory.toString(), "-m", "fast", "-w", "stop");
 
         return commandRunner.run(CommandRequest.of(command, timeout));
     }

@@ -3,13 +3,13 @@ package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.PostgresStatus;
+import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.CountingJdbcProbe;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.DoctorProbeInspectorFixture;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.DoctorProbeRequestFixture;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.CountingJdbcProbe;
-import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.DoctorProbeInspectorFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.DoctorProbeRequestFixture;
 
 public final class DoctorProbeInspectorTest {
 
@@ -18,8 +18,7 @@ public final class DoctorProbeInspectorTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DoctorProbeInspectorTest() {
-    }
+    DoctorProbeInspectorTest() {}
 
     @Test
     void absentMetadataSkipsProbesAndReportsStopped() {
@@ -38,7 +37,8 @@ public final class DoctorProbeInspectorTest {
     @Test
     void metadataWithMissingPidOpenPortAndHealthyJdbcReportsRunning() {
         final DoctorProbeSnapshot snapshot = inspector(true, CountingJdbcProbe.healthy())
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
 
         assertThat(snapshot.status()).isEqualTo(PostgresStatus.RUNNING);
         assertThat(snapshot.section().values())
@@ -54,7 +54,8 @@ public final class DoctorProbeInspectorTest {
         final CountingJdbcProbe jdbcProbe = CountingJdbcProbe.healthy();
 
         final DoctorProbeSnapshot snapshot = inspector(false, jdbcProbe)
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
 
         assertThat(snapshot.status()).isEqualTo(PostgresStatus.FAILED);
         assertThat(snapshot.section().values())
@@ -69,7 +70,8 @@ public final class DoctorProbeInspectorTest {
         final CountingJdbcProbe jdbcProbe = CountingJdbcProbe.healthy();
 
         final DoctorProbeSnapshot snapshot = inspector(true, jdbcProbe)
-                .inspect(fixture().withoutLayout(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
+                .inspect(fixture()
+                        .withoutLayout(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
 
         assertThat(snapshot.status()).isEqualTo(PostgresStatus.FAILED);
         assertThat(snapshot.section().values())
@@ -86,7 +88,8 @@ public final class DoctorProbeInspectorTest {
         final CountingJdbcProbe jdbcProbe = CountingJdbcProbe.healthy();
 
         final DoctorProbeSnapshot snapshot = inspector(true, jdbcProbe)
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L, "wrong-hash"))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L, "wrong-hash"))));
 
         assertThat(snapshot.status()).isEqualTo(PostgresStatus.FAILED);
         assertThat(snapshot.section().values())
@@ -103,24 +106,24 @@ public final class DoctorProbeInspectorTest {
         final CountingJdbcProbe jdbcProbe = CountingJdbcProbe.healthy();
 
         final DoctorProbeSnapshot snapshot = inspector(true, jdbcProbe)
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L, "wrong-hash"))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L, "wrong-hash"))));
 
-        assertThat(snapshot.additionalSections())
-                .singleElement()
-                .satisfies(section -> {
-                    assertThat(section.name()).isEqualTo("postgres-attach-compatibility");
-                    assertThat(section.values())
-                            .containsEntry("status", "incompatible")
-                            .containsEntry("mismatchCount", "1")
-                            .containsEntry("mismatch.1.field", "configHash");
-                });
+        assertThat(snapshot.additionalSections()).singleElement().satisfies(section -> {
+            assertThat(section.name()).isEqualTo("postgres-attach-compatibility");
+            assertThat(section.values())
+                    .containsEntry("status", "incompatible")
+                    .containsEntry("mismatchCount", "1")
+                    .containsEntry("mismatch.1.field", "configHash");
+        });
         assertThat(jdbcProbe.calls()).isZero();
     }
 
     @Test
     void metadataWithUnhealthyJdbcReportsFailed() {
         final DoctorProbeSnapshot snapshot = inspector(true, CountingJdbcProbe.unhealthy())
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
 
         assertThat(snapshot.status()).isEqualTo(PostgresStatus.FAILED);
         assertThat(snapshot.section().values())
@@ -133,7 +136,8 @@ public final class DoctorProbeInspectorTest {
     @Test
     void probeDiagnosticsDoNotRenderPasswords() {
         final DoctorProbeSnapshot snapshot = inspector(true, CountingJdbcProbe.unhealthy())
-                .inspect(fixture().request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
+                .inspect(fixture()
+                        .request(DoctorMetadataSnapshot.present(fixture().metadata(0L))));
 
         assertThat(snapshot.section().values().toString()).doesNotContain(TEST_PASSWORD);
     }

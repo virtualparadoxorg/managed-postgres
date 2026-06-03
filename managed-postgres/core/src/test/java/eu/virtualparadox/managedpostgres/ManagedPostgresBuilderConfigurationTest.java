@@ -7,16 +7,13 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresBuilderConfigurationTest {
 
-    ManagedPostgresBuilderConfigurationTest() {
-    }
+    ManagedPostgresBuilderConfigurationTest() {}
 
     @Test
     void builderStoresPostgreSqlConfigurationAndResourcePreset() {
         try (ManagedPostgres postgres = ManagedPostgres.builder()
                 .configuration(Resources.small())
-                .configuration(configuration -> configuration
-                        .maxConnections(48)
-                        .sharedBuffers("192MB"))
+                .configuration(configuration -> configuration.maxConnections(48).sharedBuffers("192MB"))
                 .build()) {
             assertThat(postgres.toString())
                     .contains("postgresConfiguration")

@@ -4,10 +4,10 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.CommandRedactor;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.util.List;
 import java.util.Map;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 
 /**
  * Coordinates psql bootstrap diagnostics behavior for managed PostgreSQL internals.
@@ -17,8 +17,7 @@ public final class PsqlBootstrapDiagnostics {
     /**
      * Creates a PsqlBootstrapDiagnostics instance.
      */
-    public PsqlBootstrapDiagnostics() {
-    }
+    public PsqlBootstrapDiagnostics() {}
 
     /**
      * Returns the command runner failure result.
@@ -44,11 +43,13 @@ public final class PsqlBootstrapDiagnostics {
             final CommandResult result,
             final PostgresConnectionInfo connectionInfo,
             final Secret sqlSecret) {
-        return diagnostic(operation, Map.of(
-                "command", redact(result.renderedCommand(), connectionInfo, sqlSecret),
-                "exitCode", Integer.toString(result.exitCode()),
-                "stdout", redact(result.stdout(), connectionInfo, sqlSecret),
-                "stderr", redact(result.stderr(), connectionInfo, sqlSecret)));
+        return diagnostic(
+                operation,
+                Map.of(
+                        "command", redact(result.renderedCommand(), connectionInfo, sqlSecret),
+                        "exitCode", Integer.toString(result.exitCode()),
+                        "stdout", redact(result.stdout(), connectionInfo, sqlSecret),
+                        "stderr", redact(result.stderr(), connectionInfo, sqlSecret)));
     }
 
     /**
@@ -66,11 +67,10 @@ public final class PsqlBootstrapDiagnostics {
     }
 
     private static String redact(
-            final String value,
-            final PostgresConnectionInfo connectionInfo,
-            final Secret sqlSecret) {
+            final String value, final PostgresConnectionInfo connectionInfo, final Secret sqlSecret) {
         final String commandRedacted = CommandRedactor.redact(value);
-        final String adminPasswordRedacted = commandRedacted.replace(connectionInfo.password().reveal(), "<redacted>");
+        final String adminPasswordRedacted =
+                commandRedacted.replace(connectionInfo.password().reveal(), "<redacted>");
 
         return adminPasswordRedacted.replace(sqlSecret.reveal(), "<redacted>");
     }

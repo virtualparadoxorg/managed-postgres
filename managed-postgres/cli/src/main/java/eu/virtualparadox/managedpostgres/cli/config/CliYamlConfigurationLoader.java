@@ -43,8 +43,7 @@ public final class CliYamlConfigurationLoader {
     /**
      * Creates a YAML configuration loader.
      */
-    public CliYamlConfigurationLoader() {
-    }
+    public CliYamlConfigurationLoader() {}
 
     /**
      * Loads effective CLI configuration from a YAML file.
@@ -55,14 +54,16 @@ public final class CliYamlConfigurationLoader {
      */
     public CliManagedPostgresConfiguration load(final Path path) throws IOException {
         final Path checkedPath = Objects.requireNonNull(path, "path");
-        final Object loadedYaml = new Load(LoadSettings.builder().build()).loadFromString(Files.readString(checkedPath));
+        final Object loadedYaml =
+                new Load(LoadSettings.builder().build()).loadFromString(Files.readString(checkedPath));
         final Map<?, ?> root = mapValue(loadedYaml, "configuration").orElse(Map.of());
         final Map<?, ?> configuration = section(root, ROOT).orElse(Map.of());
         final Map<?, ?> storage = section(configuration, STORAGE).orElse(Map.of());
         final Map<?, ?> runtime = section(configuration, RUNTIME).orElse(Map.of());
         final Map<?, ?> signature = section(runtime, SIGNATURE).orElse(Map.of());
         final Map<?, ?> network = section(configuration, NETWORK).orElse(Map.of());
-        final Map<?, ?> postgresConfiguration = section(configuration, CONFIGURATION).orElse(Map.of());
+        final Map<?, ?> postgresConfiguration =
+                section(configuration, CONFIGURATION).orElse(Map.of());
         final RuntimeSource runtimeSource = CliYamlRuntimeSourceMapper.fromYaml(new CliYamlRuntimeSourceProperties(
                 stringValue(runtime, SOURCE),
                 pathValue(runtime, PATH),
@@ -82,11 +83,10 @@ public final class CliYamlConfigurationLoader {
             final Map<?, ?> network,
             final Map<?, ?> postgresConfiguration,
             final RuntimeSource runtimeSource) {
-        CliManagedPostgresConfiguration effectiveConfiguration =
-                CliManagedPostgresConfiguration.defaults()
-                        .withRuntimeSource(runtimeSource)
-                        .withNetwork(CliNetworkConfigurationMapper.fromYaml(network))
-                        .withPostgresConfiguration(postgresConfiguration(postgresConfiguration));
+        CliManagedPostgresConfiguration effectiveConfiguration = CliManagedPostgresConfiguration.defaults()
+                .withRuntimeSource(runtimeSource)
+                .withNetwork(CliNetworkConfigurationMapper.fromYaml(network))
+                .withPostgresConfiguration(postgresConfiguration(postgresConfiguration));
 
         final Optional<String> name = stringValue(configuration, NAME);
         if (name.isPresent()) {
@@ -113,7 +113,8 @@ public final class CliYamlConfigurationLoader {
 
         final Optional<Integer> maxConnections = integerValue(configuration, MAX_CONNECTIONS);
         if (maxConnections.isPresent()) {
-            postgresConfiguration = postgresConfiguration.maxConnections(maxConnections.get().intValue());
+            postgresConfiguration =
+                    postgresConfiguration.maxConnections(maxConnections.get().intValue());
         }
 
         final Optional<String> sharedBuffers = stringValue(configuration, SHARED_BUFFERS);
@@ -128,8 +129,8 @@ public final class CliYamlConfigurationLoader {
 
         final Optional<Integer> statementTimeoutSeconds = integerValue(configuration, STATEMENT_TIMEOUT_SECONDS);
         if (statementTimeoutSeconds.isPresent()) {
-            postgresConfiguration =
-                    postgresConfiguration.statementTimeoutSeconds(statementTimeoutSeconds.get().intValue());
+            postgresConfiguration = postgresConfiguration.statementTimeoutSeconds(
+                    statementTimeoutSeconds.get().intValue());
         }
 
         return postgresConfiguration;
@@ -210,5 +211,4 @@ public final class CliYamlConfigurationLoader {
             default -> throw new IllegalArgumentException("preset must be tiny, small, or ci");
         };
     }
-
 }

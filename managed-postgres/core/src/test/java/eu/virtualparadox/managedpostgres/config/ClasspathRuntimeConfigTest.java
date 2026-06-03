@@ -12,27 +12,24 @@ public final class ClasspathRuntimeConfigTest {
     private static final String SHA256_CHECKSUM =
             "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-    ClasspathRuntimeConfigTest() {
-    }
+    ClasspathRuntimeConfigTest() {}
 
     @Test
     void classpathRuntimeSourceStoresResourceCacheAndChecksum() {
         final Path cacheRoot = Path.of("target/classpath-runtime-cache");
 
-        final RuntimeSource runtimeSource = RuntimeSource.classpath("/postgres-runtime.zip", runtime -> runtime
-                .cache(RuntimeCache.projectLocal(cacheRoot))
-                .checksum(SHA256_CHECKSUM));
+        final RuntimeSource runtimeSource = RuntimeSource.classpath(
+                "/postgres-runtime.zip",
+                runtime -> runtime.cache(RuntimeCache.projectLocal(cacheRoot)).checksum(SHA256_CHECKSUM));
 
         assertThat(runtimeSource.kind()).isEqualTo("classpath");
         assertThat(runtimeSource.existingPath()).isEmpty();
         assertThat(runtimeSource.downloadedRuntime()).isEmpty();
-        assertThat(runtimeSource.classpathRuntime())
-                .get()
-                .satisfies(classpathRuntime -> {
-                    assertThat(classpathRuntime.resource()).isEqualTo("/postgres-runtime.zip");
-                    assertThat(classpathRuntime.cache()).contains(RuntimeCache.projectLocal(cacheRoot));
-                    assertThat(classpathRuntime.checksum()).contains(SHA256_CHECKSUM);
-                });
+        assertThat(runtimeSource.classpathRuntime()).get().satisfies(classpathRuntime -> {
+            assertThat(classpathRuntime.resource()).isEqualTo("/postgres-runtime.zip");
+            assertThat(classpathRuntime.cache()).contains(RuntimeCache.projectLocal(cacheRoot));
+            assertThat(classpathRuntime.checksum()).contains(SHA256_CHECKSUM);
+        });
     }
 
     @Test
@@ -55,18 +52,15 @@ public final class ClasspathRuntimeConfigTest {
         assertThatThrownBy(ClasspathRuntimeConfigTest::classpathRuntimeWithBlankChecksum)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("checksum");
-        assertThatThrownBy(() -> new RuntimeSource(
-                "classpath",
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()))
+        assertThatThrownBy(() -> new RuntimeSource("classpath", Optional.empty(), Optional.empty(), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("classpath runtime");
         assertThatThrownBy(() -> new RuntimeSource(
-                "classpath",
-                Optional.of(Path.of("runtime")),
-                Optional.empty(),
-                Optional.of(ClasspathRuntime.resource("/postgres-runtime.zip").checksum(SHA256_CHECKSUM))))
+                        "classpath",
+                        Optional.of(Path.of("runtime")),
+                        Optional.empty(),
+                        Optional.of(ClasspathRuntime.resource("/postgres-runtime.zip")
+                                .checksum(SHA256_CHECKSUM))))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("existing runtime source");
     }

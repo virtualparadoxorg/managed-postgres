@@ -3,9 +3,9 @@ package eu.virtualparadox.managedpostgres.cli.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,13 +17,13 @@ final class CliYamlNetworkConfigurationLoaderTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CliYamlNetworkConfigurationLoaderTest() {
-    }
+    CliYamlNetworkConfigurationLoaderTest() {}
 
     @Test
     void configFileValuesAreLoadedFromManagedPostgresYaml() throws IOException {
         final Path runtimePath = temporaryDirectory.resolve("runtime");
-        final Path configPath = writeConfiguration(String.join(System.lineSeparator(),
+        final Path configPath = writeConfiguration(String.join(
+                System.lineSeparator(),
                 "managed-postgres:",
                 "  name: app-db",
                 "  version: \"16.4\"",
@@ -38,8 +38,7 @@ final class CliYamlNetworkConfigurationLoaderTest {
                 "    fallback-to-random: true",
                 ""));
 
-        final CliManagedPostgresConfiguration configuration =
-                new CliYamlConfigurationLoader().load(configPath);
+        final CliManagedPostgresConfiguration configuration = new CliYamlConfigurationLoader().load(configPath);
 
         assertThat(configuration.name()).isEqualTo("app-db");
         assertThat(configuration.postgresqlVersion()).isEqualTo("16.4");
@@ -52,8 +51,7 @@ final class CliYamlNetworkConfigurationLoaderTest {
     void emptyYamlUsesSafeDefaults() throws IOException {
         final Path configPath = writeConfiguration("");
 
-        final CliManagedPostgresConfiguration configuration =
-                new CliYamlConfigurationLoader().load(configPath);
+        final CliManagedPostgresConfiguration configuration = new CliYamlConfigurationLoader().load(configPath);
 
         assertThat(configuration.name()).isEqualTo("default");
         assertThat(configuration.postgresqlVersion()).isEqualTo("16.4");
@@ -64,7 +62,8 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void postgresConfigurationBlockMapsPresetAndOverrides() throws IOException {
-        final Path configPath = writeConfiguration("""
+        final Path configPath = writeConfiguration(
+                """
                 managed-postgres:
                   configuration:
                     preset: ci
@@ -74,19 +73,20 @@ final class CliYamlNetworkConfigurationLoaderTest {
                     statement-timeout-seconds: 45
                 """);
 
-        final CliManagedPostgresConfiguration configuration =
-                new CliYamlConfigurationLoader().load(configPath);
+        final CliManagedPostgresConfiguration configuration = new CliYamlConfigurationLoader().load(configPath);
 
-        assertThat(configuration.postgresConfiguration()).isEqualTo(Resources.ci()
-                .maxConnections(40)
-                .sharedBuffers("160MB")
-                .tempBuffers("12MB")
-                .statementTimeoutSeconds(45));
+        assertThat(configuration.postgresConfiguration())
+                .isEqualTo(Resources.ci()
+                        .maxConnections(40)
+                        .sharedBuffers("160MB")
+                        .tempBuffers("12MB")
+                        .statementTimeoutSeconds(45));
     }
 
     @Test
     void postgresConfigurationBlockRejectsUnknownPreset() throws IOException {
-        final Path configPath = writeConfiguration("""
+        final Path configPath = writeConfiguration(
+                """
                 managed-postgres:
                   configuration:
                     preset: huge
@@ -99,7 +99,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void randomNetworkSelectionRejectsPortAndFallback() throws IOException {
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: random
@@ -107,7 +109,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("network port is only valid");
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: random
@@ -119,7 +123,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void stableRandomNetworkSelectionRejectsPortAndFallback() throws IOException {
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: stable-random
@@ -127,7 +133,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("network port is only valid");
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: stable-random
@@ -139,7 +147,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void fixedNetworkSelectionRequiresPort() throws IOException {
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: fixed
@@ -150,7 +160,8 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void fixedNetworkSelectionMapsPort() throws IOException {
-        final Network network = loadNetwork("""
+        final Network network = loadNetwork(
+                """
                 managed-postgres:
                   network:
                     port-selection: fixed
@@ -162,13 +173,15 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void preferredNetworkSelectionMapsOptionalFallback() throws IOException {
-        final Network withoutFallback = loadNetwork("""
+        final Network withoutFallback = loadNetwork(
+                """
                 managed-postgres:
                   network:
                     port-selection: preferred
                     port: 15432
                 """);
-        final Network withFallback = loadNetwork("""
+        final Network withFallback = loadNetwork(
+                """
                 managed-postgres:
                   network:
                     port-selection: PREFERRED
@@ -182,7 +195,8 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void yamlRejectsNonObjectNetworkSection() throws IOException {
-        final Path configPath = writeConfiguration("""
+        final Path configPath = writeConfiguration(
+                """
                 managed-postgres:
                   network: invalid
                 """);
@@ -194,14 +208,18 @@ final class CliYamlNetworkConfigurationLoaderTest {
 
     @Test
     void yamlRejectsInvalidNetworkValues() throws IOException {
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: invalid
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("port-selection");
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: fixed
@@ -209,7 +227,9 @@ final class CliYamlNetworkConfigurationLoaderTest {
                 """))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("port must be an integer");
-        assertThatThrownBy(() -> loadNetwork("""
+        assertThatThrownBy(
+                        () -> loadNetwork(
+                                """
                 managed-postgres:
                   network:
                     port-selection: preferred

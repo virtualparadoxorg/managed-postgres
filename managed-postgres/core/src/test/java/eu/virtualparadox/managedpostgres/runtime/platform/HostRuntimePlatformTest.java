@@ -14,12 +14,12 @@ final class HostRuntimePlatformTest {
     @TempDir
     Path tempDir;
 
-    HostRuntimePlatformTest() {
-    }
+    HostRuntimePlatformTest() {}
 
     @Test
     void detectsMuslByLoaderPresence() throws IOException {
-        assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir.resolve("absent"))).isFalse();
+        assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir.resolve("absent")))
+                .isFalse();
         assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir)).isFalse();
         Files.createFile(tempDir.resolve("ld-musl-x86_64.so.1"));
         assertThat(HostRuntimePlatform.muslLoaderPresentIn(tempDir)).isTrue();
@@ -27,13 +27,16 @@ final class HostRuntimePlatformTest {
 
     @Test
     void mapsMacosArchitectures() {
-        assertThat(HostRuntimePlatform.detect("Mac OS X", "aarch64", () -> false)).isEqualTo("macos-aarch64");
-        assertThat(HostRuntimePlatform.detect("Mac OS X", "x86_64", () -> false)).isEqualTo("macos-x86_64");
+        assertThat(HostRuntimePlatform.detect("Mac OS X", "aarch64", () -> false))
+                .isEqualTo("macos-aarch64");
+        assertThat(HostRuntimePlatform.detect("Mac OS X", "x86_64", () -> false))
+                .isEqualTo("macos-x86_64");
     }
 
     @Test
     void mapsWindows() {
-        assertThat(HostRuntimePlatform.detect("Windows 11", "amd64", () -> false)).isEqualTo("windows-x86_64");
+        assertThat(HostRuntimePlatform.detect("Windows 11", "amd64", () -> false))
+                .isEqualTo("windows-x86_64");
     }
 
     @Test
@@ -60,10 +63,14 @@ final class HostRuntimePlatformTest {
 
     @Test
     void resolvesCurrentHostToAKnownTargetIdentifier() {
-        assertThat(HostRuntimePlatform.currentTargetIdentifier()).isIn(
-                "macos-x86_64", "macos-aarch64",
-                "linux-x86_64-glibc", "linux-aarch64-glibc",
-                "linux-x86_64-musl", "linux-aarch64-musl",
-                "windows-x86_64");
+        assertThat(HostRuntimePlatform.currentTargetIdentifier())
+                .isIn(
+                        "macos-x86_64",
+                        "macos-aarch64",
+                        "linux-x86_64-glibc",
+                        "linux-aarch64-glibc",
+                        "linux-x86_64-musl",
+                        "linux-aarch64-musl",
+                        "windows-x86_64");
     }
 }

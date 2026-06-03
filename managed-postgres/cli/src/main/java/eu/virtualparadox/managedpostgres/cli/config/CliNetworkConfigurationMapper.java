@@ -23,15 +23,15 @@ final class CliNetworkConfigurationMapper {
     private static final String FIXED = "fixed";
     private static final String PREFERRED = "preferred";
 
-    private CliNetworkConfigurationMapper() {
-    }
+    private CliNetworkConfigurationMapper() {}
 
     static Network fromYaml(final Map<?, ?> values) {
         final Map<?, ?> checkedValues = Objects.requireNonNull(values, "values");
         final String host = stringValue(checkedValues, HOST).orElse(DEFAULT_HOST);
         final String selection = stringValue(checkedValues, PORT_SELECTION).orElse(DEFAULT_PORT_SELECTION);
         final Optional<Integer> port = integerValue(checkedValues, PORT);
-        final boolean fallbackToRandom = booleanValue(checkedValues, FALLBACK_TO_RANDOM).orElse(false);
+        final boolean fallbackToRandom =
+                booleanValue(checkedValues, FALLBACK_TO_RANDOM).orElse(false);
         final Network localhostNetwork = Network.localhostOnly().host(host);
         final Network network;
 
@@ -52,9 +52,7 @@ final class CliNetworkConfigurationMapper {
     }
 
     private static Network requireNoPort(
-            final Network network,
-            final Optional<Integer> port,
-            final boolean fallbackToRandom) {
+            final Network network, final Optional<Integer> port, final boolean fallbackToRandom) {
         if (port.isPresent()) {
             throw new IllegalArgumentException("network port is only valid for fixed or preferred selection");
         }
@@ -66,9 +64,7 @@ final class CliNetworkConfigurationMapper {
     }
 
     private static Network preferred(
-            final Network network,
-            final Optional<Integer> port,
-            final boolean fallbackToRandom) {
+            final Network network, final Optional<Integer> port, final boolean fallbackToRandom) {
         final Network preferredNetwork = network.preferredPort(requiredPort(port));
         final Network configuredNetwork;
         if (fallbackToRandom) {
@@ -81,8 +77,8 @@ final class CliNetworkConfigurationMapper {
     }
 
     private static int requiredPort(final Optional<Integer> port) {
-        return port.orElseThrow(() -> new IllegalArgumentException(
-                "network port is required for fixed or preferred selection"));
+        return port.orElseThrow(
+                () -> new IllegalArgumentException("network port is required for fixed or preferred selection"));
     }
 
     private static Optional<String> stringValue(final Map<?, ?> values, final String key) {

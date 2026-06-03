@@ -2,13 +2,12 @@ package eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout;
 
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
-import java.nio.file.Path;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import java.nio.file.Path;
 
 public final class PostgresLayoutFixture {
 
-    private PostgresLayoutFixture() {
-    }
+    private PostgresLayoutFixture() {}
 
     public static PostgresLayout createdLayout(final Path storageRoot) {
         final FileSystemOperationJournal fileSystem = new FileSystemOperationJournal();

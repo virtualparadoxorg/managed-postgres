@@ -20,10 +20,7 @@ import org.apache.commons.lang3.StringUtils;
  * @param timeout maximum time to wait for process completion
  */
 public record CommandRequest(
-        List<String> command,
-        Map<String, String> environment,
-        Optional<Path> workingDirectory,
-        Duration timeout) {
+        List<String> command, Map<String, String> environment, Optional<Path> workingDirectory, Duration timeout) {
 
     /**
      * Creates an immutable command request.
@@ -78,10 +75,7 @@ public record CommandRequest(
      */
     public CommandRequest withWorkingDirectory(final Path directory) {
         return new CommandRequest(
-                command,
-                environment,
-                Optional.of(Objects.requireNonNull(directory, "directory")),
-                timeout);
+                command, environment, Optional.of(Objects.requireNonNull(directory, "directory")), timeout);
     }
 
     /**
@@ -90,9 +84,8 @@ public record CommandRequest(
      * @return redacted command rendering
      */
     public String renderedCommand() {
-        return CommandRedactor.redact(command.stream()
-                .map(CommandRequest::renderArgument)
-                .collect(Collectors.joining(" ")));
+        return CommandRedactor.redact(
+                command.stream().map(CommandRequest::renderArgument).collect(Collectors.joining(" ")));
     }
 
     private static void requireCommand(final List<String> command) {

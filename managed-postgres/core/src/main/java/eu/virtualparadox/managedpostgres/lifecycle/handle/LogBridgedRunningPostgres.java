@@ -4,9 +4,9 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import java.nio.file.Path;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -117,7 +117,8 @@ public final class LogBridgedRunningPostgres implements RunningPostgres {
         try {
             return (StartupTelemetry) method.invoke(delegate);
         } catch (IllegalAccessException | InvocationTargetException exception) {
-            throw new IllegalStateException("Unable to read startup telemetry from running PostgreSQL handle", exception);
+            throw new IllegalStateException(
+                    "Unable to read startup telemetry from running PostgreSQL handle", exception);
         }
     }
 

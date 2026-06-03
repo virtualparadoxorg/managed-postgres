@@ -10,6 +10,10 @@ import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
@@ -19,10 +23,6 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 
 @ResourceLock("driver-manager")
 final class FakeRuntimeAttachIT {
@@ -32,15 +32,13 @@ final class FakeRuntimeAttachIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeAttachIT() {
-    }
+    FakeRuntimeAttachIT() {}
 
     @Test
     void localStartMetadataExistsSecondStartAttachesWhenHealthy() throws IOException, SQLException {
         final Path callLog = temporaryDirectory.resolve("pg_ctl-calls.log");
         final FakePostgresRuntime runtime = FakePostgresRuntime.create(
-                temporaryDirectory.resolve("runtime"),
-                ScenarioShell.recordingPgCtl(callLog));
+                temporaryDirectory.resolve("runtime"), ScenarioShell.recordingPgCtl(callLog));
         final Path storageRoot = temporaryDirectory.resolve("cluster");
 
         try (RunningPostgres first = localPostgres(storageRoot, runtime).start()) {
@@ -49,7 +47,8 @@ final class FakeRuntimeAttachIT {
 
             try (LoopbackTcpServer server = LoopbackTcpServer.open(metadata.host(), metadata.port());
                     ScenarioJdbcDriver driver = ScenarioJdbcDriver.register(metadata);
-                    RunningPostgres second = localPostgres(storageRoot, runtime).reuseExisting().start()) {
+                    RunningPostgres second =
+                            localPostgres(storageRoot, runtime).reuseExisting().start()) {
                 server.assertHealthy();
                 assertThat(second.status()).isEqualTo(PostgresStatus.RUNNING);
                 assertThat(second.connectionInfo().port()).isEqualTo(metadata.port());
@@ -61,9 +60,7 @@ final class FakeRuntimeAttachIT {
         }
     }
 
-    private static ManagedPostgresBuilder localPostgres(
-            final Path storageRoot,
-            final FakePostgresRuntime runtime) {
+    private static ManagedPostgresBuilder localPostgres(final Path storageRoot, final FakePostgresRuntime runtime) {
         return ManagedPostgres.local()
                 .name("app-db")
                 .version("16.4")

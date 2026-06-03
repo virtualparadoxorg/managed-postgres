@@ -3,9 +3,15 @@ package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupChecksum;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestSource;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
@@ -20,12 +26,6 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupChecksum;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestSource;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 
 public final class PgDumpBackupServiceTest {
 
@@ -35,8 +35,7 @@ public final class PgDumpBackupServiceTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PgDumpBackupServiceTest() {
-    }
+    PgDumpBackupServiceTest() {}
 
     @Test
     void successfulBackupPublishesDumpManifestAndChecksum() throws IOException {
@@ -48,7 +47,8 @@ public final class PgDumpBackupServiceTest {
         final String checksum = BackupChecksum.sha256(target);
         assertThat(target).hasContent("fake dump\n");
         assertThat(manifestPath(target))
-                .hasContent("""
+                .hasContent(
+                        """
                         {
                           "manifestVersion": 1,
                           "createdAt": "2026-05-27T00:00:00Z",
@@ -61,7 +61,8 @@ public final class PgDumpBackupServiceTest {
                           "checksumAlgorithm": "SHA-256",
                           "checksum": "__CHECKSUM__"
                         }
-                        """.replace("__CHECKSUM__", checksum));
+                        """
+                                .replace("__CHECKSUM__", checksum));
         assertThat(checksumPath(target)).hasContent(checksum + "  app.dump\n");
         assertThat(Files.readString(pgDump.commandLog()))
                 .contains("PGPASSWORD=set")
@@ -91,13 +92,14 @@ public final class PgDumpBackupServiceTest {
         assertThatThrownBy(() -> service(pgDump.runtimeDirectory()).backupTo(target))
                 .isInstanceOf(PostgresBackupException.class)
                 .satisfies(throwable -> assertThat(((PostgresBackupException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("<redacted>")
                         .doesNotContain("app-password"));
 
         assertThat(target).doesNotExist();
-        assertThat(stagingDirectories(Objects.requireNonNull(target.getParent(), "target parent"))).isEmpty();
+        assertThat(stagingDirectories(Objects.requireNonNull(target.getParent(), "target parent")))
+                .isEmpty();
     }
 
     private PgDumpBackupService service(final Path runtimeDirectory) {
@@ -112,10 +114,7 @@ public final class PgDumpBackupServiceTest {
                 new PostgresLockService(),
                 TIMEOUT,
                 new BackupManifestSource(
-                        connectionInfo(),
-                        metadata(),
-                        Clock.fixed(NOW, ZoneOffset.UTC),
-                        "1.0-SNAPSHOT")));
+                        connectionInfo(), metadata(), Clock.fixed(NOW, ZoneOffset.UTC), "1.0-SNAPSHOT")));
     }
 
     private TestPgDump createPgDump(final String body) throws IOException {
@@ -124,10 +123,7 @@ public final class PgDumpBackupServiceTest {
         final Path commandLog = temporaryDirectory.resolve("pg-dump-command.log");
         Files.createDirectories(binDirectory);
         final Path pgDump = binDirectory.resolve("pg_dump");
-        Files.writeString(
-                pgDump,
-                "#!/bin/sh\n" + body,
-                StandardCharsets.UTF_8);
+        Files.writeString(pgDump, "#!/bin/sh\n" + body, StandardCharsets.UTF_8);
         assertThat(pgDump.toFile().setExecutable(true)).isTrue();
 
         return new TestPgDump(runtimeDirectory, commandLog);
@@ -147,7 +143,9 @@ public final class PgDumpBackupServiceTest {
                 printf 'PGPASSWORD=app-password password=app-password\\n' >&2
                 exit __EXIT_CODE__
                 """
-                .replace("__COMMAND_LOG__", temporaryDirectory.resolve("pg-dump-command.log").toString())
+                .replace(
+                        "__COMMAND_LOG__",
+                        temporaryDirectory.resolve("pg-dump-command.log").toString())
                 .replace("__EXIT_CODE__", Integer.toString(exitCode));
     }
 
@@ -161,19 +159,15 @@ public final class PgDumpBackupServiceTest {
 
     private static List<String> stagingDirectories(final Path directory) throws IOException {
         try (var paths = Files.list(directory)) {
-            return paths.map(path -> Objects.requireNonNull(path.getFileName(), "path fileName").toString())
+            return paths.map(path -> Objects.requireNonNull(path.getFileName(), "path fileName")
+                            .toString())
                     .filter(name -> name.contains(".staging"))
                     .toList();
         }
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                55432,
-                "app",
-                "app",
-                Secret.of("app-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 55432, "app", "app", Secret.of("app-password"));
     }
 
     private PostgresInstanceMetadata metadata() {
@@ -196,6 +190,5 @@ public final class PgDumpBackupServiceTest {
                 NOW);
     }
 
-    private record TestPgDump(Path runtimeDirectory, Path commandLog) {
-    }
+    private record TestPgDump(Path runtimeDirectory, Path commandLog) {}
 }

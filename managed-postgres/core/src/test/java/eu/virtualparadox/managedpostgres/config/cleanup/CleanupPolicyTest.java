@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public final class CleanupPolicyTest {
 
-    CleanupPolicyTest() {
-    }
+    CleanupPolicyTest() {}
 
     @Test
     void safeDefaultsKeepRuntimeLogsAndTemporaryCleanupBounded() {
@@ -23,8 +22,7 @@ public final class CleanupPolicyTest {
     @Test
     void fluentMethodsReturnImmutableCopies() {
         final CleanupPolicy defaults = CleanupPolicy.safeDefaults();
-        final CleanupPolicy custom = defaults
-                .keepRuntimeVersions(3)
+        final CleanupPolicy custom = defaults.keepRuntimeVersions(3)
                 .keepLogFiles(1)
                 .rotateLogsAboveBytes(1024L)
                 .deleteTemporaryClusterOnClose(false);

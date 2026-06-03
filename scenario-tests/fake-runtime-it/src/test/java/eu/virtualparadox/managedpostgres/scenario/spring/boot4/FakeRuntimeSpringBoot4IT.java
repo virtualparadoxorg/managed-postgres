@@ -29,8 +29,7 @@ final class FakeRuntimeSpringBoot4IT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeSpringBoot4IT() {
-    }
+    FakeRuntimeSpringBoot4IT() {}
 
     @Test
     void springApplicationStartsFakeRuntimeAndInjectsDatasourceBeforeApplicationBeans() throws IOException {
@@ -64,9 +63,8 @@ final class FakeRuntimeSpringBoot4IT {
 
     @Test
     void existingDatasourceUrlFailsUnlessOverrideIsExplicit() throws IOException {
-        final SpringScenario failingScenario = SpringScenario.create(
-                temporaryDirectory.resolve("failing"),
-                generatedSecretValue());
+        final SpringScenario failingScenario =
+                SpringScenario.create(temporaryDirectory.resolve("failing"), generatedSecretValue());
         final Map<String, Object> failingProperties = failingScenario.properties();
         failingProperties.put("spring.datasource.url", "jdbc:postgresql://external:5432/prod");
 
@@ -74,9 +72,8 @@ final class FakeRuntimeSpringBoot4IT {
                 .hasMessageContaining("spring.datasource.url")
                 .hasMessageNotContaining(failingScenario.rawSecretValue());
 
-        final SpringScenario overrideScenario = SpringScenario.create(
-                temporaryDirectory.resolve("override"),
-                generatedSecretValue());
+        final SpringScenario overrideScenario =
+                SpringScenario.create(temporaryDirectory.resolve("override"), generatedSecretValue());
         final Map<String, Object> overrideProperties = overrideScenario.properties();
         overrideProperties.put("spring.datasource.url", "jdbc:postgresql://external:5432/prod");
         overrideProperties.put("managed-postgres.datasource.override-existing", "true");
@@ -114,10 +111,8 @@ final class FakeRuntimeSpringBoot4IT {
     }
 
     private static String jdbcUrl(final PostgresConnectionInfo connectionInfo) {
-        return "jdbc:postgresql://%s:%d/%s".formatted(
-                connectionInfo.host(),
-                connectionInfo.port(),
-                connectionInfo.database());
+        return "jdbc:postgresql://%s:%d/%s"
+                .formatted(connectionInfo.host(), connectionInfo.port(), connectionInfo.database());
     }
 
     private static String generatedSecretValue() {
@@ -128,20 +123,14 @@ final class FakeRuntimeSpringBoot4IT {
             Optional<String> url,
             Optional<String> username,
             Optional<String> password,
-            PostgresConnectionInfo connectionInfo) {
-    }
+            PostgresConnectionInfo connectionInfo) {}
 
-    private record SpringScenario(
-            Path callLog,
-            String rawSecretValue,
-            FakePostgresRuntime runtime,
-            Path storageRoot) {
+    private record SpringScenario(Path callLog, String rawSecretValue, FakePostgresRuntime runtime, Path storageRoot) {
 
         private static SpringScenario create(final Path root, final String rawSecretValue) throws IOException {
             final Path callLog = root.resolve("pg_ctl-calls.log");
-            final FakePostgresRuntime runtime = FakePostgresRuntime.create(
-                    root.resolve("runtime"),
-                    ScenarioShell.recordingPgCtl(callLog));
+            final FakePostgresRuntime runtime =
+                    FakePostgresRuntime.create(root.resolve("runtime"), ScenarioShell.recordingPgCtl(callLog));
 
             return new SpringScenario(callLog, rawSecretValue, runtime, root.resolve("cluster"));
         }
@@ -153,7 +142,8 @@ final class FakeRuntimeSpringBoot4IT {
             properties.put("managed-postgres.version", "16.4");
             properties.put("managed-postgres.storage.path", storageRoot.toString());
             properties.put("managed-postgres.runtime.source", "existing");
-            properties.put("managed-postgres.runtime.path", runtime.runtimeDirectory().toString());
+            properties.put(
+                    "managed-postgres.runtime.path", runtime.runtimeDirectory().toString());
             properties.put("managed-postgres.cluster.database", "app");
             properties.put("managed-postgres.cluster.owner", "app");
             properties.put("managed-postgres.cluster.password", rawSecretValue);
@@ -165,13 +155,11 @@ final class FakeRuntimeSpringBoot4IT {
     @SpringBootApplication
     static class SpringScenarioApplication {
 
-        SpringScenarioApplication() {
-        }
+        SpringScenarioApplication() {}
 
         @Bean
         DatasourceSnapshot datasourceSnapshot(
-                final Environment environment,
-                final PostgresConnectionInfo connectionInfo) {
+                final Environment environment, final PostgresConnectionInfo connectionInfo) {
             return new DatasourceSnapshot(
                     Optional.ofNullable(environment.getProperty("spring.datasource.url")),
                     Optional.ofNullable(environment.getProperty("spring.datasource.username")),

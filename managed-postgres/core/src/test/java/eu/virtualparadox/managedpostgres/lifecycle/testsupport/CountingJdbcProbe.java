@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.testsupport;
 
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
-import java.util.List;
-import java.util.function.Function;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachJdbcProbeRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
+import java.util.List;
+import java.util.function.Function;
 
 public final class CountingJdbcProbe implements Function<AttachJdbcProbeRequest, PostgresProbeResult> {
 
@@ -21,8 +21,7 @@ public final class CountingJdbcProbe implements Function<AttachJdbcProbeRequest,
 
     public static CountingJdbcProbe unhealthy() {
         return new CountingJdbcProbe(PostgresProbeResult.unhealthy(
-                "JDBC probe found a different PostgreSQL data directory",
-                new DiagnosticReport(List.of())));
+                "JDBC probe found a different PostgreSQL data directory", new DiagnosticReport(List.of())));
     }
 
     @Override

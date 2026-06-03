@@ -65,7 +65,8 @@ final class CliPostgresConfigurationOptions {
             postgresConfiguration = preset(resourcePreset.get());
         }
         if (maxConnections.isPresent()) {
-            postgresConfiguration = postgresConfiguration.maxConnections(maxConnections.get().intValue());
+            postgresConfiguration =
+                    postgresConfiguration.maxConnections(maxConnections.get().intValue());
         }
         if (sharedBuffers.isPresent()) {
             postgresConfiguration = postgresConfiguration.sharedBuffers(sharedBuffers.get());
@@ -74,8 +75,8 @@ final class CliPostgresConfigurationOptions {
             postgresConfiguration = postgresConfiguration.tempBuffers(tempBuffers.get());
         }
         if (statementTimeoutSeconds.isPresent()) {
-            postgresConfiguration =
-                    postgresConfiguration.statementTimeoutSeconds(statementTimeoutSeconds.get().intValue());
+            postgresConfiguration = postgresConfiguration.statementTimeoutSeconds(
+                    statementTimeoutSeconds.get().intValue());
         }
 
         return postgresConfiguration;

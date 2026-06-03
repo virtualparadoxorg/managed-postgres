@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 final class PlatformBuildExecutorTest {
 
-    PlatformBuildExecutorTest() {
-    }
+    PlatformBuildExecutorTest() {}
 
     @Test
     void delegatesEveryPlatformToTheSingleBuildExecutor() {

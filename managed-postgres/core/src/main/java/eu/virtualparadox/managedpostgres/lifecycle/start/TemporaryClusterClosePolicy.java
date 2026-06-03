@@ -2,8 +2,7 @@ package eu.virtualparadox.managedpostgres.lifecycle.start;
 
 final class TemporaryClusterClosePolicy {
 
-    private TemporaryClusterClosePolicy() {
-    }
+    private TemporaryClusterClosePolicy() {}
 
     static boolean shouldDeleteOnClose(final StartPostgresWorkflow.Configuration configuration) {
         final boolean deleteOnClose;

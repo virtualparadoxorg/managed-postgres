@@ -17,10 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  * @param publicKeyBase64 base64 encoded public key
  * @param signatureBase64 base64 encoded detached signature
  */
-public record RuntimeSignature(
-        String algorithm,
-        String publicKeyBase64,
-        String signatureBase64) {
+public record RuntimeSignature(String algorithm, String publicKeyBase64, String signatureBase64) {
 
     private static final int MARKER_FINGERPRINT_LENGTH = 16;
     private static final String ED25519 = "Ed25519";
@@ -72,8 +69,7 @@ public record RuntimeSignature(
      */
     @Override
     public String toString() {
-        return "RuntimeSignature[algorithm=%s, fingerprint=%s]"
-                .formatted(algorithm, markerFingerprint());
+        return "RuntimeSignature[algorithm=%s, fingerprint=%s]".formatted(algorithm, markerFingerprint());
     }
 
     private static String requireAlgorithm(final String algorithm) {

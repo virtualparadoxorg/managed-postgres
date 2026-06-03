@@ -50,10 +50,30 @@ public sealed interface PlatformBuildDriver
     default Map<String, String> mesonFeatureSettings() {
         final LinkedHashMap<String, String> settings = new LinkedHashMap<>();
         for (final String feature : List.of(
-                "readline", "zlib", "icu", "ldap", "gssapi", "pam", "llvm", "nls",
-                "libxml", "libxslt", "lz4", "zstd", "systemd", "selinux", "libcurl",
-                "plperl", "plpython", "pltcl", "tap_tests", "docs", "docs_pdf",
-                "bonjour", "bsd_auth", "dtrace")) {
+                "readline",
+                "zlib",
+                "icu",
+                "ldap",
+                "gssapi",
+                "pam",
+                "llvm",
+                "nls",
+                "libxml",
+                "libxslt",
+                "lz4",
+                "zstd",
+                "systemd",
+                "selinux",
+                "libcurl",
+                "plperl",
+                "plpython",
+                "pltcl",
+                "tap_tests",
+                "docs",
+                "docs_pdf",
+                "bonjour",
+                "bsd_auth",
+                "dtrace")) {
             settings.put(feature, "disabled");
         }
         settings.put("ssl", "none");

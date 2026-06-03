@@ -1,15 +1,15 @@
 package eu.virtualparadox.managedpostgres.lifecycle.testsupport.restore;
 
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupChecksum;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupFormat;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifest;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestCodec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupChecksum;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupFormat;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifest;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestCodec;
 
 public final class PgRestoreBackupFixture {
 

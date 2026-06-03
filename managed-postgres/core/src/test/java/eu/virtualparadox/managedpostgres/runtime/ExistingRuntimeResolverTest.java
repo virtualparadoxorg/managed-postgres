@@ -16,8 +16,7 @@ public final class ExistingRuntimeResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    ExistingRuntimeResolverTest() {
-    }
+    ExistingRuntimeResolverTest() {}
 
     @Test
     void existingRuntimeResolverRejectsMissingPgCtl() throws IOException {
@@ -66,5 +65,4 @@ public final class ExistingRuntimeResolverTest {
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("checksum");
     }
-
 }

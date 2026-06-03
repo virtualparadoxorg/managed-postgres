@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.lifecycle.backup;
 
 import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
 import eu.virtualparadox.managedpostgres.internal.JsonStrings;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.LinkedHashMap;
@@ -10,18 +11,16 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
 
 /**
  * Serializes logical backup manifests as stable JSON.
  */
 public final class BackupManifestCodec {
 
-    private static final Pattern MANIFEST_ENTRY_PATTERN = Pattern.compile(
-            "\\s*\"((?:\\\\.|[^\"])*)\"\\s*:\\s*(?:\"((?:\\\\.|[^\"])*)\"|(\\d+))\\s*,?\\s*");
+    private static final Pattern MANIFEST_ENTRY_PATTERN =
+            Pattern.compile("\\s*\"((?:\\\\.|[^\"])*)\"\\s*:\\s*(?:\"((?:\\\\.|[^\"])*)\"|(\\d+))\\s*,?\\s*");
 
-    private BackupManifestCodec() {
-    }
+    private BackupManifestCodec() {}
 
     /**
      * Returns the serialize result.
@@ -32,19 +31,23 @@ public final class BackupManifestCodec {
     public static String serialize(final BackupManifest manifest) {
         final BackupManifest checkedManifest = Objects.requireNonNull(manifest, "manifest");
 
-        return String.join(System.lineSeparator(),
-                "{",
-                "  \"manifestVersion\": " + checkedManifest.manifestVersion() + ",",
-                "  \"createdAt\": " + JsonStrings.quote(checkedManifest.createdAt().toString()) + ",",
-                "  \"frameworkVersion\": " + JsonStrings.quote(checkedManifest.frameworkVersion()) + ",",
-                "  \"postgresqlVersion\": " + JsonStrings.quote(checkedManifest.postgresqlVersion()) + ",",
-                "  \"postgresqlMajor\": " + checkedManifest.postgresqlMajor() + ",",
-                "  \"clusterId\": " + JsonStrings.quote(checkedManifest.clusterId()) + ",",
-                "  \"database\": " + JsonStrings.quote(checkedManifest.database()) + ",",
-                "  \"format\": " + JsonStrings.quote(checkedManifest.format().manifestValue()) + ",",
-                "  \"checksumAlgorithm\": " + JsonStrings.quote(checkedManifest.checksumAlgorithm()) + ",",
-                "  \"checksum\": " + JsonStrings.quote(checkedManifest.checksum()),
-                "}") + System.lineSeparator();
+        return String.join(
+                        System.lineSeparator(),
+                        "{",
+                        "  \"manifestVersion\": " + checkedManifest.manifestVersion() + ",",
+                        "  \"createdAt\": "
+                                + JsonStrings.quote(checkedManifest.createdAt().toString()) + ",",
+                        "  \"frameworkVersion\": " + JsonStrings.quote(checkedManifest.frameworkVersion()) + ",",
+                        "  \"postgresqlVersion\": " + JsonStrings.quote(checkedManifest.postgresqlVersion()) + ",",
+                        "  \"postgresqlMajor\": " + checkedManifest.postgresqlMajor() + ",",
+                        "  \"clusterId\": " + JsonStrings.quote(checkedManifest.clusterId()) + ",",
+                        "  \"database\": " + JsonStrings.quote(checkedManifest.database()) + ",",
+                        "  \"format\": "
+                                + JsonStrings.quote(checkedManifest.format().manifestValue()) + ",",
+                        "  \"checksumAlgorithm\": " + JsonStrings.quote(checkedManifest.checksumAlgorithm()) + ",",
+                        "  \"checksum\": " + JsonStrings.quote(checkedManifest.checksum()),
+                        "}")
+                + System.lineSeparator();
     }
 
     /**
@@ -70,11 +73,10 @@ public final class BackupManifestCodec {
                     stringValue(values, "checksumAlgorithm"),
                     stringValue(values, "checksum"));
         } catch (final DateTimeParseException | IllegalArgumentException exception) {
-            final String reason = Objects.toString(exception.getMessage(), exception.getClass().getName());
+            final String reason = Objects.toString(
+                    exception.getMessage(), exception.getClass().getName());
             throw new PostgresRestoreException(
-                    "Invalid PostgreSQL backup manifest: " + reason,
-                    exception,
-                    diagnostics.invalidManifest(reason));
+                    "Invalid PostgreSQL backup manifest: " + reason, exception, diagnostics.invalidManifest(reason));
         }
     }
 
@@ -89,9 +91,7 @@ public final class BackupManifestCodec {
 
     private static Map<String, String> parseLines(final String content) {
         final Map<String, String> values = new LinkedHashMap<>();
-        content.lines()
-                .filter(StringUtils::isNotBlank)
-                .forEach(line -> parseLine(line, values));
+        content.lines().filter(StringUtils::isNotBlank).forEach(line -> parseLine(line, values));
 
         return values;
     }

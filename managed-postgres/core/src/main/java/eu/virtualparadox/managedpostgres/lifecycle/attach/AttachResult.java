@@ -95,9 +95,7 @@ public record AttachResult(
      * @return failed attach result
      */
     public static AttachResult failed(
-            final String summary,
-            final boolean startNewAllowed,
-            final DiagnosticReport diagnosticReport) {
+            final String summary, final boolean startNewAllowed, final DiagnosticReport diagnosticReport) {
         return new AttachResult(
                 false,
                 summary,
@@ -115,11 +113,7 @@ public record AttachResult(
      */
     public static AttachResult success(final String summary, final RunningPostgres handle) {
         return new AttachResult(
-                true,
-                summary,
-                Optional.of(Objects.requireNonNull(handle, "handle")),
-                false,
-                emptyReport());
+                true, summary, Optional.of(Objects.requireNonNull(handle, "handle")), false, emptyReport());
     }
 
     private static DiagnosticReport emptyReport() {

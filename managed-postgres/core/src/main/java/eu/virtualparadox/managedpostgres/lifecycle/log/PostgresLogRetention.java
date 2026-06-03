@@ -20,8 +20,7 @@ public final class PostgresLogRetention {
     /**
      * Creates a PostgreSQL log retention service.
      */
-    public PostgresLogRetention() {
-    }
+    public PostgresLogRetention() {}
 
     /**
      * Prepares the process log file according to the configured cleanup policy.
@@ -30,7 +29,8 @@ public final class PostgresLogRetention {
      * @param cleanupPolicy cleanup and retention policy
      */
     public void prepare(final Path logFile, final CleanupPolicy cleanupPolicy) {
-        final Path checkedLogFile = Objects.requireNonNull(logFile, "logFile").toAbsolutePath().normalize();
+        final Path checkedLogFile =
+                Objects.requireNonNull(logFile, "logFile").toAbsolutePath().normalize();
         final CleanupPolicy checkedPolicy = Objects.requireNonNull(cleanupPolicy, "cleanupPolicy");
         if (shouldRotate(checkedLogFile, checkedPolicy)) {
             rotate(checkedLogFile, checkedPolicy.retainedLogFiles());
@@ -44,7 +44,8 @@ public final class PostgresLogRetention {
      * @param retainedLogFiles retained rotated log file count
      */
     public void trimHistory(final Path logFile, final int retainedLogFiles) {
-        final Path checkedLogFile = Objects.requireNonNull(logFile, "logFile").toAbsolutePath().normalize();
+        final Path checkedLogFile =
+                Objects.requireNonNull(logFile, "logFile").toAbsolutePath().normalize();
         if (retainedLogFiles < 0) {
             throw new IllegalArgumentException("retainedLogFiles must not be negative");
         }
@@ -119,8 +120,7 @@ public final class PostgresLogRetention {
             indexes = List.of();
         } else {
             try (Stream<Path> paths = Files.list(parent)) {
-                indexes = paths
-                        .map(path -> rotationIndex(path, fileName))
+                indexes = paths.map(path -> rotationIndex(path, fileName))
                         .flatMap(Optional::stream)
                         .sorted(Comparator.reverseOrder())
                         .toList();

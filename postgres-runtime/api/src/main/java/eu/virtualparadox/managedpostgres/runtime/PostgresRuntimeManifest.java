@@ -12,9 +12,7 @@ import java.util.Optional;
  * @param runtimeIdentity downloaded runtime identity, when available
  */
 public record PostgresRuntimeManifest(
-        String postgresqlVersion,
-        String runtimeSource,
-        Optional<PostgresRuntimeIdentity> runtimeIdentity) {
+        String postgresqlVersion, String runtimeSource, Optional<PostgresRuntimeIdentity> runtimeIdentity) {
 
     private static final String SYSTEM = "system";
     private static final String EXISTING = "existing";
@@ -29,7 +27,8 @@ public record PostgresRuntimeManifest(
      * @param runtimeIdentity downloaded runtime identity, when available
      */
     public PostgresRuntimeManifest {
-        final Optional<PostgresRuntimeIdentity> validatedRuntimeIdentity = Objects.requireNonNull(runtimeIdentity, "runtimeIdentity");
+        final Optional<PostgresRuntimeIdentity> validatedRuntimeIdentity =
+                Objects.requireNonNull(runtimeIdentity, "runtimeIdentity");
         postgresqlVersion = requireNotBlank(postgresqlVersion, "postgresqlVersion");
         runtimeSource = requireRuntimeSource(runtimeSource);
         requireDownloadedChecksum(runtimeSource, validatedRuntimeIdentity);
@@ -64,8 +63,7 @@ public record PostgresRuntimeManifest(
      * @return downloaded runtime manifest
      */
     public static PostgresRuntimeManifest downloaded(
-            final String postgresqlVersion,
-            final PostgresRuntimeIdentity runtimeIdentity) {
+            final String postgresqlVersion, final PostgresRuntimeIdentity runtimeIdentity) {
         return downloaded(postgresqlVersion, Optional.of(runtimeIdentity));
     }
 
@@ -77,8 +75,7 @@ public record PostgresRuntimeManifest(
      * @return downloaded runtime manifest
      */
     public static PostgresRuntimeManifest downloaded(
-            final String postgresqlVersion,
-            final Optional<PostgresRuntimeIdentity> runtimeIdentity) {
+            final String postgresqlVersion, final Optional<PostgresRuntimeIdentity> runtimeIdentity) {
         return new PostgresRuntimeManifest(postgresqlVersion, DOWNLOADED, runtimeIdentity);
     }
 
@@ -101,8 +98,7 @@ public record PostgresRuntimeManifest(
     }
 
     private static void requireDownloadedChecksum(
-            final String runtimeSource,
-            final Optional<PostgresRuntimeIdentity> runtimeIdentity) {
+            final String runtimeSource, final Optional<PostgresRuntimeIdentity> runtimeIdentity) {
         if (DOWNLOADED.equals(runtimeSource) && runtimeIdentity.isEmpty()) {
             throw new IllegalArgumentException("downloaded runtime manifest requires an identity checksum");
         }

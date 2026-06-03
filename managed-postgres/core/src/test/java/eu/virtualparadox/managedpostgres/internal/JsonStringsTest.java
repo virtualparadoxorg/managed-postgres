@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public final class JsonStringsTest {
 
-    JsonStringsTest() {
-    }
+    JsonStringsTest() {}
 
     @Test
     void escapeAndUnescapeRoundTripJsonControlCharacters() {

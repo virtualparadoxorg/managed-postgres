@@ -25,8 +25,7 @@ public final class CommandRunnerTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CommandRunnerTest() {
-    }
+    CommandRunnerTest() {}
 
     @Test
     void commandRunnerCapturesStdout() throws IOException {
@@ -100,20 +99,16 @@ public final class CommandRunnerTest {
 
     @Test
     void commandRenderingRedactsSecrets() {
-        final CommandRequest request = CommandRequest.of(
-                List.of("pg_ctl", "start", "password=actual-secret"),
-                COMMAND_COMPLETION_TIMEOUT);
+        final CommandRequest request =
+                CommandRequest.of(List.of("pg_ctl", "start", "password=actual-secret"), COMMAND_COMPLETION_TIMEOUT);
 
-        assertThat(request.renderedCommand())
-                .contains("password=<redacted>")
-                .doesNotContain("actual-secret");
+        assertThat(request.renderedCommand()).contains("password=<redacted>").doesNotContain("actual-secret");
     }
 
     @Test
     void commandRequestRendersQuotedArgumentsAndCopiesEnvironment() {
         final CommandRequest request = CommandRequest.of(
-                        List.of("pg_ctl", "start postgres", "tab\tvalue", "quote\"value"),
-                        COMMAND_COMPLETION_TIMEOUT)
+                        List.of("pg_ctl", "start postgres", "tab\tvalue", "quote\"value"), COMMAND_COMPLETION_TIMEOUT)
                 .withEnvironmentVariable("PGDATA", "pg data")
                 .withWorkingDirectory(temporaryDirectory);
 
@@ -133,10 +128,11 @@ public final class CommandRunnerTest {
         assertThatThrownBy(() -> CommandRequest.of(List.of("pg_ctl"), Duration.ofMillis(-1)))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> {
-            final CommandRequest request = CommandRequest.of(List.of("pg_ctl"), Duration.ofSeconds(1))
-                    .withEnvironmentVariable(" ", "value");
-            assertThat(request).isNotNull();
-        }).isInstanceOf(IllegalArgumentException.class);
+                    final CommandRequest request = CommandRequest.of(List.of("pg_ctl"), Duration.ofSeconds(1))
+                            .withEnvironmentVariable(" ", "value");
+                    assertThat(request).isNotNull();
+                })
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -149,8 +145,8 @@ public final class CommandRunnerTest {
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("failed to start")
                 .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("password=<redacted>")
                         .doesNotContain("actual-secret"));
     }

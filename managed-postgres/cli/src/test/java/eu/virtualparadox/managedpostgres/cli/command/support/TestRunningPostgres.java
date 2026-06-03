@@ -47,30 +47,18 @@ public final class TestRunningPostgres implements RunningPostgres {
     }
 
     public static TestRunningPostgres withBackupFailure(
-            final PostgresConnectionInfo connectionInfo,
-            final PostgresBackupException failure) {
-        return new TestRunningPostgres(
-                connectionInfo,
-                Optional.of(failure),
-                Optional.empty());
+            final PostgresConnectionInfo connectionInfo, final PostgresBackupException failure) {
+        return new TestRunningPostgres(connectionInfo, Optional.of(failure), Optional.empty());
     }
 
     public static TestRunningPostgres withRestoreFailure(
-            final PostgresConnectionInfo connectionInfo,
-            final PostgresRestoreException failure) {
-        return new TestRunningPostgres(
-                connectionInfo,
-                Optional.empty(),
-                Optional.of(failure));
+            final PostgresConnectionInfo connectionInfo, final PostgresRestoreException failure) {
+        return new TestRunningPostgres(connectionInfo, Optional.empty(), Optional.of(failure));
     }
 
     public static TestRunningPostgres empty() {
-        return new TestRunningPostgres(new PostgresConnectionInfo(
-                "127.0.0.1",
-                1,
-                "postgres",
-                "postgres",
-                Secret.redacted()));
+        return new TestRunningPostgres(
+                new PostgresConnectionInfo("127.0.0.1", 1, "postgres", "postgres", Secret.redacted()));
     }
 
     @Override

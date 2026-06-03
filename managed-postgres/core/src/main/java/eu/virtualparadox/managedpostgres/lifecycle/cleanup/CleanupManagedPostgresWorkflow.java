@@ -61,7 +61,9 @@ public final class CleanupManagedPostgresWorkflow {
         if (checkedConfiguration.storage().temporaryStorage()) {
             throw new PostgresCleanupException(
                     "Explicit cleanup is unsupported for temporary cluster storage",
-                    CleanupWorkflowDiagnostics.cleanup("temporary-storage", checkedConfiguration.storage().path().toString()));
+                    CleanupWorkflowDiagnostics.cleanup(
+                            "temporary-storage",
+                            checkedConfiguration.storage().path().toString()));
         }
 
         final PostgresLayout layout = PostgresLayout.plan(checkedConfiguration.storage(), fileSystem);
@@ -78,7 +80,8 @@ public final class CleanupManagedPostgresWorkflow {
             throw new PostgresCleanupException(
                     "Managed PostgreSQL cleanup failed",
                     exception,
-                    CleanupWorkflowDiagnostics.cleanup("cleanup-root", layout.root().toString()));
+                    CleanupWorkflowDiagnostics.cleanup(
+                            "cleanup-root", layout.root().toString()));
         }
     }
 

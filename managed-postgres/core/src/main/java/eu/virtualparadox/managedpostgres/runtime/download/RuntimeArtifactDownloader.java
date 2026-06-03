@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.runtime.download;
 
 import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
+import eu.virtualparadox.managedpostgres.runtime.Checksum;
 import java.io.IOException;
 import java.nio.file.Path;
-import eu.virtualparadox.managedpostgres.runtime.Checksum;
 
 /**
  * Downloads PostgreSQL runtime archive artifacts into framework-owned cache files.

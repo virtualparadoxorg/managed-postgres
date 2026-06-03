@@ -16,8 +16,7 @@ public final class DoctorCredentialInspector {
     /**
      * Creates a DoctorCredentialInspector instance.
      */
-    public DoctorCredentialInspector() {
-    }
+    public DoctorCredentialInspector() {}
 
     /**
      * Returns the inspect result.
@@ -43,8 +42,10 @@ public final class DoctorCredentialInspector {
         values.put("path", normalizedCredentialPath.toString());
         if (Files.exists(normalizedCredentialPath)) {
             values.put("status", "present");
-            values.put("readable", Boolean.toString(Files.isRegularFile(normalizedCredentialPath)
-                    && Files.isReadable(normalizedCredentialPath)));
+            values.put(
+                    "readable",
+                    Boolean.toString(Files.isRegularFile(normalizedCredentialPath)
+                            && Files.isReadable(normalizedCredentialPath)));
         } else {
             values.put("status", "absent");
         }

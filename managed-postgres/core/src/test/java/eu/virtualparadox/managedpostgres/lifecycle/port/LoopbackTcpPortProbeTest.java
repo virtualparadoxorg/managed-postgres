@@ -2,18 +2,17 @@ package eu.virtualparadox.managedpostgres.lifecycle.port;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
 
 public final class LoopbackTcpPortProbeTest {
 
-    LoopbackTcpPortProbeTest() {
-    }
+    LoopbackTcpPortProbeTest() {}
 
     @Test
     void loopbackProbeAcceptsOpenLoopbackPort() throws IOException {
@@ -33,12 +32,10 @@ public final class LoopbackTcpPortProbeTest {
 
         assertThat(new LoopbackTcpPortProbe().test(PostgresMetadataFixture.metadata(Path.of("data"), closedPort)))
                 .isFalse();
-        assertThat(new LoopbackTcpPortProbe().test(PostgresMetadataFixture.metadata(
-                Path.of("data"),
-                "203.0.113.10",
-                closedPort,
-                "16.4",
-                16))).isFalse();
+        assertThat(new LoopbackTcpPortProbe()
+                        .test(PostgresMetadataFixture.metadata(
+                                Path.of("data"), "203.0.113.10", closedPort, "16.4", 16)))
+                .isFalse();
     }
 
     private static ServerSocketChannel loopbackSocket(final int port) throws IOException {

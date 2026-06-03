@@ -14,18 +14,15 @@ import org.junit.jupiter.api.Test;
 
 public final class LogBridgedRunningPostgresTest {
 
-    LogBridgedRunningPostgresTest() {
-    }
+    LogBridgedRunningPostgresTest() {}
 
     @Test
     void startupTelemetryDelegatesWhenWrappedHandleExposesIt() {
-        try (TelemetryAwareRunningPostgres delegate = new TelemetryAwareRunningPostgres(
-                new StartupTelemetry(Duration.ofMillis(25), 3));
-                LogBridgedRunningPostgres handle = new LogBridgedRunningPostgres(
-                        delegate,
-                        () -> {
-                            // No close side effect is needed for telemetry delegation coverage.
-                        })) {
+        try (TelemetryAwareRunningPostgres delegate =
+                        new TelemetryAwareRunningPostgres(new StartupTelemetry(Duration.ofMillis(25), 3));
+                LogBridgedRunningPostgres handle = new LogBridgedRunningPostgres(delegate, () -> {
+                    // No close side effect is needed for telemetry delegation coverage.
+                })) {
             assertThat(delegate.startupTelemetry().runtimeInstallDuration()).isEqualTo(Duration.ofMillis(25));
             assertThat(delegate.startupTelemetry().healthcheckFailures()).isEqualTo(3);
             assertThat(handle.startupTelemetry().runtimeInstallDuration()).isEqualTo(Duration.ofMillis(25));
@@ -35,11 +32,9 @@ public final class LogBridgedRunningPostgresTest {
 
     @Test
     void startupTelemetryFallsBackToZeroWhenWrappedHandleDoesNotExposeIt() {
-        try (LogBridgedRunningPostgres handle = new LogBridgedRunningPostgres(
-                new SimpleRunningPostgres(),
-                () -> {
-                    // No close side effect is needed for telemetry fallback coverage.
-                })) {
+        try (LogBridgedRunningPostgres handle = new LogBridgedRunningPostgres(new SimpleRunningPostgres(), () -> {
+            // No close side effect is needed for telemetry fallback coverage.
+        })) {
             assertThat(handle.startupTelemetry().runtimeInstallDuration()).isZero();
             assertThat(handle.startupTelemetry().healthcheckFailures()).isZero();
         }

@@ -3,12 +3,12 @@ package eu.virtualparadox.managedpostgres.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
-import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
-import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
@@ -25,8 +25,7 @@ public final class ConfigModelTest {
     private static final String SHA256_CHECKSUM =
             "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-    ConfigModelTest() {
-    }
+    ConfigModelTest() {}
 
     @Test
     void managedPostgresConfigurationWithMethodsReturnUpdatedCopies() {
@@ -37,17 +36,27 @@ public final class ConfigModelTest {
         final RuntimeSource runtimeSource = RuntimeSource.downloaded();
         final Credentials credentials = Credentials.trustLocalOnly();
         final Network network = Network.localhostOnly().stableRandomPort();
-        final ClusterBootstrap clusterBootstrap = ClusterBootstrap.defaultCluster().database("app");
+        final ClusterBootstrap clusterBootstrap =
+                ClusterBootstrap.defaultCluster().database("app");
 
         assertThat(configuration.withName("other").name()).isEqualTo("other");
-        assertThat(configuration.withPostgresqlVersion("17.1").postgresqlVersion()).isEqualTo("17.1");
+        assertThat(configuration.withPostgresqlVersion("17.1").postgresqlVersion())
+                .isEqualTo("17.1");
         assertThat(configuration.withStorage(storage).storage()).isEqualTo(storage);
-        assertThat(configuration.withRuntimeSource(runtimeSource).runtimeSource()).isEqualTo(runtimeSource);
+        assertThat(configuration.withRuntimeSource(runtimeSource).runtimeSource())
+                .isEqualTo(runtimeSource);
         assertThat(configuration.withCredentials(credentials).credentials()).isEqualTo(credentials);
         assertThat(configuration.withNetwork(network).network()).isEqualTo(network);
-        assertThat(configuration.withClusterBootstrap(clusterBootstrap).clusterBootstrap()).isEqualTo(clusterBootstrap);
-        assertThat(configuration.withLogs(PostgresLogs.defaults().toSlf4j()).logs().bridgeToSlf4j()).isTrue();
-        assertThat(configuration.withAttachPolicy(AttachPolicy.ATTACH_IF_COMPATIBLE).attachPolicy())
+        assertThat(configuration.withClusterBootstrap(clusterBootstrap).clusterBootstrap())
+                .isEqualTo(clusterBootstrap);
+        assertThat(configuration
+                        .withLogs(PostgresLogs.defaults().toSlf4j())
+                        .logs()
+                        .bridgeToSlf4j())
+                .isTrue();
+        assertThat(configuration
+                        .withAttachPolicy(AttachPolicy.ATTACH_IF_COMPATIBLE)
+                        .attachPolicy())
                 .isEqualTo(AttachPolicy.ATTACH_IF_COMPATIBLE);
         assertThat(configuration.withStopPolicy(StopPolicy.KEEP_RUNNING).stopPolicy())
                 .isEqualTo(StopPolicy.KEEP_RUNNING);
@@ -57,59 +66,62 @@ public final class ConfigModelTest {
                 .isEqualTo(ConfigDriftPolicy.IGNORE);
         assertThat(defaultConfiguration.upgradePolicy()).isEqualTo(UpgradePolicy.MINOR_ONLY);
         assertThat(defaultConfiguration.configDriftPolicy()).isEqualTo(ConfigDriftPolicy.FAIL);
-        assertThat(defaultConfiguration.network()).isEqualTo(Network.localhostOnly().stableRandomPort());
+        assertThat(defaultConfiguration.network())
+                .isEqualTo(Network.localhostOnly().stableRandomPort());
         assertThat(configuration.name()).isEqualTo("app-db");
     }
 
     @Test
     void managedPostgresConfigurationRejectsInvalidRequiredValues() {
         assertThatThrownBy(() -> new ManagedPostgresConfiguration(
-                " ",
-                "16.4",
-                Storage.projectLocal("storage"),
-                RuntimeSource.downloaded(),
-                Credentials.generated(),
-                Network.localhostOnly(),
-                ClusterBootstrap.defaultCluster(),
-                Resources.small(),
-                PostgresLogs.defaults(),
-                AttachPolicy.CREATE_NEW,
-                StopPolicy.STOP_ON_CLOSE,
-                UpgradePolicy.MINOR_ONLY,
-                ConfigDriftPolicy.FAIL,
-                CleanupPolicy.safeDefaults())).isInstanceOf(IllegalArgumentException.class);
+                        " ",
+                        "16.4",
+                        Storage.projectLocal("storage"),
+                        RuntimeSource.downloaded(),
+                        Credentials.generated(),
+                        Network.localhostOnly(),
+                        ClusterBootstrap.defaultCluster(),
+                        Resources.small(),
+                        PostgresLogs.defaults(),
+                        AttachPolicy.CREATE_NEW,
+                        StopPolicy.STOP_ON_CLOSE,
+                        UpgradePolicy.MINOR_ONLY,
+                        ConfigDriftPolicy.FAIL,
+                        CleanupPolicy.safeDefaults()))
+                .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new ManagedPostgresConfiguration(
-                "app-db",
-                "",
-                Storage.projectLocal("storage"),
-                RuntimeSource.downloaded(),
-                Credentials.generated(),
-                Network.localhostOnly(),
-                ClusterBootstrap.defaultCluster(),
-                Resources.small(),
-                AttachPolicy.CREATE_NEW,
-                StopPolicy.STOP_ON_CLOSE,
-                UpgradePolicy.MINOR_ONLY,
-                ConfigDriftPolicy.FAIL,
-                CleanupPolicy.safeDefaults())).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> ManagedPostgresConfiguration.class.getMethod("withUpgradePolicy", UpgradePolicy.class)
-                .invoke(configuration(), new Object[] {null}))
+                        "app-db",
+                        "",
+                        Storage.projectLocal("storage"),
+                        RuntimeSource.downloaded(),
+                        Credentials.generated(),
+                        Network.localhostOnly(),
+                        ClusterBootstrap.defaultCluster(),
+                        Resources.small(),
+                        AttachPolicy.CREATE_NEW,
+                        StopPolicy.STOP_ON_CLOSE,
+                        UpgradePolicy.MINOR_ONLY,
+                        ConfigDriftPolicy.FAIL,
+                        CleanupPolicy.safeDefaults()))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ManagedPostgresConfiguration.class
+                        .getMethod("withUpgradePolicy", UpgradePolicy.class)
+                        .invoke(configuration(), new Object[] {null}))
                 .hasCauseInstanceOf(NullPointerException.class)
                 .hasRootCauseMessage("upgradePolicy");
         assertThatThrownBy(() -> ManagedPostgresConfiguration.class
-                .getMethod("withConfigDriftPolicy", ConfigDriftPolicy.class)
-                .invoke(configuration(), new Object[] {null}))
+                        .getMethod("withConfigDriftPolicy", ConfigDriftPolicy.class)
+                        .invoke(configuration(), new Object[] {null}))
                 .hasCauseInstanceOf(NullPointerException.class)
                 .hasRootCauseMessage("configDriftPolicy");
-        assertThatThrownBy(() -> ManagedPostgresConfiguration.class.getMethod("withNetwork", Network.class)
-                .invoke(configuration(), new Object[] {null}))
+        assertThatThrownBy(() -> ManagedPostgresConfiguration.class
+                        .getMethod("withNetwork", Network.class)
+                        .invoke(configuration(), new Object[] {null}))
                 .hasCauseInstanceOf(NullPointerException.class)
                 .hasRootCauseMessage("network");
         assertThatThrownBy(() -> ManagedPostgresConfiguration.class
-                .getMethod(
-                        "withPostgresConfiguration",
-                        PostgresConfiguration.class)
-                .invoke(configuration(), new Object[] {null}))
+                        .getMethod("withPostgresConfiguration", PostgresConfiguration.class)
+                        .invoke(configuration(), new Object[] {null}))
                 .hasCauseInstanceOf(NullPointerException.class)
                 .hasRootCauseMessage("postgresConfiguration");
     }
@@ -128,20 +140,18 @@ public final class ConfigModelTest {
         final URI repositoryUri = URI.create("file:///tmp/postgres-runtime.zip");
         final Path cacheRoot = Path.of("target/runtime-cache");
 
-        final RuntimeSource runtimeSource = RuntimeSource.downloaded(runtime -> runtime
-                .repository(RuntimeRepository.custom(repositoryUri))
-                .cache(RuntimeCache.projectLocal(cacheRoot))
-                .checksum(SHA256_CHECKSUM));
+        final RuntimeSource runtimeSource =
+                RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(repositoryUri))
+                        .cache(RuntimeCache.projectLocal(cacheRoot))
+                        .checksum(SHA256_CHECKSUM));
 
         assertThat(runtimeSource.kind()).isEqualTo("downloaded");
         assertThat(runtimeSource.existingPath()).isEmpty();
-        assertThat(runtimeSource.downloadedRuntime())
-                .get()
-                .satisfies(downloadedRuntime -> {
-                    assertThat(downloadedRuntime.repository()).contains(RuntimeRepository.custom(repositoryUri));
-                    assertThat(downloadedRuntime.cache()).contains(RuntimeCache.projectLocal(cacheRoot));
-                    assertThat(downloadedRuntime.checksum()).contains(SHA256_CHECKSUM);
-                });
+        assertThat(runtimeSource.downloadedRuntime()).get().satisfies(downloadedRuntime -> {
+            assertThat(downloadedRuntime.repository()).contains(RuntimeRepository.custom(repositoryUri));
+            assertThat(downloadedRuntime.cache()).contains(RuntimeCache.projectLocal(cacheRoot));
+            assertThat(downloadedRuntime.checksum()).contains(SHA256_CHECKSUM);
+        });
     }
 
     @Test
@@ -212,9 +222,7 @@ public final class ConfigModelTest {
 
         assertThat(runtimeSource.downloadedRuntime()).contains(DownloadedRuntime.empty());
         assertThatThrownBy(() -> new RuntimeSource(
-                "downloaded",
-                Optional.of(Path.of("runtime")),
-                Optional.of(DownloadedRuntime.empty())))
+                        "downloaded", Optional.of(Path.of("runtime")), Optional.of(DownloadedRuntime.empty())))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("existing runtime source");
         assertThatThrownBy(() -> new RuntimeSource("downloaded", Optional.empty(), Optional.empty()))

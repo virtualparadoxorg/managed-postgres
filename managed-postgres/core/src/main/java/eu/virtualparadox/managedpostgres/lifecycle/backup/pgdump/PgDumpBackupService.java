@@ -2,14 +2,14 @@ package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperation;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import java.nio.file.Path;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactPaths;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLock;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Creates pg_dump logical backups and sidecar metadata artifacts.
@@ -52,9 +52,7 @@ public final class PgDumpBackupService implements PostgresBackupOperation {
         final BackupArtifactPaths paths = BackupArtifactPaths.from(target, diagnostics);
 
         try (HeldPostgresLock operationLock = lockService.acquireOperationLock(layout);
-                FileSystemOperation operation = fileSystem.beginOperation(
-                        OPERATION_NAME,
-                        paths.operationRoot())) {
+                FileSystemOperation operation = fileSystem.beginOperation(OPERATION_NAME, paths.operationRoot())) {
             requireHeldLock(operationLock);
             paths.requireAbsent(diagnostics);
             backupCreator.create(operation, paths);

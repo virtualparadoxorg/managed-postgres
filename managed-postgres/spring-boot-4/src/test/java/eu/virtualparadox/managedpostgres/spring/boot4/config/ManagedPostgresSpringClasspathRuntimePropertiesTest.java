@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringClasspathRuntimePropertiesTest {
 
-    private static final String CHECKSUM =
-            "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+    private static final String CHECKSUM = "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
-    ManagedPostgresSpringClasspathRuntimePropertiesTest() {
-    }
+    ManagedPostgresSpringClasspathRuntimePropertiesTest() {}
 
     @Test
     void classpathRuntimeSourceReadsResourceChecksumAndCache() {
@@ -34,13 +32,15 @@ public final class ManagedPostgresSpringClasspathRuntimePropertiesTest {
     @Test
     void classpathRuntimeSourceRequiresResourceAndChecksum() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "classpath",
-                "managed-postgres.runtime.checksum", CHECKSUM))))
+                        "managed-postgres.runtime.source",
+                        "classpath",
+                        "managed-postgres.runtime.checksum",
+                        CHECKSUM))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.resource");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "classpath",
-                "managed-postgres.runtime.resource", "/postgres-runtime.zip"))))
+                        "managed-postgres.runtime.source", "classpath",
+                        "managed-postgres.runtime.resource", "/postgres-runtime.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.checksum");
     }
@@ -48,10 +48,10 @@ public final class ManagedPostgresSpringClasspathRuntimePropertiesTest {
     @Test
     void classpathRuntimeSourceRejectsRuntimePath() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "classpath",
-                "managed-postgres.runtime.path", "runtime/postgres-16.4",
-                "managed-postgres.runtime.resource", "/postgres-runtime.zip",
-                "managed-postgres.runtime.checksum", CHECKSUM))))
+                        "managed-postgres.runtime.source", "classpath",
+                        "managed-postgres.runtime.path", "runtime/postgres-16.4",
+                        "managed-postgres.runtime.resource", "/postgres-runtime.zip",
+                        "managed-postgres.runtime.checksum", CHECKSUM))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.path");
     }
@@ -59,18 +59,17 @@ public final class ManagedPostgresSpringClasspathRuntimePropertiesTest {
     @Test
     void nonClasspathRuntimeSourcesRejectClasspathRuntimeDetails() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.resource", "/postgres-runtime.zip"))))
+                        "managed-postgres.runtime.source", "system",
+                        "managed-postgres.runtime.resource", "/postgres-runtime.zip"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.resource");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.checksum", CHECKSUM))))
+                        "managed-postgres.runtime.source", "system", "managed-postgres.runtime.checksum", CHECKSUM))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.checksum");
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.cache", ".local/runtime-cache"))))
+                        "managed-postgres.runtime.source", "system",
+                        "managed-postgres.runtime.cache", ".local/runtime-cache"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.cache");
     }

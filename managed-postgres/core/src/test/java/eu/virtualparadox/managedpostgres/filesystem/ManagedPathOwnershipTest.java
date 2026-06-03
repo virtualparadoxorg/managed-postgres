@@ -13,8 +13,7 @@ public final class ManagedPathOwnershipTest {
     @TempDir
     private Path root;
 
-    ManagedPathOwnershipTest() {
-    }
+    ManagedPathOwnershipTest() {}
 
     @Test
     void missingMarkerIsNotOwned() {

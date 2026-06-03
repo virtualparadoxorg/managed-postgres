@@ -15,7 +15,6 @@ final class ManagedPostgresPropertySourcePublisher {
 
     void addFirst(final String name, final Map<String, Object> properties) {
         propertySources.addFirst(new MapPropertySource(
-                Objects.requireNonNull(name, "name"),
-                Objects.requireNonNull(properties, "properties")));
+                Objects.requireNonNull(name, "name"), Objects.requireNonNull(properties, "properties")));
     }
 }

@@ -14,8 +14,7 @@ public final class ManagedPostgresSpringNetworkMapper {
     private static final String FIXED = "fixed";
     private static final String PREFERRED = "preferred";
 
-    private ManagedPostgresSpringNetworkMapper() {
-    }
+    private ManagedPostgresSpringNetworkMapper() {}
 
     /**
      * Applies Spring Boot network properties to a managed PostgreSQL builder.
@@ -25,8 +24,7 @@ public final class ManagedPostgresSpringNetworkMapper {
      * @return updated builder
      */
     public static ManagedPostgresBuilder configure(
-            final ManagedPostgresBuilder builder,
-            final ManagedPostgresSpringProperties.NetworkProperties properties) {
+            final ManagedPostgresBuilder builder, final ManagedPostgresSpringProperties.NetworkProperties properties) {
         final ManagedPostgresBuilder checkedBuilder = Objects.requireNonNull(builder, "builder");
         final ManagedPostgresSpringProperties.NetworkProperties checkedProperties =
                 Objects.requireNonNull(properties, "properties");
@@ -35,9 +33,9 @@ public final class ManagedPostgresSpringNetworkMapper {
     }
 
     private static Network configureNetwork(
-            final Network network,
-            final ManagedPostgresSpringProperties.NetworkProperties properties) {
-        final Network localhostNetwork = Objects.requireNonNull(network, "network").host(properties.host());
+            final Network network, final ManagedPostgresSpringProperties.NetworkProperties properties) {
+        final Network localhostNetwork =
+                Objects.requireNonNull(network, "network").host(properties.host());
 
         return switch (properties.portSelection()) {
             case RANDOM -> requireNoPort(localhostNetwork.randomPort(), properties);
@@ -50,8 +48,7 @@ public final class ManagedPostgresSpringNetworkMapper {
     }
 
     private static Network requireNoPort(
-            final Network network,
-            final ManagedPostgresSpringProperties.NetworkProperties properties) {
+            final Network network, final ManagedPostgresSpringProperties.NetworkProperties properties) {
         if (properties.port().isPresent()) {
             throw new ManagedPostgresSpringException(
                     "managed-postgres.network.port is only valid for fixed or preferred port selection");
@@ -65,8 +62,7 @@ public final class ManagedPostgresSpringNetworkMapper {
     }
 
     private static Network preferred(
-            final Network network,
-            final ManagedPostgresSpringProperties.NetworkProperties properties) {
+            final Network network, final ManagedPostgresSpringProperties.NetworkProperties properties) {
         final Network preferredNetwork = network.preferredPort(requiredPort(properties));
         final Network configuredNetwork;
         if (properties.fallbackToRandom()) {
@@ -79,7 +75,9 @@ public final class ManagedPostgresSpringNetworkMapper {
     }
 
     private static int requiredPort(final ManagedPostgresSpringProperties.NetworkProperties properties) {
-        return properties.port().orElseThrow(() -> new ManagedPostgresSpringException(
-                "managed-postgres.network.port is required for fixed or preferred port selection"));
+        return properties
+                .port()
+                .orElseThrow(() -> new ManagedPostgresSpringException(
+                        "managed-postgres.network.port is required for fixed or preferred port selection"));
     }
 }

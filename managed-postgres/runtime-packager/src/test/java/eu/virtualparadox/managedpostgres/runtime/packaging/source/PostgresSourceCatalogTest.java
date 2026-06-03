@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 final class PostgresSourceCatalogTest {
 
-    PostgresSourceCatalogTest() {
-    }
+    PostgresSourceCatalogTest() {}
 
     @Test
     void returnsOfficialSourceTarballForVersion() {

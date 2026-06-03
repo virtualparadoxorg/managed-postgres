@@ -1,15 +1,15 @@
 package eu.virtualparadox.managedpostgres.lifecycle;
 
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
-import eu.virtualparadox.managedpostgres.runtime.DefaultRuntimeResolver;
-import java.time.Duration;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.CleanupManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.DestroyManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorService;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
-import eu.virtualparadox.managedpostgres.lifecycle.stop.PostgresStopCommand;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.lifecycle.stop.PostgresStopCommand;
 import eu.virtualparadox.managedpostgres.lifecycle.stop.StopPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.runtime.DefaultRuntimeResolver;
+import java.time.Duration;
 
 /**
  * Builds default lifecycle collaborators for the service facade.
@@ -18,8 +18,7 @@ public final class ManagedPostgresLifecycleFactory {
 
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
 
-    private ManagedPostgresLifecycleFactory() {
-    }
+    private ManagedPostgresLifecycleFactory() {}
 
     /**
      * Returns the start workflow result.

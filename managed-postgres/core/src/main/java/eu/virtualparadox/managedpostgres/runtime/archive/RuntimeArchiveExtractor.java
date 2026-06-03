@@ -32,8 +32,7 @@ public final class RuntimeArchiveExtractor {
     /**
      * Creates a runtime archive extractor.
      */
-    public RuntimeArchiveExtractor() {
-    }
+    public RuntimeArchiveExtractor() {}
 
     /**
      * Extracts a supported runtime archive under the supplied staging directory.
@@ -44,9 +43,8 @@ public final class RuntimeArchiveExtractor {
      * @throws IOException if the archive cannot be read or extracted
      */
     public Path extract(final Path archive, final Path stagingDirectory) throws IOException {
-        final Path checkedArchive = Objects.requireNonNull(archive, "archive")
-                .toAbsolutePath()
-                .normalize();
+        final Path checkedArchive =
+                Objects.requireNonNull(archive, "archive").toAbsolutePath().normalize();
         final Path checkedStagingDirectory = Objects.requireNonNull(stagingDirectory, "stagingDirectory")
                 .toAbsolutePath()
                 .normalize();
@@ -56,10 +54,8 @@ public final class RuntimeArchiveExtractor {
         return checkedStagingDirectory;
     }
 
-    private static void extractArchive(
-            final Path archive,
-            final Path stagingDirectory,
-            final ArchiveFormat format) throws IOException {
+    private static void extractArchive(final Path archive, final Path stagingDirectory, final ArchiveFormat format)
+            throws IOException {
         if (ArchiveFormat.ZIP == format) {
             extractZip(archive, stagingDirectory);
         } else {
@@ -87,15 +83,11 @@ public final class RuntimeArchiveExtractor {
     }
 
     private static boolean hasZipMagic(final byte[] signature, final int bytesRead) {
-        return bytesRead >= SIGNATURE_LENGTH
-                && signature[0] == ZIP_MAGIC_FIRST
-                && signature[1] == ZIP_MAGIC_SECOND;
+        return bytesRead >= SIGNATURE_LENGTH && signature[0] == ZIP_MAGIC_FIRST && signature[1] == ZIP_MAGIC_SECOND;
     }
 
     private static boolean hasGzipMagic(final byte[] signature, final int bytesRead) {
-        return bytesRead >= SIGNATURE_LENGTH
-                && signature[0] == GZIP_MAGIC_FIRST
-                && signature[1] == GZIP_MAGIC_SECOND;
+        return bytesRead >= SIGNATURE_LENGTH && signature[0] == GZIP_MAGIC_FIRST && signature[1] == GZIP_MAGIC_SECOND;
     }
 
     private static void extractZip(final Path archive, final Path stagingDirectory) throws IOException {
@@ -110,9 +102,7 @@ public final class RuntimeArchiveExtractor {
     }
 
     private static void extractZipEntry(
-            final Path stagingDirectory,
-            final ZipInputStream zipInputStream,
-            final ZipEntry entry) throws IOException {
+            final Path stagingDirectory, final ZipInputStream zipInputStream, final ZipEntry entry) throws IOException {
         final Path target = safeTarget(stagingDirectory, entry.getName());
         if (entry.isDirectory()) {
             Files.createDirectories(target);
@@ -137,9 +127,7 @@ public final class RuntimeArchiveExtractor {
     }
 
     private static void extractRegularFile(
-            final Path stagingDirectory,
-            final InputStream inputStream,
-            final Path target) throws IOException {
+            final Path stagingDirectory, final InputStream inputStream, final Path target) throws IOException {
         Files.createDirectories(parentDirectory(target));
         Files.copy(inputStream, target, StandardCopyOption.REPLACE_EXISTING);
         repairExecutablePermission(stagingDirectory, target);
@@ -191,8 +179,7 @@ public final class RuntimeArchiveExtractor {
         private final TarArchiveInputStream inputStream;
 
         private TarGzipArchiveReader(final Path archive) throws IOException {
-            this.inputStream = new TarArchiveInputStream(
-                    new GzipCompressorInputStream(Files.newInputStream(archive)));
+            this.inputStream = new TarArchiveInputStream(new GzipCompressorInputStream(Files.newInputStream(archive)));
         }
 
         private void extractTo(final Path stagingDirectory) throws IOException {
@@ -207,9 +194,7 @@ public final class RuntimeArchiveExtractor {
             return inputStream.getNextEntry();
         }
 
-        private void extractEntry(
-                final Path stagingDirectory,
-                final TarArchiveEntry entry) throws IOException {
+        private void extractEntry(final Path stagingDirectory, final TarArchiveEntry entry) throws IOException {
             final Path target = safeTarget(stagingDirectory, entry.getName());
             if (entry.isDirectory()) {
                 Files.createDirectories(target);

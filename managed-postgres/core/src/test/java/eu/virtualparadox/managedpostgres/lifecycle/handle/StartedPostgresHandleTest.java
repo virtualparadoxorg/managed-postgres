@@ -3,11 +3,19 @@ package eu.virtualparadox.managedpostgres.lifecycle.handle;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
-import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
+import eu.virtualparadox.managedpostgres.exception.PostgresBackupException;
+import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
+import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartedPostgresStopper;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.FakePostgresRuntime;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,14 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.FakePostgresRuntime;
-import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBackupOperation;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresLayoutFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreOperation;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartedPostgresStopper;
 
 public final class StartedPostgresHandleTest {
 
@@ -33,8 +33,7 @@ public final class StartedPostgresHandleTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartedPostgresHandleTest() {
-    }
+    StartedPostgresHandleTest() {}
 
     @Test
     void startedHandleStopIsIdempotentAfterSuccessfulShutdown() throws IOException {
@@ -55,8 +54,8 @@ public final class StartedPostgresHandleTest {
         final FakePostgresRuntime fakeRuntime = new FakePostgresRuntime(temporaryDirectory);
         final Path runtimeDirectory = fakeRuntime.runtimeWithScripts(List.of(new Script(
                 "pg_ctl",
-                "printf '%s\\n' 'pg_ctl stop' >> "
-                        + FakePostgresRuntime.shellQuote(fakeRuntime.callsPath()) + "\nexit 1\n")));
+                "printf '%s\\n' 'pg_ctl stop' >> " + FakePostgresRuntime.shellQuote(fakeRuntime.callsPath())
+                        + "\nexit 1\n")));
 
         try (StartedPostgresHandle handle = handle(runtimeDirectory, StopPolicy.STOP_ON_CLOSE)) {
             assertThatThrownBy(handle::stop)
@@ -83,9 +82,11 @@ public final class StartedPostgresHandleTest {
     void startedHandleCloseDeletesTemporaryClusterAfterSuccessfulStop() throws IOException {
         final FakePostgresRuntime fakeRuntime = new FakePostgresRuntime(temporaryDirectory);
         final Path runtimeDirectory = fakeRuntime.runtimeWithScripts(List.of());
-        final PostgresLayout layout = PostgresLayoutFixture.createdLayout(temporaryDirectory.resolve("temporary-storage"));
+        final PostgresLayout layout =
+                PostgresLayoutFixture.createdLayout(temporaryDirectory.resolve("temporary-storage"));
 
-        closeAction(handle(runtimeDirectory, StopPolicy.STOP_ON_CLOSE, layout, true)).run();
+        closeAction(handle(runtimeDirectory, StopPolicy.STOP_ON_CLOSE, layout, true))
+                .run();
 
         assertThat(layout.root()).doesNotExist();
     }
@@ -129,17 +130,15 @@ public final class StartedPostgresHandleTest {
                     .isInstanceOf(PostgresBackupException.class)
                     .hasMessageContaining("not running")
                     .satisfies(throwable -> assertThat(((PostgresBackupException) throwable)
-                            .diagnosticReport()
-                            .renderText())
+                                    .diagnosticReport()
+                                    .renderText())
                             .contains("STOPPED"));
         }
 
         assertThat(backupTarget).hasNullValue();
     }
 
-    private StartedPostgresHandle handle(
-            final Path runtimeDirectory,
-            final StopPolicy stopPolicy) {
+    private StartedPostgresHandle handle(final Path runtimeDirectory, final StopPolicy stopPolicy) {
         final PostgresLayout layout = PostgresLayoutFixture.createdLayout(temporaryDirectory.resolve("storage"));
 
         return handle(new HandleSettings(runtimeDirectory, stopPolicy, layout, false));
@@ -159,9 +158,7 @@ public final class StartedPostgresHandleTest {
         });
     }
 
-    private StartedPostgresHandle handle(
-            final HandleSettings settings,
-            final PostgresBackupOperation backupOperation) {
+    private StartedPostgresHandle handle(final HandleSettings settings, final PostgresBackupOperation backupOperation) {
         return handle(settings, backupOperation, (backup, options) -> {
             // Restore is not part of backup/shutdown-focused tests.
         });
@@ -178,9 +175,7 @@ public final class StartedPostgresHandleTest {
                 new StartedPostgresHandle.Dependencies(
                         checkedSettings.layout(),
                         new StartedPostgresStopper(
-                                checkedSettings.runtimeDirectory(),
-                                new CommandRunner(),
-                                SHUTDOWN_TIMEOUT),
+                                checkedSettings.runtimeDirectory(), new CommandRunner(), SHUTDOWN_TIMEOUT),
                         checkedSettings.stopPolicy(),
                         checkedSettings.deleteOnClose(),
                         backupOperation,
@@ -193,10 +188,7 @@ public final class StartedPostgresHandleTest {
     }
 
     private record HandleSettings(
-            Path runtimeDirectory,
-            StopPolicy stopPolicy,
-            PostgresLayout layout,
-            boolean deleteOnClose) {
+            Path runtimeDirectory, StopPolicy stopPolicy, PostgresLayout layout, boolean deleteOnClose) {
 
         private HandleSettings {
             Objects.requireNonNull(runtimeDirectory, "runtimeDirectory");

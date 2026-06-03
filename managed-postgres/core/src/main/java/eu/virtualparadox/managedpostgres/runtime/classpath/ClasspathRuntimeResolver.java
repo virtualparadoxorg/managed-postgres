@@ -80,9 +80,8 @@ public final class ClasspathRuntimeResolver implements RuntimeResolver, Telemetr
      */
     @Override
     public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
-        final ClasspathRuntimeResolutionContext context = ClasspathRuntimeResolutionContext.create(
-                runtimeSource,
-                postgresqlVersion);
+        final ClasspathRuntimeResolutionContext context =
+                ClasspathRuntimeResolutionContext.create(runtimeSource, postgresqlVersion);
         return cacheResolver.resolveWithTelemetry(
                 context.layout(),
                 context.finalRuntime(),

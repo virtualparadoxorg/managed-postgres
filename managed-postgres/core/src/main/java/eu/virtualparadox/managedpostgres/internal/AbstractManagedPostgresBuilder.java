@@ -4,13 +4,13 @@ import eu.virtualparadox.managedpostgres.DownloadedRuntimeDsl;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.Credentials;
-import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
+import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import java.net.URI;
 import java.util.Objects;
@@ -20,8 +20,8 @@ import java.util.function.UnaryOperator;
  * Coordinates abstract managed postgres builder behavior for managed PostgreSQL internals.
  */
 @SuppressWarnings({
-        // The immutable builder intentionally fronts the complete public configuration contract in one place.
-        "PMD.CouplingBetweenObjects"
+    // The immutable builder intentionally fronts the complete public configuration contract in one place.
+    "PMD.CouplingBetweenObjects"
 })
 public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresBuilder {
 
@@ -91,17 +91,16 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
 
         @Override
         public ManagedPostgresBuilder fromOfficialRepository() {
-            return builder.runtime(RuntimeSource.downloaded(
-                    runtime -> runtime.repository(RuntimeRepository.official())));
+            return builder.runtime(
+                    RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
         }
 
         @Override
         public ManagedPostgresBuilder fromGitHubRelease(final String owner, final String repo) {
-            final URI repository = URI.create(
-                    GITHUB_RELEASE_SCHEME + "://" + Objects.requireNonNull(owner, "owner")
-                            + "/" + Objects.requireNonNull(repo, "repo"));
-            return builder.runtime(RuntimeSource.downloaded(
-                    runtime -> runtime.repository(RuntimeRepository.custom(repository))));
+            final URI repository = URI.create(GITHUB_RELEASE_SCHEME + "://" + Objects.requireNonNull(owner, "owner")
+                    + "/" + Objects.requireNonNull(repo, "repo"));
+            return builder.runtime(
+                    RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(repository))));
         }
     }
 
@@ -128,8 +127,7 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     public final ManagedPostgresBuilder configuration(final UnaryOperator<PostgresConfiguration> customizer) {
         final UnaryOperator<PostgresConfiguration> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
         final PostgresConfiguration postgresConfiguration = Objects.requireNonNull(
-                checkedCustomizer.apply(configuration.postgresConfiguration()),
-                "postgresConfiguration");
+                checkedCustomizer.apply(configuration.postgresConfiguration()), "postgresConfiguration");
 
         return copy(configuration.withPostgresConfiguration(postgresConfiguration));
     }

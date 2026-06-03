@@ -57,9 +57,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 @SuppressWarnings({
-        // These tests intentionally exercise the full lifecycle path with fake runtime scripts.
-        "PMD.CouplingBetweenObjects",
-        "PMD.TooManyMethods"
+    // These tests intentionally exercise the full lifecycle path with fake runtime scripts.
+    "PMD.CouplingBetweenObjects",
+    "PMD.TooManyMethods"
 })
 public final class StartPostgresWorkflowTest {
 
@@ -69,20 +69,22 @@ public final class StartPostgresWorkflowTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowTest() {
-    }
+    StartPostgresWorkflowTest() {}
 
     @Test
     void localStartUsesDeterministicLayout() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts(List.of());
         final Path storageRoot = temporaryDirectory.resolve("local-postgres");
 
-        try (RunningPostgres handle = workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory))) {
+        try (RunningPostgres handle =
+                workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory))) {
             assertThat(handle).isInstanceOf(StartedPostgresHandle.class);
             final PostgresLayout startedLayout = ((StartedPostgresHandle) handle).layout();
-            assertThat(startedLayout.root()).isEqualTo(storageRoot.toAbsolutePath().normalize());
+            assertThat(startedLayout.root())
+                    .isEqualTo(storageRoot.toAbsolutePath().normalize());
         }
-        assertThat(Files.isRegularFile(storageRoot.resolve("state").resolve("metadata.json"))).isTrue();
+        assertThat(Files.isRegularFile(storageRoot.resolve("state").resolve("metadata.json")))
+                .isTrue();
     }
 
     @Test
@@ -103,12 +105,11 @@ public final class StartPostgresWorkflowTest {
         final Path runtimeDirectory = runtimeWithScripts(List.of());
         final Path storageRoot = temporaryDirectory.resolve("locked-postgres");
         final PostgresLockService lockService = new PostgresLockService();
-        final Path operationLockPath = storageRoot
-                .resolve("locks")
-                .resolve(PostgresLayout.OPERATION_LOCK_FILE);
+        final Path operationLockPath = storageRoot.resolve("locks").resolve(PostgresLayout.OPERATION_LOCK_FILE);
 
         try (HeldPostgresLock heldLock = lockService.acquire(operationLockPath)) {
-            assertThat(heldLock.path()).isEqualTo(operationLockPath.toAbsolutePath().normalize());
+            assertThat(heldLock.path())
+                    .isEqualTo(operationLockPath.toAbsolutePath().normalize());
             assertThatThrownBy(() -> workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory)))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessageContaining("already held");
@@ -121,9 +122,8 @@ public final class StartPostgresWorkflowTest {
 
     @Test
     void startupTimeoutThrowsDiagnosticException() throws IOException {
-        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script(
-                "pg_isready",
-                "printf '%s\\n' pg_isready >> " + shellQuote(callsPath()) + "\nexit 2\n")));
+        final Path runtimeDirectory = runtimeWithScripts(List.of(
+                new Script("pg_isready", "printf '%s\\n' pg_isready >> " + shellQuote(callsPath()) + "\nexit 2\n")));
 
         final StartPostgresWorkflow workflow = new StartPostgresWorkflow(
                 new ExistingRuntimeResolver(),
@@ -132,8 +132,7 @@ public final class StartPostgresWorkflowTest {
                 READINESS_TIMEOUT_ASSERTION);
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                new Storage(temporaryDirectory.resolve("local-postgres"), false),
-                runtimeDirectory)))
+                        new Storage(temporaryDirectory.resolve("local-postgres"), false), runtimeDirectory)))
                 .isInstanceOf(PostgresStartupException.class)
                 .satisfies(throwable -> {
                     final PostgresStartupException exception = (PostgresStartupException) throwable;
@@ -148,11 +147,11 @@ public final class StartPostgresWorkflowTest {
     void startedHandleCapturesRuntimeInstallDurationFromTelemetryResolver() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts(List.of());
         final Duration installDuration = Duration.ofMillis(250);
-        final StartPostgresWorkflow workflow = workflow(new FixedTelemetryRuntimeResolver(runtimeDirectory, installDuration));
+        final StartPostgresWorkflow workflow =
+                workflow(new FixedTelemetryRuntimeResolver(runtimeDirectory, installDuration));
 
         try (RunningPostgres handle = workflow.start(configuration(
-                new Storage(temporaryDirectory.resolve("telemetry-postgres"), false),
-                runtimeDirectory))) {
+                new Storage(temporaryDirectory.resolve("telemetry-postgres"), false), runtimeDirectory))) {
             assertThat(handle).isInstanceOf(StartedPostgresHandle.class);
             assertThat(((StartedPostgresHandle) handle).startupTelemetry().runtimeInstallDuration())
                     .isEqualTo(installDuration);
@@ -161,9 +160,8 @@ public final class StartPostgresWorkflowTest {
 
     @Test
     void metadataIsWrittenOnlyAfterReadinessSucceeds() throws IOException {
-        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script(
-                "pg_isready",
-                "printf '%s\\n' pg_isready >> " + shellQuote(callsPath()) + "\nexit 2\n")));
+        final Path runtimeDirectory = runtimeWithScripts(List.of(
+                new Script("pg_isready", "printf '%s\\n' pg_isready >> " + shellQuote(callsPath()) + "\nexit 2\n")));
         final Path storageRoot = temporaryDirectory.resolve("local-postgres");
         final StartPostgresWorkflow workflow = new StartPostgresWorkflow(
                 new ExistingRuntimeResolver(),
@@ -174,7 +172,8 @@ public final class StartPostgresWorkflowTest {
         assertThatThrownBy(() -> workflow.start(configuration(new Storage(storageRoot, false), runtimeDirectory)))
                 .isInstanceOf(PostgresStartupException.class);
 
-        assertThat(Files.exists(storageRoot.resolve("state").resolve("metadata.json"))).isFalse();
+        assertThat(Files.exists(storageRoot.resolve("state").resolve("metadata.json")))
+                .isFalse();
     }
 
     @Test
@@ -201,18 +200,16 @@ public final class StartPostgresWorkflowTest {
 
         workflow().start(configuration(new Storage(storageRoot, false), runtimeDirectory));
 
-        final PostgresLayout layout = PostgresLayout.plan(
-                new Storage(storageRoot, false),
-                new FileSystemOperationJournal());
+        final PostgresLayout layout =
+                PostgresLayout.plan(new Storage(storageRoot, false), new FileSystemOperationJournal());
         final MetadataStore metadataStore = new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal());
-        assertThat(metadataStore.read()).hasValueSatisfying(metadata -> assertThat(metadata.pid()).isEqualTo(4242L));
+        assertThat(metadataStore.read())
+                .hasValueSatisfying(metadata -> assertThat(metadata.pid()).isEqualTo(4242L));
     }
 
     @Test
     void initdbCommandTimeoutIsWrappedAsStartupException() throws IOException {
-        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script(
-                "initdb",
-                "sleep 5\nexit 0\n")));
+        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script("initdb", "sleep 5\nexit 0\n")));
         final StartPostgresWorkflow workflow = new StartPostgresWorkflow(
                 new ExistingRuntimeResolver(),
                 new FileSystemOperationJournal(),
@@ -220,13 +217,13 @@ public final class StartPostgresWorkflowTest {
                 Duration.ofMillis(250));
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                new Storage(temporaryDirectory.resolve("local-postgres"), false),
-                runtimeDirectory)))
+                        new Storage(temporaryDirectory.resolve("local-postgres"), false), runtimeDirectory)))
                 .isInstanceOf(PostgresStartupException.class)
                 .hasMessageContaining("initdb")
                 .satisfies(throwable -> assertThat(((PostgresStartupException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("Command timed out"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("Command timed out"));
     }
 
     @Test
@@ -268,14 +265,10 @@ public final class StartPostgresWorkflowTest {
                 scenario.layout().stateDirectory().resolve("credentials.properties"),
                 "username=postgres%npassword=persisted-secret%npersistent=true%nlocalTrustOnly=false%n".formatted(),
                 StandardCharsets.UTF_8);
-        final StartPostgresWorkflow workflow = workflowWithRequestProbe(
-                ProcessLookup.fixed(Optional.empty()),
-                metadata -> true,
-                request -> {
-                    final boolean loaded = request.configuration()
-                            .credentials()
-                            .password()
-                            .equals(Secret.of("persisted-secret"));
+        final StartPostgresWorkflow workflow =
+                workflowWithRequestProbe(ProcessLookup.fixed(Optional.empty()), metadata -> true, request -> {
+                    final boolean loaded =
+                            request.configuration().credentials().password().equals(Secret.of("persisted-secret"));
                     return attachProbeResult(loaded);
                 });
 
@@ -307,10 +300,8 @@ public final class StartPostgresWorkflowTest {
         final StartPostgresWorkflow workflow = workflowWithRequestProbe(
                 ProcessLookup.fixed(Optional.empty()),
                 metadata -> true,
-                request -> attachProbeResult(request.configuration()
-                        .credentials()
-                        .password()
-                        .equals(Secret.of("new-persistent-secret"))));
+                request -> attachProbeResult(
+                        request.configuration().credentials().password().equals(Secret.of("new-persistent-secret"))));
 
         try (RunningPostgres handle = workflow.start(new StartPostgresWorkflow.Configuration(
                 "app-db",
@@ -337,22 +328,24 @@ public final class StartPostgresWorkflowTest {
         final Storage storage = new Storage(storageRoot, false);
         final PostgresLayout layout = PostgresLayout.plan(storage, new FileSystemOperationJournal());
         layout.createDirectories(new FileSystemOperationJournal());
-        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal()).write(metadata(layout, 0L, "other-db"));
+        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal())
+                .write(metadata(layout, 0L, "other-db"));
         final StartPostgresWorkflow workflow = workflow(
                 ProcessLookup.fixed(Optional.empty()),
                 metadata -> true,
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                storage,
-                runtimeDirectory,
-                "16.4",
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.STOP_ON_CLOSE)))
+                        storage,
+                        runtimeDirectory,
+                        "16.4",
+                        AttachPolicy.ATTACH_IF_COMPATIBLE,
+                        StopPolicy.STOP_ON_CLOSE)))
                 .isInstanceOf(PostgresAttachException.class)
                 .satisfies(throwable -> assertThat(((PostgresAttachException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("name"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("name"));
 
         assertThat(calls()).isEmpty();
         assertThat(layout.stateDirectory().resolve("metadata.stale.json")).doesNotExist();
@@ -367,16 +360,17 @@ public final class StartPostgresWorkflowTest {
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                scenario.storage(),
-                scenario.runtimeDirectory(),
-                "16.4",
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.STOP_ON_CLOSE)))
+                        scenario.storage(),
+                        scenario.runtimeDirectory(),
+                        "16.4",
+                        AttachPolicy.ATTACH_IF_COMPATIBLE,
+                        StopPolicy.STOP_ON_CLOSE)))
                 .isInstanceOf(PostgresAttachException.class)
                 .hasMessageContaining("metadata could not be attached safely");
 
         assertThat(calls()).isEmpty();
-        assertThat(scenario.layout().stateDirectory().resolve("metadata.stale.json")).doesNotExist();
+        assertThat(scenario.layout().stateDirectory().resolve("metadata.stale.json"))
+                .doesNotExist();
     }
 
     @Test
@@ -388,18 +382,20 @@ public final class StartPostgresWorkflowTest {
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                scenario.storage(),
-                scenario.runtimeDirectory(),
-                "16.4",
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.STOP_ON_CLOSE)))
+                        scenario.storage(),
+                        scenario.runtimeDirectory(),
+                        "16.4",
+                        AttachPolicy.ATTACH_IF_COMPATIBLE,
+                        StopPolicy.STOP_ON_CLOSE)))
                 .isInstanceOf(PostgresAttachException.class)
                 .satisfies(throwable -> assertThat(((PostgresAttachException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("Port"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("Port"));
 
         assertThat(calls()).isEmpty();
-        assertThat(scenario.layout().stateDirectory().resolve("metadata.stale.json")).doesNotExist();
+        assertThat(scenario.layout().stateDirectory().resolve("metadata.stale.json"))
+                .doesNotExist();
     }
 
     @Test
@@ -416,11 +412,7 @@ public final class StartPostgresWorkflowTest {
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
         try (RunningPostgres handle = workflow.start(configuration(
-                storage,
-                runtimeDirectory,
-                "16.4",
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.STOP_ON_CLOSE))) {
+                storage, runtimeDirectory, "16.4", AttachPolicy.ATTACH_IF_COMPATIBLE, StopPolicy.STOP_ON_CLOSE))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(Files.readString(layout.stateDirectory().resolve("metadata.stale.json"), StandardCharsets.UTF_8))
                     .contains("instance-1")
@@ -447,15 +439,12 @@ public final class StartPostgresWorkflowTest {
                 metadata -> PostgresProbeResult.unhealthy("unreachable", new DiagnosticReport(List.of())));
 
         assertThatThrownBy(() -> workflow.start(configuration(
-                storage,
-                runtimeDirectory,
-                "16.4",
-                AttachPolicy.CREATE_NEW,
-                StopPolicy.STOP_ON_CLOSE)))
+                        storage, runtimeDirectory, "16.4", AttachPolicy.CREATE_NEW, StopPolicy.STOP_ON_CLOSE)))
                 .isInstanceOf(PostgresAttachException.class)
                 .satisfies(throwable -> assertThat(((PostgresAttachException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("postmaster.pid"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("postmaster.pid"));
 
         assertThat(calls()).isEmpty();
         assertThat(layout.stateDirectory().resolve("credentials.properties")).doesNotExist();
@@ -473,20 +462,14 @@ public final class StartPostgresWorkflowTest {
 
     private StartPostgresWorkflow workflow(final RuntimeResolver runtimeResolver) {
         return new StartPostgresWorkflow(
-                runtimeResolver,
-                new FileSystemOperationJournal(),
-                new PostgresLockService(),
-                LIFECYCLE_TIMEOUT);
+                runtimeResolver, new FileSystemOperationJournal(), new PostgresLockService(), LIFECYCLE_TIMEOUT);
     }
 
     private StartPostgresWorkflow workflow(
             final ProcessLookup processLookup,
             final java.util.function.Predicate<PostgresInstanceMetadata> portProbe,
             final java.util.function.Function<PostgresInstanceMetadata, PostgresProbeResult> jdbcProbe) {
-        return workflowWithRequestProbe(
-                processLookup,
-                portProbe,
-                request -> jdbcProbe.apply(request.metadata()));
+        return workflowWithRequestProbe(processLookup, portProbe, request -> jdbcProbe.apply(request.metadata()));
     }
 
     private StartPostgresWorkflow workflowWithRequestProbe(
@@ -499,10 +482,7 @@ public final class StartPostgresWorkflowTest {
                 new PostgresLockService(),
                 LIFECYCLE_TIMEOUT,
                 new PostgresAttachCoordinator(new PostgresAttachAttemptService(
-                        new AttachValidation(
-                                processLookup,
-                                portProbe,
-                                jdbcProbe),
+                        new AttachValidation(processLookup, portProbe, jdbcProbe),
                         new PostgresAttachedHandleFactory(
                                 new CommandRunner(),
                                 LIFECYCLE_TIMEOUT,
@@ -511,12 +491,14 @@ public final class StartPostgresWorkflowTest {
     }
 
     private static PostgresProbeResult attachProbeResult(final boolean loaded) {
-        return java.util.Objects.requireNonNull(java.util.Map.of(
-                Boolean.TRUE,
-                PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"),
-                Boolean.FALSE,
-                PostgresProbeResult.unhealthy("credential mismatch", new DiagnosticReport(List.of())))
-                .get(loaded), "result");
+        return java.util.Objects.requireNonNull(
+                java.util.Map.of(
+                                Boolean.TRUE,
+                                PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"),
+                                Boolean.FALSE,
+                                PostgresProbeResult.unhealthy("credential mismatch", new DiagnosticReport(List.of())))
+                        .get(loaded),
+                "result");
     }
 
     private StartPostgresWorkflow.Configuration configuration(final Storage storage, final Path runtimeDirectory) {
@@ -524,15 +506,9 @@ public final class StartPostgresWorkflowTest {
     }
 
     private StartPostgresWorkflow.Configuration configuration(
-            final Storage storage,
-            final Path runtimeDirectory,
-            final String postgresqlVersion) {
+            final Storage storage, final Path runtimeDirectory, final String postgresqlVersion) {
         return configuration(
-                storage,
-                runtimeDirectory,
-                postgresqlVersion,
-                AttachPolicy.CREATE_NEW,
-                StopPolicy.STOP_ON_CLOSE);
+                storage, runtimeDirectory, postgresqlVersion, AttachPolicy.CREATE_NEW, StopPolicy.STOP_ON_CLOSE);
     }
 
     private StartPostgresWorkflow.Configuration configuration(
@@ -570,10 +546,7 @@ public final class StartPostgresWorkflowTest {
         return new AttachScenario(runtimeDirectory, storage, layout);
     }
 
-    private PostgresInstanceMetadata metadata(
-            final PostgresLayout layout,
-            final long pid,
-            final String name) {
+    private PostgresInstanceMetadata metadata(final PostgresLayout layout, final long pid, final String name) {
         final Instant now = Instant.parse("2026-05-27T00:00:00Z");
 
         return new PostgresInstanceMetadata(
@@ -623,8 +596,7 @@ public final class StartPostgresWorkflowTest {
         return new FakePostgresRuntime(temporaryDirectory);
     }
 
-    private record AttachScenario(Path runtimeDirectory, Storage storage, PostgresLayout layout) {
-    }
+    private record AttachScenario(Path runtimeDirectory, Storage storage, PostgresLayout layout) {}
 
     private record FixedTelemetryRuntimeResolver(Path runtimeDirectory, Duration installDuration)
             implements RuntimeResolver, TelemetryRuntimeResolver {
@@ -640,11 +612,8 @@ public final class StartPostgresWorkflowTest {
         }
 
         @Override
-        public ResolvedRuntime resolveWithTelemetry(
-                final RuntimeSource runtimeSource,
-                final String postgresqlVersion) {
+        public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
             return new ResolvedRuntime(runtimeDirectory, installDuration);
         }
     }
-
 }

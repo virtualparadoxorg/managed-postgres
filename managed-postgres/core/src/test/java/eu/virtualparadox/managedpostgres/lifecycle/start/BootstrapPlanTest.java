@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 public final class BootstrapPlanTest {
 
-    BootstrapPlanTest() {
-    }
+    BootstrapPlanTest() {}
 
     @Test
     void defaultBootstrapPlanUsesAdminConnectionWithoutRoleOrDatabaseCreation() {
@@ -50,8 +49,7 @@ public final class BootstrapPlanTest {
     @Test
     void customDatabaseWithoutOwnerUsesAdminRoleAndDoesNotCreateRole() {
         final BootstrapPlan plan = BootstrapPlan.from(
-                adminConnectionInfo(),
-                ClusterBootstrap.defaultCluster().database("app"));
+                adminConnectionInfo(), ClusterBootstrap.defaultCluster().database("app"));
 
         assertThat(plan.applicationConnectionInfo().database()).isEqualTo("app");
         assertThat(plan.applicationConnectionInfo().username()).isEqualTo("postgres");
@@ -60,11 +58,6 @@ public final class BootstrapPlanTest {
     }
 
     private static PostgresConnectionInfo adminConnectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                55432,
-                "postgres",
-                "postgres",
-                Secret.of("admin-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 55432, "postgres", "postgres", Secret.of("admin-password"));
     }
 }

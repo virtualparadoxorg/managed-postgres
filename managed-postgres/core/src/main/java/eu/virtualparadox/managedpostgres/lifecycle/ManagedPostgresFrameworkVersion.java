@@ -9,8 +9,7 @@ public final class ManagedPostgresFrameworkVersion {
 
     private static final String DEVELOPMENT_VERSION = "development";
 
-    private ManagedPostgresFrameworkVersion() {
-    }
+    private ManagedPostgresFrameworkVersion() {}
 
     /**
      * Returns the current result.

@@ -11,8 +11,7 @@ public final class Slf4jPostgresLogSink implements PostgresLogSink {
     /**
      * Creates an SLF4J-backed PostgreSQL log sink.
      */
-    public Slf4jPostgresLogSink() {
-    }
+    public Slf4jPostgresLogSink() {}
 
     /**
      * {@inheritDoc}

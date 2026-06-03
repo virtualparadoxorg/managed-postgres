@@ -11,8 +11,7 @@ import java.util.stream.Stream;
  */
 public final class TestProcessHandles {
 
-    private TestProcessHandles() {
-    }
+    private TestProcessHandles() {}
 
     public static ProcessHandle processHandle(final String command, final boolean alive) {
         return new TestProcessHandle(command, alive);

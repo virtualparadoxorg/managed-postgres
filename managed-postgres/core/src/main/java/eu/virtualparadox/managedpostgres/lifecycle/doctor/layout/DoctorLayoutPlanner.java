@@ -2,11 +2,11 @@ package eu.virtualparadox.managedpostgres.lifecycle.doctor.layout;
 
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
+import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorReportFactory;
+import eu.virtualparadox.managedpostgres.lifecycle.doctor.credential.DoctorCredentialInspector;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.doctor.credential.DoctorCredentialInspector;
-import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorReportFactory;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 
 /**
  * Plans doctor layout diagnostics without creating runtime or cluster directories.
@@ -40,7 +40,8 @@ public final class DoctorLayoutPlanner {
             plan = new DoctorLayoutPlan(
                     Optional.empty(),
                     Optional.empty(),
-                    DoctorReportFactory.temporaryLayout(checkedConfiguration.storage().path()),
+                    DoctorReportFactory.temporaryLayout(
+                            checkedConfiguration.storage().path()),
                     credentialInspector.inspect(Optional.empty()));
         } else {
             final PostgresLayout layout = PostgresLayout.plan(checkedConfiguration.storage(), fileSystem);

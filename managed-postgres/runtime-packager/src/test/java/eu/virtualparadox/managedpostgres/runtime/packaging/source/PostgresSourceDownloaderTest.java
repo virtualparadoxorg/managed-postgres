@@ -30,8 +30,7 @@ final class PostgresSourceDownloaderTest {
     @TempDir
     Path tempDir;
 
-    PostgresSourceDownloaderTest() {
-    }
+    PostgresSourceDownloaderTest() {}
 
     @Test
     void rejectsDownloadedSourceWhenChecksumMismatches() throws IOException {
@@ -40,8 +39,7 @@ final class PostgresSourceDownloaderTest {
         final PostgresSourceDownloader downloader = new PostgresSourceDownloader();
 
         assertThatThrownBy(() -> downloader.verify(
-                        downloaded,
-                        "0000000000000000000000000000000000000000000000000000000000000000"))
+                        downloaded, "0000000000000000000000000000000000000000000000000000000000000000"))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("checksum mismatch");
     }
@@ -71,11 +69,7 @@ final class PostgresSourceDownloaderTest {
         final Path sourceArchive = tempDir.resolve("postgresql-16.14.tar.gz");
         Files.writeString(sourceArchive, "source-bytes", StandardCharsets.UTF_8);
         final PostgresSourceDownloader downloader = new PostgresSourceDownloader();
-        final PostgresRelease release = new PostgresRelease(
-                16,
-                "16.14",
-                sourceArchive.toUri(),
-                sha256("source-bytes"));
+        final PostgresRelease release = new PostgresRelease(16, "16.14", sourceArchive.toUri(), sha256("source-bytes"));
 
         final Path downloadDirectory = tempDir.resolve("downloads");
         final Path downloaded = downloader.download(release, downloadDirectory);
@@ -88,10 +82,7 @@ final class PostgresSourceDownloaderTest {
     void rejectsUnsupportedRemoteScheme() {
         final PostgresSourceDownloader downloader = new PostgresSourceDownloader();
         final PostgresRelease release = new PostgresRelease(
-                16,
-                "16.14",
-                URI.create("http://example.invalid/postgresql-16.14.tar.gz"),
-                "abc123");
+                16, "16.14", URI.create("http://example.invalid/postgresql-16.14.tar.gz"), "abc123");
 
         assertThatThrownBy(() -> downloader.download(release, tempDir.resolve("downloads")))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -102,10 +93,7 @@ final class PostgresSourceDownloaderTest {
     void rejectsUnofficialHttpsHost() {
         final PostgresSourceDownloader downloader = new PostgresSourceDownloader(stubHttpClient(200, "unused"));
         final PostgresRelease release = new PostgresRelease(
-                16,
-                "16.14",
-                URI.create("https://example.invalid/pub/source/v16.14/postgresql-16.14.tar.gz"),
-                "abc123");
+                16, "16.14", URI.create("https://example.invalid/pub/source/v16.14/postgresql-16.14.tar.gz"), "abc123");
 
         assertThatThrownBy(() -> downloader.download(release, tempDir.resolve("downloads")))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -130,10 +118,7 @@ final class PostgresSourceDownloaderTest {
     void rejectsUnofficialHttpsArchiveSuffix() {
         final PostgresSourceDownloader downloader = new PostgresSourceDownloader(stubHttpClient(200, "unused"));
         final PostgresRelease release = new PostgresRelease(
-                16,
-                "16.14",
-                URI.create("https://ftp.postgresql.org/pub/source/v16.14/postgresql-16.14.zip"),
-                "abc123");
+                16, "16.14", URI.create("https://ftp.postgresql.org/pub/source/v16.14/postgresql-16.14.zip"), "abc123");
 
         assertThatThrownBy(() -> downloader.download(release, tempDir.resolve("downloads")))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -230,8 +215,7 @@ final class PostgresSourceDownloaderTest {
 
             @Override
             public <T> HttpResponse<T> send(
-                    final HttpRequest request,
-                    final HttpResponse.BodyHandler<T> responseBodyHandler) {
+                    final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler) {
                 @SuppressWarnings("unchecked")
                 final T body = (T) new ByteArrayInputStream(responseBody.getBytes(StandardCharsets.UTF_8));
                 return new StubHttpResponse<>(request, statusCode, body);
@@ -239,8 +223,7 @@ final class PostgresSourceDownloaderTest {
 
             @Override
             public <T> java.util.concurrent.CompletableFuture<HttpResponse<T>> sendAsync(
-                    final HttpRequest request,
-                    final HttpResponse.BodyHandler<T> responseBodyHandler) {
+                    final HttpRequest request, final HttpResponse.BodyHandler<T> responseBodyHandler) {
                 throw new UnsupportedOperationException("sendAsync is not used in tests");
             }
 

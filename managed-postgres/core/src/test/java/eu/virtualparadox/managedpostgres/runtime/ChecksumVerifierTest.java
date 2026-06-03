@@ -11,8 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 public final class ChecksumVerifierTest {
 
-    private static final String SHA256_ABC =
-            "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
+    private static final String SHA256_ABC = "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
     private static final String SHA256_ABC_UPPER =
             "sha256:BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD";
     private static final String SHA256_WRONG =
@@ -21,8 +20,7 @@ public final class ChecksumVerifierTest {
     @TempDir
     private Path temporaryDirectory;
 
-    ChecksumVerifierTest() {
-    }
+    ChecksumVerifierTest() {}
 
     @Test
     void sha256ChecksumMatchesKnownFileContent() throws IOException {

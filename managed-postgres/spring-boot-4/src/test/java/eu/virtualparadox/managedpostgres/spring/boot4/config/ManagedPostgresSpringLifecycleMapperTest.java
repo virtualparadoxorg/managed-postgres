@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringLifecycleMapperTest {
 
-    ManagedPostgresSpringLifecycleMapperTest() {
-    }
+    ManagedPostgresSpringLifecycleMapperTest() {}
 
     @Test
     void reuseExistingMapsToAttachIfCompatible() {

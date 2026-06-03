@@ -16,8 +16,7 @@ public final class DoctorCredentialInspectorTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DoctorCredentialInspectorTest() {
-    }
+    DoctorCredentialInspectorTest() {}
 
     @Test
     void temporaryLayoutReportsCredentialStoreNotCreated() {
@@ -35,7 +34,8 @@ public final class DoctorCredentialInspectorTest {
 
         assertThat(section.values())
                 .containsEntry("status", "absent")
-                .containsEntry("path", credentialsPath.toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "path", credentialsPath.toAbsolutePath().normalize().toString());
     }
 
     @Test
@@ -47,7 +47,8 @@ public final class DoctorCredentialInspectorTest {
         assertThat(section.values())
                 .containsEntry("status", "present")
                 .containsEntry("readable", "true")
-                .containsEntry("path", credentialsPath.toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "path", credentialsPath.toAbsolutePath().normalize().toString());
     }
 
     @Test
@@ -57,9 +58,7 @@ public final class DoctorCredentialInspectorTest {
 
         final DiagnosticSection section = new DoctorCredentialInspector().inspect(Optional.of(credentialsPath));
 
-        assertThat(section.values())
-                .containsEntry("status", "present")
-                .containsEntry("readable", "true");
+        assertThat(section.values()).containsEntry("status", "present").containsEntry("readable", "true");
         assertThat(section.values().toString()).doesNotContain(secret);
     }
 

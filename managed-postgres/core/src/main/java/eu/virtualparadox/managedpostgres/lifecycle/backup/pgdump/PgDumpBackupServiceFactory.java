@@ -1,17 +1,16 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactWriter;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupManifestFactory;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.PostgresBackupDiagnostics;
+import java.util.Objects;
 
 /**
  * Wires the internal pg_dump backup service collaborator graph.
  */
 public final class PgDumpBackupServiceFactory {
 
-    private PgDumpBackupServiceFactory() {
-    }
+    private PgDumpBackupServiceFactory() {}
 
     /**
      * Returns the create result.
@@ -27,9 +26,8 @@ public final class PgDumpBackupServiceFactory {
                 checkedDependencies.commandRunner(),
                 checkedDependencies.manifestSource().connectionInfo(),
                 diagnostics);
-        final BackupArtifactWriter artifactWriter = new BackupArtifactWriter(
-                new BackupManifestFactory(checkedDependencies.manifestSource()),
-                diagnostics);
+        final BackupArtifactWriter artifactWriter =
+                new BackupArtifactWriter(new BackupManifestFactory(checkedDependencies.manifestSource()), diagnostics);
 
         return new PgDumpBackupService(
                 checkedDependencies.layout(),

@@ -23,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringConfigurationFactoryTest {
 
-    ManagedPostgresSpringConfigurationFactoryTest() {
-    }
+    ManagedPostgresSpringConfigurationFactoryTest() {}
 
     @Test
     void disabledPropertiesAreRejectedByFactory() {
@@ -39,8 +38,8 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
     @Test
     void systemRuntimeMapsToCoreRuntimeSource() {
         final FactoryFixture fixture = FactoryFixture.create();
-        final ManagedPostgresSpringProperties properties = properties(Map.of(
-                "managed-postgres.runtime.source", "system"));
+        final ManagedPostgresSpringProperties properties =
+                properties(Map.of("managed-postgres.runtime.source", "system"));
 
         try (ManagedPostgres postgres = fixture.factory().create(properties)) {
             assertThat(postgres).isSameAs(fixture.postgres());
@@ -53,8 +52,10 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
         final FactoryFixture fixture = FactoryFixture.create();
         final Path runtimePath = Path.of("runtime/postgres-16.4");
         final ManagedPostgresSpringProperties properties = properties(Map.of(
-                "managed-postgres.runtime.source", "existing",
-                "managed-postgres.runtime.path", runtimePath.toString()));
+                "managed-postgres.runtime.source",
+                "existing",
+                "managed-postgres.runtime.path",
+                runtimePath.toString()));
 
         fixture.factory().create(properties);
 
@@ -73,16 +74,16 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
 
         fixture.factory().create(properties);
 
-        verify(fixture.builder()).runtime(RuntimeSource.classpath("/postgres-runtime.zip", runtime -> runtime
-                .checksum(checksum)
-                .cache(RuntimeCache.projectLocal(Path.of(".local/runtime-cache")))));
+        verify(fixture.builder())
+                .runtime(RuntimeSource.classpath("/postgres-runtime.zip", runtime -> runtime.checksum(checksum)
+                        .cache(RuntimeCache.projectLocal(Path.of(".local/runtime-cache")))));
     }
 
     @Test
     void datasourceDisabledStillBuildsManagedPostgresConfiguration() {
         final FactoryFixture fixture = FactoryFixture.create();
-        final ManagedPostgresSpringProperties properties = properties(Map.of(
-                "managed-postgres.datasource.enabled", "false"));
+        final ManagedPostgresSpringProperties properties =
+                properties(Map.of("managed-postgres.datasource.enabled", "false"));
 
         try (ManagedPostgres postgres = fixture.factory().create(properties)) {
             assertThat(postgres).isSameAs(fixture.postgres());
@@ -118,11 +119,12 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
 
         fixture.factory().create(properties);
 
-        verify(fixture.builder()).configuration(Resources.small()
-                .maxConnections(48)
-                .sharedBuffers("192MB")
-                .tempBuffers("24MB")
-                .statementTimeoutSeconds(40));
+        verify(fixture.builder())
+                .configuration(Resources.small()
+                        .maxConnections(48)
+                        .sharedBuffers("192MB")
+                        .tempBuffers("24MB")
+                        .statementTimeoutSeconds(40));
     }
 
     @Test
@@ -135,17 +137,18 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
 
         fixture.factory().create(properties);
 
-        verify(fixture.builder()).configuration(PostgresConfiguration.defaults()
-                .maxConnections(18)
-                .sharedBuffers("72MB")
-                .statementTimeoutSeconds(9));
+        verify(fixture.builder())
+                .configuration(PostgresConfiguration.defaults()
+                        .maxConnections(18)
+                        .sharedBuffers("72MB")
+                        .statementTimeoutSeconds(9));
     }
 
     @Test
     void factoryRejectsUnknownPostgresConfigurationPreset() {
         final FactoryFixture fixture = FactoryFixture.create();
-        final ManagedPostgresSpringProperties properties = properties(Map.of(
-                "managed-postgres.configuration.preset", "huge"));
+        final ManagedPostgresSpringProperties properties =
+                properties(Map.of("managed-postgres.configuration.preset", "huge"));
 
         assertThatThrownBy(() -> fixture.factory().create(properties))
                 .isInstanceOf(ManagedPostgresSpringException.class)
@@ -158,8 +161,7 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
         when(builder.version(any())).thenReturn(builder);
         when(builder.storage(any())).thenReturn(builder);
         when(builder.runtime(any())).thenReturn(builder);
-        when(builder.configuration(any(PostgresConfiguration.class)))
-                .thenReturn(builder);
+        when(builder.configuration(any(PostgresConfiguration.class))).thenReturn(builder);
         when(builder.credentials(any())).thenReturn(builder);
         when(builder.network(any(UnaryOperator.class))).thenReturn(builder);
         when(builder.cluster(any(UnaryOperator.class))).thenReturn(builder);
@@ -167,10 +169,7 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
         when(builder.stopPolicy(any())).thenReturn(builder);
         when(builder.build()).thenReturn(postgres);
 
-        return new FactoryFixture(
-                new ManagedPostgresSpringConfigurationFactory(() -> builder),
-                builder,
-                postgres);
+        return new FactoryFixture(new ManagedPostgresSpringConfigurationFactory(() -> builder), builder, postgres);
     }
 
     private static ManagedPostgresSpringProperties properties(final Map<String, Object> properties) {

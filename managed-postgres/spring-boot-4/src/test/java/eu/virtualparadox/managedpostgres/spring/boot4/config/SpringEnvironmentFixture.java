@@ -6,8 +6,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 final class SpringEnvironmentFixture {
 
-    private SpringEnvironmentFixture() {
-    }
+    private SpringEnvironmentFixture() {}
 
     static ConfigurableEnvironment environment(final Map<String, Object> properties) {
         final MockEnvironment environment = new MockEnvironment();

@@ -12,17 +12,18 @@ final class CleanupRuntimeCacheLocator {
 
     private static final String DEFAULT_CACHE_NAMESPACE = "managed-postgres";
 
-    CleanupRuntimeCacheLocator() {
-    }
+    CleanupRuntimeCacheLocator() {}
 
     Optional<RuntimeCacheLayout> locate(final RuntimeSource runtimeSource) {
         final RuntimeSource checkedRuntimeSource = Objects.requireNonNull(runtimeSource, "runtimeSource");
         return switch (checkedRuntimeSource.kind()) {
-            case "downloaded" -> checkedRuntimeSource.downloadedRuntime()
+            case "downloaded" -> checkedRuntimeSource
+                    .downloadedRuntime()
                     .flatMap(this::runtimeCache)
                     .map(RuntimeCache::root)
                     .map(RuntimeCacheLayout::new);
-            case "classpath" -> checkedRuntimeSource.classpathRuntime()
+            case "classpath" -> checkedRuntimeSource
+                    .classpathRuntime()
                     .flatMap(this::runtimeCache)
                     .map(RuntimeCache::root)
                     .map(RuntimeCacheLayout::new);
@@ -31,12 +32,14 @@ final class CleanupRuntimeCacheLocator {
     }
 
     private Optional<RuntimeCache> runtimeCache(final DownloadedRuntime downloadedRuntime) {
-        return Objects.requireNonNull(downloadedRuntime, "downloadedRuntime").cache()
+        return Objects.requireNonNull(downloadedRuntime, "downloadedRuntime")
+                .cache()
                 .or(() -> Optional.of(RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE)));
     }
 
     private Optional<RuntimeCache> runtimeCache(final ClasspathRuntime classpathRuntime) {
-        return Objects.requireNonNull(classpathRuntime, "classpathRuntime").cache()
+        return Objects.requireNonNull(classpathRuntime, "classpathRuntime")
+                .cache()
                 .or(() -> Optional.of(RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE)));
     }
 }

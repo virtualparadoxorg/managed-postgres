@@ -18,10 +18,7 @@ import picocli.CommandLine.Mixin;
 /**
  * Prints non-mutating managed PostgreSQL diagnostics without starting PostgreSQL.
  */
-@Command(
-        name = "doctor",
-        description = "Print managed PostgreSQL diagnostics.",
-        sortOptions = false)
+@Command(name = "doctor", description = "Print managed PostgreSQL diagnostics.", sortOptions = false)
 public final class DoctorCommand implements Callable<Integer> {
 
     @Mixin

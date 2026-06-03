@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.lifecycle.testsupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -10,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
 
 public final class FakePostgresRuntime {
 
@@ -86,8 +86,8 @@ public final class FakePostgresRuntime {
     }
 
     private String callScript(final String call, final int exitCode) {
-        return "printf '%s\\n' " + shellQuote(call) + " >> " + shellQuote(callsPath()) + "\n"
-                + "exit " + exitCode + "\n";
+        return "printf '%s\\n' " + shellQuote(call) + " >> " + shellQuote(callsPath()) + "\n" + "exit " + exitCode
+                + "\n";
     }
 
     private static void writeExecutable(final Path path, final String body) throws IOException {

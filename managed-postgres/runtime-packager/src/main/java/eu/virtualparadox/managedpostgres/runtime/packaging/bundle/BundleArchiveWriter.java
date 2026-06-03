@@ -17,8 +17,7 @@ public final class BundleArchiveWriter {
     /**
      * Creates a bundle archive writer.
      */
-    public BundleArchiveWriter() {
-    }
+    public BundleArchiveWriter() {}
 
     /**
      * Writes a ZIP archive from a normalized bundle directory.
@@ -35,8 +34,8 @@ public final class BundleArchiveWriter {
             try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(validatedArchivePath))) {
                 try (Stream<Path> bundleEntries = Files.walk(validatedNormalizedBundle)) {
                     bundleEntries
-                        .filter(path -> !Files.isDirectory(path))
-                        .forEach(path -> writeEntry(validatedNormalizedBundle, path, outputStream));
+                            .filter(path -> !Files.isDirectory(path))
+                            .forEach(path -> writeEntry(validatedNormalizedBundle, path, outputStream));
                 }
             }
         } catch (IOException exception) {

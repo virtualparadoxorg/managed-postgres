@@ -4,6 +4,5 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 public final class SimpleMeterRegistry extends MeterRegistry {
 
-    public SimpleMeterRegistry() {
-    }
+    public SimpleMeterRegistry() {}
 }

@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public final class RestoreOptionsTest {
 
-    RestoreOptionsTest() {
-    }
+    RestoreOptionsTest() {}
 
     @Test
     void restoreOptionsDefaultToNonDestructiveValues() {

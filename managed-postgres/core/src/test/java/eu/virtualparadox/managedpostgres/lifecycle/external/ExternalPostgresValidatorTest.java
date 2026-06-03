@@ -18,15 +18,10 @@ import org.junit.jupiter.api.Test;
 
 public final class ExternalPostgresValidatorTest {
 
-    private static final PostgresConnectionInfo CONNECTION_INFO = new PostgresConnectionInfo(
-            "127.0.0.1",
-            15432,
-            "app",
-            "app",
-            Secret.of("external-secret"));
+    private static final PostgresConnectionInfo CONNECTION_INFO =
+            new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("external-secret"));
 
-    ExternalPostgresValidatorTest() {
-    }
+    ExternalPostgresValidatorTest() {}
 
     @Test
     void validateConfirmsExternalConnectionUsingJdbcProbe() {
@@ -44,9 +39,8 @@ public final class ExternalPostgresValidatorTest {
         final ExternalPostgresValidator validator = new ExternalPostgresValidator(connectionInfo -> {
             throw new PostgresAttachException(
                     "JDBC attach probe failed",
-                    new DiagnosticReport(List.of(new DiagnosticSection(
-                            "jdbc-attach-probe",
-                            Map.of("reason", "connection refused")))));
+                    new DiagnosticReport(List.of(
+                            new DiagnosticSection("jdbc-attach-probe", Map.of("reason", "connection refused")))));
         });
 
         assertThatExceptionOfType(PostgresAttachException.class)
@@ -77,16 +71,13 @@ public final class ExternalPostgresValidatorTest {
         final ExternalPostgresValidator validator = new ExternalPostgresValidator(connectionInfo -> {
             throw new PostgresAttachException(
                     "JDBC attach probe failed",
-                    new DiagnosticReport(List.of(new DiagnosticSection(
-                            "jdbc-attach-probe",
-                            Map.of("reason", "authentication failed")))));
+                    new DiagnosticReport(List.of(
+                            new DiagnosticSection("jdbc-attach-probe", Map.of("reason", "authentication failed")))));
         });
 
         final DoctorReport report = validator.doctor(CONNECTION_INFO);
 
         assertThat(report.status()).isEqualTo(PostgresStatus.FAILED);
-        assertThat(report.renderText())
-                .contains("authentication failed")
-                .doesNotContain("external-secret");
+        assertThat(report.renderText()).contains("authentication failed").doesNotContain("external-secret");
     }
 }

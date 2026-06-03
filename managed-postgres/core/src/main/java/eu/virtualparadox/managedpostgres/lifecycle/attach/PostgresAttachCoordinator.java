@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Coordinates start-or-attach decisions for persisted PostgreSQL metadata.
@@ -41,8 +41,10 @@ public final class PostgresAttachCoordinator {
             final MetadataStore metadataStore) {
         final Optional<RunningPostgres> handle;
         if (configuration.attachExisting()) {
-            handle = metadataStore.read()
-                    .flatMap(metadata -> attachOrMarkStale(configuration, layout, runtimeDirectory, metadataStore, metadata));
+            handle = metadataStore
+                    .read()
+                    .flatMap(metadata ->
+                            attachOrMarkStale(configuration, layout, runtimeDirectory, metadataStore, metadata));
         } else {
             handle = Optional.empty();
         }
@@ -56,7 +58,8 @@ public final class PostgresAttachCoordinator {
             final Path runtimeDirectory,
             final MetadataStore metadataStore,
             final PostgresInstanceMetadata metadata) {
-        final AttachResult result = attachAttemptService.attachResult(configuration, layout, runtimeDirectory, metadata);
+        final AttachResult result =
+                attachAttemptService.attachResult(configuration, layout, runtimeDirectory, metadata);
         final Optional<RunningPostgres> handle;
         if (result.attached()) {
             handle = result.handle();

@@ -25,8 +25,7 @@ public final class BackupArtifactVerifierTest {
 
     private final BackupArtifactVerifier verifier = new BackupArtifactVerifier();
 
-    BackupArtifactVerifierTest() {
-    }
+    BackupArtifactVerifierTest() {}
 
     @Test
     void validBackupArtifactsReturnManifest() throws IOException {
@@ -47,8 +46,8 @@ public final class BackupArtifactVerifierTest {
                 .isInstanceOf(PostgresRestoreException.class)
                 .hasMessageContaining("checksum")
                 .satisfies(throwable -> assertThat(((PostgresRestoreException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("checksum")
                         .doesNotContain("app-password"));
     }
@@ -123,8 +122,8 @@ public final class BackupArtifactVerifierTest {
         assertThatThrownBy(() -> verifier.verify(backup, connectionInfo("app"), metadata(16, "cluster-id")))
                 .isInstanceOf(PostgresRestoreException.class)
                 .satisfies(throwable -> assertThat(((PostgresRestoreException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("manifest")
                         .contains(manifestPath(backup).toString()));
 
@@ -133,17 +132,15 @@ public final class BackupArtifactVerifierTest {
         assertThatThrownBy(() -> verifier.verify(backup, connectionInfo("app"), metadata(16, "cluster-id")))
                 .isInstanceOf(PostgresRestoreException.class)
                 .satisfies(throwable -> assertThat(((PostgresRestoreException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("checksum")
                         .contains(checksumPath(backup).toString()));
     }
 
     private Path validBackup(
-            final String fileName,
-            final String database,
-            final int postgresqlMajor,
-            final String clusterId) throws IOException {
+            final String fileName, final String database, final int postgresqlMajor, final String clusterId)
+            throws IOException {
         final Path backup = writeBackup(fileName, "fake dump\n");
         final BackupManifest manifest = manifest(database, postgresqlMajor, clusterId, BackupChecksum.sha256(backup));
         writeManifest(backup, manifest);
@@ -177,10 +174,7 @@ public final class BackupArtifactVerifierTest {
     }
 
     private static BackupManifest manifest(
-            final String database,
-            final int postgresqlMajor,
-            final String clusterId,
-            final String checksum) {
+            final String database, final int postgresqlMajor, final String clusterId, final String checksum) {
         return new BackupManifest(
                 1,
                 NOW,
@@ -195,12 +189,7 @@ public final class BackupArtifactVerifierTest {
     }
 
     private static PostgresConnectionInfo connectionInfo(final String database) {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                55432,
-                database,
-                "app",
-                Secret.of("app-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 55432, database, "app", Secret.of("app-password"));
     }
 
     private Path metadataDataDirectory() {

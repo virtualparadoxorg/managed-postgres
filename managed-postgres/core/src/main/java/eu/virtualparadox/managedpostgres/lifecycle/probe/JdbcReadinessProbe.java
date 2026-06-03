@@ -26,9 +26,7 @@ public interface JdbcReadinessProbe {
      * @return readiness probe
      */
     public static JdbcReadinessProbe validating(
-            final JdbcProbeClient client,
-            final Path expectedDataDirectory,
-            final int expectedMajorVersion) {
+            final JdbcProbeClient client, final Path expectedDataDirectory, final int expectedMajorVersion) {
         return new ValidatingJdbcReadinessProbe(client, expectedDataDirectory, expectedMajorVersion);
     }
 }

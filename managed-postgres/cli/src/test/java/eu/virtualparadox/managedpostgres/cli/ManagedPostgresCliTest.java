@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 final class ManagedPostgresCliTest {
 
-    ManagedPostgresCliTest() {
-    }
+    ManagedPostgresCliTest() {}
 
     @Test
     void noArgumentsReturnSuccessAndPrintUsage() {
@@ -108,6 +107,5 @@ final class ManagedPostgresCliTest {
         return output.toString(StandardCharsets.UTF_8);
     }
 
-    private record CliRun(int exitCode, String output, String errorOutput) {
-    }
+    private record CliRun(int exitCode, String output, String errorOutput) {}
 }

@@ -16,8 +16,7 @@ import org.junit.jupiter.api.Test;
 
 final class ManagedPostgresBootstrapStarterTest {
 
-    ManagedPostgresBootstrapStarterTest() {
-    }
+    ManagedPostgresBootstrapStarterTest() {}
 
     @Test
     void starterFallsBackToZeroHealthcheckFailuresWhenHandleDoesNotExposeTelemetry() {
@@ -25,7 +24,8 @@ final class ManagedPostgresBootstrapStarterTest {
                 new ManagedPostgresBootstrapStarter().start(new FixedManagedPostgres(new SimpleRunningPostgres()));
 
         assertThat(bootstrapContext.metrics().orElseThrow().installDuration()).isZero();
-        assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures()).isZero();
+        assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures())
+                .isZero();
     }
 
     @Test
@@ -35,10 +35,13 @@ final class ManagedPostgresBootstrapStarterTest {
             final ManagedPostgresBootstrapContext bootstrapContext =
                     new ManagedPostgresBootstrapStarter().start(new FixedManagedPostgres(runningPostgres));
 
-            assertThat(runningPostgres.startupTelemetry().runtimeInstallDuration()).isEqualTo(Duration.ofMillis(125));
+            assertThat(runningPostgres.startupTelemetry().runtimeInstallDuration())
+                    .isEqualTo(Duration.ofMillis(125));
             assertThat(runningPostgres.startupTelemetry().healthcheckFailures()).isEqualTo(4);
-            assertThat(bootstrapContext.metrics().orElseThrow().installDuration()).isEqualTo(Duration.ofMillis(125));
-            assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures()).isEqualTo(4);
+            assertThat(bootstrapContext.metrics().orElseThrow().installDuration())
+                    .isEqualTo(Duration.ofMillis(125));
+            assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures())
+                    .isEqualTo(4);
         }
     }
 
@@ -49,8 +52,10 @@ final class ManagedPostgresBootstrapStarterTest {
             final ManagedPostgresBootstrapContext bootstrapContext =
                     new ManagedPostgresBootstrapStarter().start(new FixedManagedPostgres(runningPostgres));
 
-            assertThat(bootstrapContext.metrics().orElseThrow().installDuration()).isEqualTo(Duration.ofMillis(125));
-            assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures()).isEqualTo(4);
+            assertThat(bootstrapContext.metrics().orElseThrow().installDuration())
+                    .isEqualTo(Duration.ofMillis(125));
+            assertThat(bootstrapContext.metrics().orElseThrow().healthcheckFailures())
+                    .isEqualTo(4);
             assertThat(runningPostgres.startupTelemetryCalls()).isEqualTo(1);
         }
     }
@@ -132,9 +137,7 @@ final class ManagedPostgresBootstrapStarterTest {
         private final int healthcheckFailures;
         private int startupTelemetryCalls;
 
-        private TelemetryAwareRunningPostgres(
-                final Duration runtimeInstallDuration,
-                final int healthcheckFailures) {
+        private TelemetryAwareRunningPostgres(final Duration runtimeInstallDuration, final int healthcheckFailures) {
             this.runtimeInstallDuration = runtimeInstallDuration;
             this.healthcheckFailures = healthcheckFailures;
         }
@@ -149,8 +152,7 @@ final class ManagedPostgresBootstrapStarterTest {
         }
     }
 
-    private record StartupTelemetrySnapshot(Duration runtimeInstallDuration, int healthcheckFailures) {
-    }
+    private record StartupTelemetrySnapshot(Duration runtimeInstallDuration, int healthcheckFailures) {}
 
     private static PostgresConnectionInfo defaultConnectionInfo() {
         return new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.redacted());

@@ -1,11 +1,11 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperation;
-import java.nio.file.Path;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactPaths;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupArtifactWriter;
 import eu.virtualparadox.managedpostgres.lifecycle.backup.BackupChecksum;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Creates staged pg_dump backup artifacts and publishes them atomically.
@@ -21,9 +21,7 @@ public final class PgDumpBackupCreator {
      * @param commandExecutor command executor value
      * @param artifactWriter artifact writer value
      */
-    public PgDumpBackupCreator(
-            final PgDumpCommandExecutor commandExecutor,
-            final BackupArtifactWriter artifactWriter) {
+    public PgDumpBackupCreator(final PgDumpCommandExecutor commandExecutor, final BackupArtifactWriter artifactWriter) {
         this.commandExecutor = Objects.requireNonNull(commandExecutor, "commandExecutor");
         this.artifactWriter = Objects.requireNonNull(artifactWriter, "artifactWriter");
     }

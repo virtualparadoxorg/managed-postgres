@@ -148,10 +148,7 @@ public record Network(String host, PortSelection portSelection) {
      * @param port configured port for fixed or preferred selection
      * @param fallbackToRandom whether preferred selection may fall back to random
      */
-    public record PortSelection(
-            PortSelectionMode mode,
-            OptionalInt port,
-            boolean fallbackToRandom) {
+    public record PortSelection(PortSelectionMode mode, OptionalInt port, boolean fallbackToRandom) {
 
         /**
          * Creates immutable PostgreSQL port selection policy.
@@ -195,17 +192,13 @@ public record Network(String host, PortSelection portSelection) {
         }
 
         private static void validatePortState(
-                final PortSelectionMode mode,
-                final OptionalInt port,
-                final boolean fallbackToRandom) {
+                final PortSelectionMode mode, final OptionalInt port, final boolean fallbackToRandom) {
             validatePortPresence(mode, port);
             validateFallbackState(mode, fallbackToRandom);
             port.ifPresent(Network::validatePort);
         }
 
-        private static void validatePortPresence(
-                final PortSelectionMode mode,
-                final OptionalInt port) {
+        private static void validatePortPresence(final PortSelectionMode mode, final OptionalInt port) {
             if (requiresPort(mode) && port.isEmpty()) {
                 throw new IllegalArgumentException("port must be present for " + mode);
             }
@@ -214,9 +207,7 @@ public record Network(String host, PortSelection portSelection) {
             }
         }
 
-        private static void validateFallbackState(
-                final PortSelectionMode mode,
-                final boolean fallbackToRandom) {
+        private static void validateFallbackState(final PortSelectionMode mode, final boolean fallbackToRandom) {
             if (fallbackToRandom && mode != PortSelectionMode.PREFERRED) {
                 throw new IllegalArgumentException("fallbackToRandom requires preferred port selection");
             }

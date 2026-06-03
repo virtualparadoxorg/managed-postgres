@@ -10,8 +10,8 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.LockSupport;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -42,10 +42,7 @@ public final class TailingPostgresLogBridge implements AutoCloseable {
      * @param sink forwarding sink
      */
     public TailingPostgresLogBridge(
-            final Path logFile,
-            final String loggerName,
-            final List<Secret> secrets,
-            final PostgresLogSink sink) {
+            final Path logFile, final String loggerName, final List<Secret> secrets, final PostgresLogSink sink) {
         this.logFile = Objects.requireNonNull(logFile, "logFile");
         if (StringUtils.isBlank(loggerName)) {
             throw new IllegalArgumentException("loggerName must not be blank");

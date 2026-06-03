@@ -27,13 +27,6 @@ record CliYamlRuntimeSourceProperties(
 
     String effectiveSource() {
         return CliRuntimeSourceFactory.effectiveSource(new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                resource,
-                checksum,
-                signaturePublicKey,
-                signature,
-                cache));
+                source, path, repository, resource, checksum, signaturePublicKey, signature, cache));
     }
 }

@@ -4,10 +4,7 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import java.util.Map;
 import java.util.Objects;
 
-record ManagedPostgresDatasourceProperties(
-        String url,
-        String username,
-        String password) {
+record ManagedPostgresDatasourceProperties(String url, String username, String password) {
 
     private static final String DATASOURCE_URL = "spring.datasource.url";
     private static final String DATASOURCE_USERNAME = "spring.datasource.username";
@@ -21,10 +18,9 @@ record ManagedPostgresDatasourceProperties(
 
     static ManagedPostgresDatasourceProperties from(final PostgresConnectionInfo connectionInfo) {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
-        final String url = "jdbc:postgresql://%s:%d/%s".formatted(
-                checkedConnectionInfo.host(),
-                checkedConnectionInfo.port(),
-                checkedConnectionInfo.database());
+        final String url = "jdbc:postgresql://%s:%d/%s"
+                .formatted(
+                        checkedConnectionInfo.host(), checkedConnectionInfo.port(), checkedConnectionInfo.database());
 
         return new ManagedPostgresDatasourceProperties(
                 url,
@@ -41,7 +37,6 @@ record ManagedPostgresDatasourceProperties(
 
     @Override
     public String toString() {
-        return "ManagedPostgresDatasourceProperties[url=%s, username=%s, password=REDACTED]"
-                .formatted(url, username);
+        return "ManagedPostgresDatasourceProperties[url=%s, username=%s, password=REDACTED]".formatted(url, username);
     }
 }

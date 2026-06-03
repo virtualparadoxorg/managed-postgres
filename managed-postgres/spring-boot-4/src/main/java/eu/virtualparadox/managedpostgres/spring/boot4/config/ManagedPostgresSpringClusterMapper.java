@@ -9,12 +9,10 @@ import java.util.function.UnaryOperator;
 
 final class ManagedPostgresSpringClusterMapper {
 
-    private ManagedPostgresSpringClusterMapper() {
-    }
+    private ManagedPostgresSpringClusterMapper() {}
 
     static ManagedPostgresBuilder configure(
-            final ManagedPostgresBuilder builder,
-            final ManagedPostgresSpringProperties.ClusterProperties cluster) {
+            final ManagedPostgresBuilder builder, final ManagedPostgresSpringProperties.ClusterProperties cluster) {
         ManagedPostgresBuilder configuredBuilder = builder;
         if (cluster.owner().isPresent()) {
             configuredBuilder = configuredBuilder.credentials(credentials(cluster));
@@ -33,7 +31,10 @@ final class ManagedPostgresSpringClusterMapper {
             ClusterBootstrap configuredCluster = currentCluster.database(cluster.database());
             final Optional<String> owner = cluster.owner();
             if (owner.isPresent()) {
-                configuredCluster = ownerCluster(configuredCluster, owner.orElseThrow(), cluster.password().orElseThrow());
+                configuredCluster = ownerCluster(
+                        configuredCluster,
+                        owner.orElseThrow(),
+                        cluster.password().orElseThrow());
             }
 
             return configuredCluster;
@@ -41,9 +42,7 @@ final class ManagedPostgresSpringClusterMapper {
     }
 
     private static ClusterBootstrap ownerCluster(
-            final ClusterBootstrap cluster,
-            final String owner,
-            final Secret password) {
+            final ClusterBootstrap cluster, final String owner, final Secret password) {
         return cluster.owner(owner).password(password);
     }
 }

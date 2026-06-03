@@ -12,8 +12,7 @@ public final class UnsupportedBuildExecutor implements BuildExecutor {
     /**
      * Creates an unsupported build executor.
      */
-    public UnsupportedBuildExecutor() {
-    }
+    public UnsupportedBuildExecutor() {}
 
     @Override
     public Path build(
@@ -25,8 +24,7 @@ public final class UnsupportedBuildExecutor implements BuildExecutor {
         Objects.requireNonNull(release, "release");
         Objects.requireNonNull(sourceTree, "sourceTree");
         Objects.requireNonNull(buildDirectory, "buildDirectory");
-        throw new UnsupportedOperationException(
-                "source-build driver execution is not implemented yet for "
-                        + validatedDriver.targetPlatform().identifier());
+        throw new UnsupportedOperationException("source-build driver execution is not implemented yet for "
+                + validatedDriver.targetPlatform().identifier());
     }
 }

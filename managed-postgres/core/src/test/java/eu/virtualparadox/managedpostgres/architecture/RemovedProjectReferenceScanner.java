@@ -18,16 +18,14 @@ final class RemovedProjectReferenceScanner {
 
     private static final Set<String> IGNORED_DIRECTORY_NAMES = Set.of(".git", "target");
 
-    private RemovedProjectReferenceScanner() {
-    }
+    private RemovedProjectReferenceScanner() {}
 
     static List<String> repositoryFilesContainingRemovedSourceProjectNames() throws IOException {
         final Path repositoryRoot = ArchitectureSourceTree.repositoryRoot();
         final List<String> matchingFiles;
 
         try (Stream<Path> files = Files.walk(repositoryRoot)) {
-            matchingFiles = files
-                    .filter(Files::isRegularFile)
+            matchingFiles = files.filter(Files::isRegularFile)
                     .filter(path -> !isIgnoredPath(repositoryRoot, path))
                     .filter(RemovedProjectReferenceScanner::fileContainsRemovedSourceProjectName)
                     .map(repositoryRoot::relativize)
@@ -97,10 +95,7 @@ final class RemovedProjectReferenceScanner {
     }
 
     private static List<String> removedSourceProjectNames() {
-        return List.of(
-                "bio" + "informatic",
-                "bio" + "informatics-platform",
-                "bio" + "informatic-platform");
+        return List.of("bio" + "informatic", "bio" + "informatics-platform", "bio" + "informatic-platform");
     }
 
     private static boolean isIgnoredPath(final Path repositoryRoot, final Path path) {

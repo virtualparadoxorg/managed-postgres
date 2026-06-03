@@ -11,9 +11,7 @@ import java.util.Objects;
  * @param healthcheckFailures number of unhealthy readiness polls observed before startup succeeded
  */
 public record ManagedPostgresBootstrapMetrics(
-        Duration startupDuration,
-        Duration installDuration,
-        int healthcheckFailures) {
+        Duration startupDuration, Duration installDuration, int healthcheckFailures) {
 
     /**
      * Creates immutable bootstrap metrics.

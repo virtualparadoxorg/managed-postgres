@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.psql;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 
 /**
  * Coordinates psql command factory behavior for managed PostgreSQL internals.
@@ -27,8 +27,7 @@ public final class PsqlCommandFactory {
      */
     public PsqlCommandFactory(final Path runtimeDirectory, final Duration timeout) {
         this.psql = RuntimeBinaryLocator.resolveBinary(
-                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"),
-                "psql");
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"), "psql");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 
@@ -62,7 +61,9 @@ public final class PsqlCommandFactory {
      * @return file result
      */
     public CommandRequest file(final PostgresConnectionInfo connectionInfo, final Path sqlFile) {
-        return command(connectionInfo, List.of("-f", Objects.requireNonNull(sqlFile, "sqlFile").toString()));
+        return command(
+                connectionInfo,
+                List.of("-f", Objects.requireNonNull(sqlFile, "sqlFile").toString()));
     }
 
     private CommandRequest command(final PostgresConnectionInfo connectionInfo, final List<String> arguments) {
@@ -80,6 +81,7 @@ public final class PsqlCommandFactory {
         command.addAll(arguments);
 
         return CommandRequest.of(command, timeout)
-                .withEnvironmentVariable(PGPASSWORD, checkedConnectionInfo.password().reveal());
+                .withEnvironmentVariable(
+                        PGPASSWORD, checkedConnectionInfo.password().reveal());
     }
 }

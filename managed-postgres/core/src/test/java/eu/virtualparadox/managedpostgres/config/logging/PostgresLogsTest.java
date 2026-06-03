@@ -7,8 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public final class PostgresLogsTest {
 
-    PostgresLogsTest() {
-    }
+    PostgresLogsTest() {}
 
     @Test
     void defaultsSupportFileOnlyAndSlf4jModes() {

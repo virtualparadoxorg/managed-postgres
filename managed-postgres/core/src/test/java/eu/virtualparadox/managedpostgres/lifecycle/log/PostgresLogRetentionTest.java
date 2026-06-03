@@ -15,8 +15,7 @@ public final class PostgresLogRetentionTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresLogRetentionTest() {
-    }
+    PostgresLogRetentionTest() {}
 
     @Test
     void smallActiveLogIsKeptInPlace() throws IOException {

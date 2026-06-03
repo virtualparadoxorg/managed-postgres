@@ -5,18 +5,14 @@ import java.util.Optional;
 
 final class CliYamlRuntimeSourceFieldValidator {
 
-    private CliYamlRuntimeSourceFieldValidator() {
-    }
+    private CliYamlRuntimeSourceFieldValidator() {}
 
     static void requireNoSupplyChainFields(final CliYamlRuntimeSourceProperties properties) {
         requireNoRepository(properties.repository());
         requireNoClasspathResource(properties.resource());
         requireAbsent(
-                properties.checksum(),
-                "runtime.checksum is only valid for downloaded or classpath runtime source");
-        requireAbsent(
-                properties.cache(),
-                "runtime.cache is only valid for downloaded or classpath runtime source");
+                properties.checksum(), "runtime.checksum is only valid for downloaded or classpath runtime source");
+        requireAbsent(properties.cache(), "runtime.cache is only valid for downloaded or classpath runtime source");
         requireNoSignature(properties);
     }
 
@@ -37,8 +33,7 @@ final class CliYamlRuntimeSourceFieldValidator {
                 properties.signaturePublicKey(),
                 "runtime.signature is only valid for downloaded or classpath runtime source");
         requireAbsent(
-                properties.signature(),
-                "runtime.signature is only valid for downloaded or classpath runtime source");
+                properties.signature(), "runtime.signature is only valid for downloaded or classpath runtime source");
     }
 
     private static void requireAbsent(final Optional<?> value, final String message) {

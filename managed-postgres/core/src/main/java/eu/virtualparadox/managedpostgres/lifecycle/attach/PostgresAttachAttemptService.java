@@ -1,11 +1,11 @@
 package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Builds one attach attempt from compatibility, process, port and JDBC checks.
@@ -22,8 +22,7 @@ public final class PostgresAttachAttemptService {
      * @param handleFactory handle factory value
      */
     public PostgresAttachAttemptService(
-            final AttachValidation validation,
-            final PostgresAttachedHandleFactory handleFactory) {
+            final AttachValidation validation, final PostgresAttachedHandleFactory handleFactory) {
         this.validation = Objects.requireNonNull(validation, "validation");
         this.handleFactory = Objects.requireNonNull(handleFactory, "handleFactory");
     }

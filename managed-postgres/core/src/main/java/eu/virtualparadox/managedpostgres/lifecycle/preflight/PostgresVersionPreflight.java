@@ -2,11 +2,11 @@ package eu.virtualparadox.managedpostgres.lifecycle.preflight;
 
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.exception.PostgresUpgradeException;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Verifies PostgreSQL metadata version compatibility before lifecycle mutation.
@@ -16,8 +16,7 @@ public final class PostgresVersionPreflight {
     /**
      * Creates a PostgreSQL version preflight verifier.
      */
-    public PostgresVersionPreflight() {
-    }
+    public PostgresVersionPreflight() {}
 
     /**
      * Verifies that persisted metadata can be used with the requested PostgreSQL version.
@@ -26,8 +25,7 @@ public final class PostgresVersionPreflight {
      * @param metadata persisted instance metadata
      */
     public void verifyMetadataVersion(
-            final StartPostgresWorkflow.Configuration configuration,
-            final PostgresInstanceMetadata metadata) {
+            final StartPostgresWorkflow.Configuration configuration, final PostgresInstanceMetadata metadata) {
         final StartPostgresWorkflow.Configuration checkedConfiguration =
                 Objects.requireNonNull(configuration, "configuration");
         final PostgresInstanceMetadata checkedMetadata = Objects.requireNonNull(metadata, "metadata");
@@ -49,7 +47,8 @@ public final class PostgresVersionPreflight {
                     PostgresPreflightDiagnostics.version(Map.of(
                             "requestedPostgresqlVersion", checkedConfiguration.postgresqlVersion(),
                             "metadataPostgresqlVersion", checkedMetadata.postgresqlVersion(),
-                            "upgradePolicy", checkedConfiguration.upgradePolicy().name())));
+                            "upgradePolicy",
+                                    checkedConfiguration.upgradePolicy().name())));
         }
     }
 
@@ -58,8 +57,8 @@ public final class PostgresVersionPreflight {
         if (!StringUtils.isNumeric(firstComponent)) {
             throw new PostgresUpgradeException(
                     "PostgreSQL version must start with a positive major version",
-                    PostgresPreflightDiagnostics.version(Map.of(
-                            "requestedPostgresqlVersion", Objects.toString(postgresqlVersion, ""))));
+                    PostgresPreflightDiagnostics.version(
+                            Map.of("requestedPostgresqlVersion", Objects.toString(postgresqlVersion, ""))));
         }
 
         return new PostgresVersion(postgresqlVersion, Integer.parseInt(firstComponent));

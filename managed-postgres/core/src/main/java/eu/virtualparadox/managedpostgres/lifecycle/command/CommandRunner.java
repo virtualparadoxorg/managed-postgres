@@ -25,8 +25,7 @@ public final class CommandRunner {
     /**
      * Creates a command runner.
      */
-    public CommandRunner() {
-    }
+    public CommandRunner() {}
 
     /**
      * Executes a command request.
@@ -50,9 +49,8 @@ public final class CommandRunner {
         }
     }
 
-    private static CommandResult runWithOutputReaders(
-            final CommandRequest request,
-            final ExecutorService outputReaders) throws IOException, InterruptedException {
+    private static CommandResult runWithOutputReaders(final CommandRequest request, final ExecutorService outputReaders)
+            throws IOException, InterruptedException {
         final Process process = startProcess(request);
         try {
             return awaitProcess(request, outputReaders, process);
@@ -70,9 +68,8 @@ public final class CommandRunner {
     }
 
     private static CommandResult awaitProcess(
-            final CommandRequest request,
-            final ExecutorService outputReaders,
-            final Process process) throws InterruptedException {
+            final CommandRequest request, final ExecutorService outputReaders, final Process process)
+            throws InterruptedException {
         final Future<String> stdout = outputReaders.submit(readStream(process.getInputStream()));
         final Future<String> stderr = outputReaders.submit(readStream(process.getErrorStream()));
 
@@ -155,9 +152,7 @@ public final class CommandRunner {
     }
 
     private static ManagedPostgresException commandException(
-            final String message,
-            final CommandRequest request,
-            final Throwable cause) {
+            final String message, final CommandRequest request, final Throwable cause) {
         return new ManagedPostgresException(message, cause, diagnosticReport(request));
     }
 

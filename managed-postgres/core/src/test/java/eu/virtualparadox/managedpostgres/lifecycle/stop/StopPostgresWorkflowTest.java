@@ -5,6 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.FakePostgresRuntime;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.RecordingRuntimeResolver;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartConfigurationFixture;
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
@@ -16,15 +25,6 @@ import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.FakePostgresRuntime;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.layout.PostgresMetadataFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.RecordingRuntimeResolver;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.StartConfigurationFixture;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 public final class StopPostgresWorkflowTest {
 
@@ -33,12 +33,12 @@ public final class StopPostgresWorkflowTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StopPostgresWorkflowTest() {
-    }
+    StopPostgresWorkflowTest() {}
 
     @Test
     void missingMetadataDoesNotResolveRuntimeOrRunPgCtl() throws IOException {
-        final RecordingRuntimeResolver runtimeResolver = new RecordingRuntimeResolver(temporaryDirectory.resolve("runtime"));
+        final RecordingRuntimeResolver runtimeResolver =
+                new RecordingRuntimeResolver(temporaryDirectory.resolve("runtime"));
         final StopScenario scenario = scenario(runtimeResolver);
 
         workflow(runtimeResolver).stop(scenario.configuration());
@@ -99,7 +99,8 @@ public final class StopPostgresWorkflowTest {
 
     @Test
     void invalidMetadataFailsBeforeRuntimeResolutionAndKeepsMetadata() throws IOException {
-        final RecordingRuntimeResolver runtimeResolver = new RecordingRuntimeResolver(temporaryDirectory.resolve("runtime"));
+        final RecordingRuntimeResolver runtimeResolver =
+                new RecordingRuntimeResolver(temporaryDirectory.resolve("runtime"));
         final StopScenario scenario = scenario(runtimeResolver);
         Files.createDirectories(scenario.layout().stateDirectory());
         Files.writeString(scenario.layout().metadataPath(), "{\"schemaVersion\":1}");
@@ -136,8 +137,7 @@ public final class StopPostgresWorkflowTest {
     }
 
     private static void writeMetadata(final PostgresLayout layout, final String name) {
-        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal())
-                .write(metadata(layout, name));
+        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal()).write(metadata(layout, name));
     }
 
     private static PostgresInstanceMetadata metadata(final PostgresLayout layout, final String name) {
@@ -169,5 +169,4 @@ public final class StopPostgresWorkflowTest {
             java.util.Objects.requireNonNull(layout, "layout");
         }
     }
-
 }

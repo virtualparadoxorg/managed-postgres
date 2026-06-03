@@ -19,8 +19,7 @@ final class RuntimePackagingOrchestratorTest {
     @TempDir
     Path tempDir;
 
-    RuntimePackagingOrchestratorTest() {
-    }
+    RuntimePackagingOrchestratorTest() {}
 
     @Test
     void packagesRuntimeFromVerifiedSourceArchive() throws IOException {
@@ -43,12 +42,7 @@ final class RuntimePackagingOrchestratorTest {
         final RuntimePackagingOrchestrator orchestrator = new RuntimePackagingOrchestrator(buildExecutor);
 
         final RuntimePackagingResult result = orchestrator.packageRelease(new RuntimePackagingRequest(
-                release,
-                TargetPlatform.MACOS_AARCH64,
-                "r1",
-                outputDirectory,
-                sourceCache,
-                workRoot));
+                release, TargetPlatform.MACOS_AARCH64, "r1", outputDirectory, sourceCache, workRoot));
 
         assertThat(result.publishResult().bundle())
                 .hasFileName("managed-postgres-runtime-pg16.14-macos-aarch64-r1.zip")

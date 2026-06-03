@@ -30,10 +30,7 @@ public interface FileSystemOperation extends AutoCloseable {
      * @param content UTF-8 text content
      * @param permissions managed file permissions
      */
-    public void writeUtf8Atomically(
-            final Path target,
-            final String content,
-            final ManagedFilePermissions permissions);
+    public void writeUtf8Atomically(final Path target, final String content, final ManagedFilePermissions permissions);
 
     /**
      * Publishes a staged directory into the target path.

@@ -19,8 +19,7 @@ final class StartPostgresWorkflowFakeRuntimeSupportTest {
     @TempDir
     private Path temporaryDirectory;
 
-    StartPostgresWorkflowFakeRuntimeSupportTest() {
-    }
+    StartPostgresWorkflowFakeRuntimeSupportTest() {}
 
     @Test
     void fakeRuntimeProvidesExecutablesNeededByStartWorkflow() throws IOException {

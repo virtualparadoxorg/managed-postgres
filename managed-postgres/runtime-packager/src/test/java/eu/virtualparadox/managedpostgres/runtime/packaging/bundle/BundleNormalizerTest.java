@@ -19,8 +19,7 @@ final class BundleNormalizerTest {
     @TempDir
     Path tempDir;
 
-    BundleNormalizerTest() {
-    }
+    BundleNormalizerTest() {}
 
     @Test
     void producesNormalizedRuntimeDirectory() throws IOException {
@@ -56,10 +55,8 @@ final class BundleNormalizerTest {
         Files.writeString(rawInstallTree.resolve("share/extension.sql"), "-- extension\n", StandardCharsets.UTF_8);
         final BundleNormalizer normalizer = new BundleNormalizer();
 
-        final Path normalized = normalizer.normalize(
-                rawInstallTree,
-                tempDir.resolve("normalized-windows"),
-                windowsManifest());
+        final Path normalized =
+                normalizer.normalize(rawInstallTree, tempDir.resolve("normalized-windows"), windowsManifest());
 
         assertThat(normalized.resolve("bin/postgres.exe")).exists();
         assertThat(normalized.resolve("manifest.json")).exists();

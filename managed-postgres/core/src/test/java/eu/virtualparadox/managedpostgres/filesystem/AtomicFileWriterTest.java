@@ -19,8 +19,7 @@ public final class AtomicFileWriterTest {
     @TempDir
     private Path directory;
 
-    AtomicFileWriterTest() {
-    }
+    AtomicFileWriterTest() {}
 
     @Test
     void atomicWriterDoesNotExposeFinalFileBeforeCommit() throws IOException {
@@ -44,9 +43,8 @@ public final class AtomicFileWriterTest {
         assumeTrue(Files.getFileStore(directory).supportsFileAttributeView(PosixFileAttributeView.class));
         final Path target = directory.resolve("credentials.properties");
         final AtomicFileWriter writer = new AtomicFileWriter();
-        final Set<PosixFilePermission> ownerOnly = Set.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE);
+        final Set<PosixFilePermission> ownerOnly =
+                Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
 
         writer.writeUtf8(target, "password=secret", ManagedFilePermissions.ownerOnlyReadWrite());
 

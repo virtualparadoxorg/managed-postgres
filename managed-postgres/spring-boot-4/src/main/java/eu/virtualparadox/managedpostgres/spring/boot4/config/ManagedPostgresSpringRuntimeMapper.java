@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.config.RuntimeCache;
-import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
 import eu.virtualparadox.managedpostgres.config.DownloadedRuntime;
+import eu.virtualparadox.managedpostgres.config.RuntimeCache;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
+import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.runtime.RuntimeSignature;
 import java.net.URI;
 import java.nio.file.Path;
@@ -17,8 +17,7 @@ final class ManagedPostgresSpringRuntimeMapper {
     private static final String DOWNLOADED_RUNTIME_SOURCE = "downloaded";
     private static final String CLASSPATH_RUNTIME_SOURCE = "classpath";
 
-    private ManagedPostgresSpringRuntimeMapper() {
-    }
+    private ManagedPostgresSpringRuntimeMapper() {}
 
     static RuntimeSource runtimeSource(final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
         return switch (runtime.source()) {
@@ -31,24 +30,21 @@ final class ManagedPostgresSpringRuntimeMapper {
         };
     }
 
-    private static RuntimeSource classpathRuntimeSource(final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
+    private static RuntimeSource classpathRuntimeSource(
+            final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
         final String resource = classpathRuntimeResource(runtime.resource());
         final String checksum = classpathRuntimeChecksum(runtime.checksum());
 
-        return RuntimeSource.classpath(resource, classpathRuntime -> configureClasspathRuntime(
-                classpathRuntime,
-                runtime,
-                checksum));
+        return RuntimeSource.classpath(
+                resource, classpathRuntime -> configureClasspathRuntime(classpathRuntime, runtime, checksum));
     }
 
-    private static RuntimeSource downloadedRuntimeSource(final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
+    private static RuntimeSource downloadedRuntimeSource(
+            final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
         final String checksum = downloadedRuntimeChecksum(runtime.checksum());
 
         return RuntimeSource.downloaded(downloadedRuntime -> configureDownloadedRuntime(
-                downloadedRuntime,
-                runtime,
-                downloadedRuntimeRepository(runtime.repository()),
-                checksum));
+                downloadedRuntime, runtime, downloadedRuntimeRepository(runtime.repository()), checksum));
     }
 
     private static ClasspathRuntime configureClasspathRuntime(
@@ -60,7 +56,8 @@ final class ManagedPostgresSpringRuntimeMapper {
             configuredRuntime = configuredRuntime.signature(runtimeSignature(runtime));
         }
         if (runtime.cache().isPresent()) {
-            configuredRuntime = configuredRuntime.cache(RuntimeCache.projectLocal(runtime.cache().orElseThrow()));
+            configuredRuntime = configuredRuntime.cache(
+                    RuntimeCache.projectLocal(runtime.cache().orElseThrow()));
         }
 
         return configuredRuntime;
@@ -79,15 +76,16 @@ final class ManagedPostgresSpringRuntimeMapper {
             configuredRuntime = configuredRuntime.signature(runtimeSignature(runtime));
         }
         if (runtime.cache().isPresent()) {
-            configuredRuntime = configuredRuntime.cache(RuntimeCache.projectLocal(runtime.cache().orElseThrow()));
+            configuredRuntime = configuredRuntime.cache(
+                    RuntimeCache.projectLocal(runtime.cache().orElseThrow()));
         }
 
         return configuredRuntime;
     }
 
     private static Path existingRuntimePath(final Optional<Path> path) {
-        return path.orElseThrow(() -> new ManagedPostgresSpringException(
-                "managed-postgres.runtime.source=existing requires runtime.path"));
+        return path.orElseThrow(() ->
+                new ManagedPostgresSpringException("managed-postgres.runtime.source=existing requires runtime.path"));
     }
 
     private static String classpathRuntimeResource(final Optional<String> resource) {
@@ -110,8 +108,7 @@ final class ManagedPostgresSpringRuntimeMapper {
                 runtimeRepository = Optional.of(RuntimeRepository.custom(URI.create(repositoryText)));
             } catch (final IllegalArgumentException exception) {
                 throw new ManagedPostgresSpringException(
-                        "managed-postgres.runtime.repository must be an absolute URI",
-                        exception);
+                        "managed-postgres.runtime.repository must be an absolute URI", exception);
             }
         }
 

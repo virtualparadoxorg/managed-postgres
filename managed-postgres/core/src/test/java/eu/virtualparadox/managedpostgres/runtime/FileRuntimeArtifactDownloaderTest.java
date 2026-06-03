@@ -24,26 +24,23 @@ import org.junit.jupiter.api.io.TempDir;
 
 public final class FileRuntimeArtifactDownloaderTest {
 
-    private static final Checksum SHA256_ABC = Checksum.parse(
-            "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
-    private static final Checksum SHA256_WRONG = Checksum.parse(
-            "sha256:0000000000000000000000000000000000000000000000000000000000000000");
+    private static final Checksum SHA256_ABC =
+            Checksum.parse("sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
+    private static final Checksum SHA256_WRONG =
+            Checksum.parse("sha256:0000000000000000000000000000000000000000000000000000000000000000");
 
     @TempDir
     private Path temporaryDirectory;
 
-    FileRuntimeArtifactDownloaderTest() {
-    }
+    FileRuntimeArtifactDownloaderTest() {}
 
     @Test
     void fileUriCopiesArtifactToPartialDownloadPath() throws IOException {
         final Path source = artifact("postgres.zip", "abc");
         final Path partialDownload = temporaryDirectory.resolve("cache").resolve("postgres.zip.download");
 
-        final Path downloaded = new FileRuntimeArtifactDownloader().download(
-                RuntimeRepository.custom(source.toUri()),
-                partialDownload,
-                SHA256_ABC);
+        final Path downloaded = new FileRuntimeArtifactDownloader()
+                .download(RuntimeRepository.custom(source.toUri()), partialDownload, SHA256_ABC);
 
         assertThat(downloaded).isEqualTo(partialDownload);
         assertThat(Files.readString(partialDownload)).isEqualTo("abc");
@@ -56,10 +53,8 @@ public final class FileRuntimeArtifactDownloaderTest {
         Files.createDirectories(parentDirectory(partialDownload));
         Files.writeString(partialDownload, "stale");
 
-        new FileRuntimeArtifactDownloader().download(
-                RuntimeRepository.custom(source.toUri()),
-                partialDownload,
-                SHA256_ABC);
+        new FileRuntimeArtifactDownloader()
+                .download(RuntimeRepository.custom(source.toUri()), partialDownload, SHA256_ABC);
 
         assertThat(Files.readString(partialDownload)).isEqualTo("abc");
     }
@@ -71,10 +66,8 @@ public final class FileRuntimeArtifactDownloaderTest {
 
         try (server) {
             server.start();
-            final Path downloaded = new FileRuntimeArtifactDownloader().download(
-                    RuntimeRepository.custom(server.uri()),
-                    partialDownload,
-                    SHA256_ABC);
+            final Path downloaded = new FileRuntimeArtifactDownloader()
+                    .download(RuntimeRepository.custom(server.uri()), partialDownload, SHA256_ABC);
 
             assertThat(downloaded).isEqualTo(partialDownload);
             assertThat(Files.readString(partialDownload)).isEqualTo("abc");
@@ -88,15 +81,13 @@ public final class FileRuntimeArtifactDownloaderTest {
 
         try (server) {
             server.start();
-            assertThatThrownBy(() -> new FileRuntimeArtifactDownloader().download(
-                    RuntimeRepository.custom(server.uri()),
-                    partialDownload,
-                    SHA256_ABC))
+            assertThatThrownBy(() -> new FileRuntimeArtifactDownloader()
+                            .download(RuntimeRepository.custom(server.uri()), partialDownload, SHA256_ABC))
                     .isInstanceOf(ManagedPostgresException.class)
                     .hasMessageContaining("download")
                     .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                            .diagnosticReport()
-                            .renderText())
+                                    .diagnosticReport()
+                                    .renderText())
                             .contains(server.uri().toString(), partialDownload.toString()));
             assertThat(partialDownload).doesNotExist();
         }
@@ -107,15 +98,13 @@ public final class FileRuntimeArtifactDownloaderTest {
         final Path source = temporaryDirectory.resolve("missing.zip");
         final Path partialDownload = temporaryDirectory.resolve("cache").resolve("postgres.zip.download");
 
-        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader().download(
-                RuntimeRepository.custom(source.toUri()),
-                partialDownload,
-                SHA256_ABC))
+        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader()
+                        .download(RuntimeRepository.custom(source.toUri()), partialDownload, SHA256_ABC))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("download")
                 .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains(source.toUri().toString(), partialDownload.toString()));
     }
 
@@ -123,10 +112,11 @@ public final class FileRuntimeArtifactDownloaderTest {
     void unsupportedUriSchemeIsRejectedByFileDownloader() {
         final Path partialDownload = temporaryDirectory.resolve("cache").resolve("postgres.zip.download");
 
-        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader().download(
-                RuntimeRepository.custom(URI.create("ftp://example.test/postgres.zip")),
-                partialDownload,
-                SHA256_ABC))
+        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader()
+                        .download(
+                                RuntimeRepository.custom(URI.create("ftp://example.test/postgres.zip")),
+                                partialDownload,
+                                SHA256_ABC))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("scheme");
     }
@@ -136,10 +126,8 @@ public final class FileRuntimeArtifactDownloaderTest {
         final Path source = artifact("postgres.zip", "abc");
         final Path partialDownload = temporaryDirectory.resolve("cache").resolve("postgres.zip.download");
 
-        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader().download(
-                RuntimeRepository.custom(source.toUri()),
-                partialDownload,
-                SHA256_WRONG))
+        assertThatThrownBy(() -> new FileRuntimeArtifactDownloader()
+                        .download(RuntimeRepository.custom(source.toUri()), partialDownload, SHA256_WRONG))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(partialDownload.toString())
                 .hasMessageContaining("SHA-256");
@@ -162,9 +150,8 @@ public final class FileRuntimeArtifactDownloaderTest {
         final URI uri;
         try (AllocatedPort allocatedPort = new PortAllocator().allocateRandom()) {
             uri = URI.create("http://" + allocatedPort.host() + ":" + allocatedPort.port() + "/postgres.zip");
-            server = HttpServer.create(
-                    new InetSocketAddress(InetAddress.getLoopbackAddress(), allocatedPort.port()),
-                    0);
+            server =
+                    HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), allocatedPort.port()), 0);
             server.createContext("/postgres.zip", exchange -> respond(exchange, status, responseBody));
         }
 
@@ -183,10 +170,8 @@ public final class FileRuntimeArtifactDownloaderTest {
         }
     }
 
-    private static void respond(
-            final HttpExchange exchange,
-            final int status,
-            final String responseBody) throws IOException {
+    private static void respond(final HttpExchange exchange, final int status, final String responseBody)
+            throws IOException {
         final byte[] body = responseBody.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(status, body.length);
         try (OutputStream outputStream = exchange.getResponseBody()) {

@@ -27,8 +27,7 @@ public final class PostgresStartPreflightTest {
 
     private final PostgresStartPreflight preflight = new PostgresStartPreflight();
 
-    PostgresStartPreflightTest() {
-    }
+    PostgresStartPreflightTest() {}
 
     @Test
     void dataDirectoryMajorMismatchFailsBeforeStartMutation() throws IOException {
@@ -37,13 +36,13 @@ public final class PostgresStartPreflightTest {
         Files.writeString(layout.dataDirectory().resolve("PG_VERSION"), "17%n".formatted(), StandardCharsets.UTF_8);
 
         assertThatThrownBy(() -> preflight.verifyBeforeStart(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                Optional.empty()))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        Optional.empty()))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("PG_VERSION")
                         .contains("requestedPostgresqlVersion")
                         .contains("dataDirectoryPostgresqlVersion"));
@@ -56,9 +55,9 @@ public final class PostgresStartPreflightTest {
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());
 
         assertThatThrownBy(() -> preflight.verifyBeforeStart(
-                configuration(storageRoot, "16.5", UpgradePolicy.DISABLED, ConfigDriftPolicy.FAIL),
-                layout,
-                Optional.of(metadata)))
+                        configuration(storageRoot, "16.5", UpgradePolicy.DISABLED, ConfigDriftPolicy.FAIL),
+                        layout,
+                        Optional.of(metadata)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .hasMessageContaining("version");
     }
@@ -70,13 +69,14 @@ public final class PostgresStartPreflightTest {
         final var metadata = PostgresMetadataFixture.metadataWithConfigHash(layout.dataDirectory(), "old-hash");
 
         assertThatThrownBy(() -> preflight.verifyBeforeStart(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                Optional.of(metadata)))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        Optional.of(metadata)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText()).contains("configHash"));
+                                .diagnosticReport()
+                                .renderText())
+                        .contains("configHash"));
     }
 
     @Test
@@ -86,9 +86,9 @@ public final class PostgresStartPreflightTest {
         final var metadata = PostgresMetadataFixture.metadataWithConfigHash(layout.dataDirectory(), "old-hash");
 
         assertThatCode(() -> preflight.verifyBeforeStart(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.IGNORE),
-                layout,
-                Optional.of(metadata)))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.IGNORE),
+                        layout,
+                        Optional.of(metadata)))
                 .doesNotThrowAnyException();
     }
 
@@ -99,18 +99,18 @@ public final class PostgresStartPreflightTest {
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());
 
         assertThatThrownBy(() -> preflight.verifyBeforeStart(
-                configuration(
-                        storageRoot,
-                        "16.4",
-                        UpgradePolicy.MINOR_ONLY,
-                        ConfigDriftPolicy.FAIL,
-                        ClusterBootstrap.defaultCluster().database("app")),
-                layout,
-                Optional.of(metadata)))
+                        configuration(
+                                storageRoot,
+                                "16.4",
+                                UpgradePolicy.MINOR_ONLY,
+                                ConfigDriftPolicy.FAIL,
+                                ClusterBootstrap.defaultCluster().database("app")),
+                        layout,
+                        Optional.of(metadata)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("database")
                         .contains("expected <app>")
                         .contains("was <postgres>"));
@@ -123,18 +123,18 @@ public final class PostgresStartPreflightTest {
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());
 
         assertThatThrownBy(() -> preflight.verifyBeforeStart(
-                configuration(
-                        storageRoot,
-                        "16.4",
-                        UpgradePolicy.MINOR_ONLY,
-                        ConfigDriftPolicy.FAIL,
-                        ClusterBootstrap.defaultCluster().owner("app_owner")),
-                layout,
-                Optional.of(metadata)))
+                        configuration(
+                                storageRoot,
+                                "16.4",
+                                UpgradePolicy.MINOR_ONLY,
+                                ConfigDriftPolicy.FAIL,
+                                ClusterBootstrap.defaultCluster().owner("app_owner")),
+                        layout,
+                        Optional.of(metadata)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("owner")
                         .contains("expected <app_owner>")
                         .contains("was <postgres>"));
@@ -146,9 +146,9 @@ public final class PostgresStartPreflightTest {
         final var layout = PostgresLayoutFixture.createdLayout(storageRoot);
 
         assertThatCode(() -> preflight.verifyBeforeStart(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                Optional.empty()))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        Optional.empty()))
                 .doesNotThrowAnyException();
     }
 
@@ -158,11 +158,7 @@ public final class PostgresStartPreflightTest {
             final UpgradePolicy upgradePolicy,
             final ConfigDriftPolicy configDriftPolicy) {
         return configuration(
-                storageRoot,
-                postgresqlVersion,
-                upgradePolicy,
-                configDriftPolicy,
-                ClusterBootstrap.defaultCluster());
+                storageRoot, postgresqlVersion, upgradePolicy, configDriftPolicy, ClusterBootstrap.defaultCluster());
     }
 
     private static StartPostgresWorkflow.Configuration configuration(

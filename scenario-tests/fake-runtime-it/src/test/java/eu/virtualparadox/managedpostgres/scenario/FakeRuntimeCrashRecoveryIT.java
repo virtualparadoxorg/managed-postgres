@@ -9,6 +9,7 @@ import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 
 final class FakeRuntimeCrashRecoveryIT {
 
@@ -29,8 +29,7 @@ final class FakeRuntimeCrashRecoveryIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeCrashRecoveryIT() {
-    }
+    FakeRuntimeCrashRecoveryIT() {}
 
     @Test
     void startReconcilesClusterLeftAfterInterruptedStartBeforeMetadata() throws IOException {
@@ -52,7 +51,8 @@ final class FakeRuntimeCrashRecoveryIT {
         final Path storageRoot = temporaryDirectory.resolve("invalid-runtime-cluster");
         final Path invalidRuntime = temporaryDirectory.resolve("invalid-runtime");
         Files.createDirectories(invalidRuntime.resolve("bin"));
-        Files.writeString(invalidRuntime.resolve("bin").resolve("pg_ctl"), "#!/bin/sh\nexit 0\n", StandardCharsets.UTF_8);
+        Files.writeString(
+                invalidRuntime.resolve("bin").resolve("pg_ctl"), "#!/bin/sh\nexit 0\n", StandardCharsets.UTF_8);
 
         assertThatThrownBy(() -> localPostgres(storageRoot, invalidRuntime).start())
                 .isInstanceOf(ManagedPostgresException.class)
@@ -78,15 +78,11 @@ final class FakeRuntimeCrashRecoveryIT {
         }
     }
 
-    private static ManagedPostgres localPostgres(
-            final Path storageRoot,
-            final FakePostgresRuntime runtime) {
+    private static ManagedPostgres localPostgres(final Path storageRoot, final FakePostgresRuntime runtime) {
         return localPostgres(storageRoot, runtime.runtimeDirectory());
     }
 
-    private static ManagedPostgres localPostgres(
-            final Path storageRoot,
-            final Path runtimeDirectory) {
+    private static ManagedPostgres localPostgres(final Path storageRoot, final Path runtimeDirectory) {
         return ManagedPostgres.local()
                 .name("app-db")
                 .version("16.4")
@@ -107,7 +103,8 @@ final class FakeRuntimeCrashRecoveryIT {
 
     private static String diagnosticText(final Throwable failure) {
         if (!(failure instanceof ManagedPostgresException exception)) {
-            throw new IllegalStateException("unexpected failure type: " + failure.getClass().getName());
+            throw new IllegalStateException(
+                    "unexpected failure type: " + failure.getClass().getName());
         }
 
         return exception.diagnosticReport().renderText();

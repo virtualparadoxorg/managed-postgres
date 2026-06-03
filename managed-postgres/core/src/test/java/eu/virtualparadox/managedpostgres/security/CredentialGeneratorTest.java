@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public final class CredentialGeneratorTest {
 
-    CredentialGeneratorTest() {
-    }
+    CredentialGeneratorTest() {}
 
     @Test
     void generatedSecretHasAtLeastOneHundredTwentyEightBitsOfEntropy() {

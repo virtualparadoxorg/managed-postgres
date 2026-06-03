@@ -8,6 +8,11 @@ import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -16,11 +21,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 
 @ResourceLock("driver-manager")
 final class FakeRuntimeDoctorIT {
@@ -31,8 +31,7 @@ final class FakeRuntimeDoctorIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeDoctorIT() {
-    }
+    FakeRuntimeDoctorIT() {}
 
     @Test
     void doctorReportsRunningFakeRuntimeWithoutLeakingSecrets() throws IOException, SQLException {
@@ -41,7 +40,8 @@ final class FakeRuntimeDoctorIT {
                 ScenarioShell.recordingPgCtl(temporaryDirectory.resolve("pg_ctl-calls.log")));
         final Path storageRoot = temporaryDirectory.resolve("cluster");
 
-        try (ManagedPostgres postgres = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).build();
+        try (ManagedPostgres postgres = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
+                        .build();
                 RunningPostgres running = postgres.start()) {
             assertThat(running.status()).isEqualTo(PostgresStatus.RUNNING);
             final PostgresInstanceMetadata metadata = ScenarioMetadata.require(storageRoot);

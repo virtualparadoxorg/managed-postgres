@@ -8,8 +8,7 @@ import org.junit.jupiter.api.Test;
 
 final class PlatformBuildDriverTest {
 
-    PlatformBuildDriverTest() {
-    }
+    PlatformBuildDriverTest() {}
 
     @Test
     void selectsPhaseOneDriverForMacosArm() {

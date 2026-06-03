@@ -13,12 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  * @param username username
  * @param password password
  */
-public record PostgresConnectionInfo(
-        String host,
-        int port,
-        String database,
-        String username,
-        Secret password) {
+public record PostgresConnectionInfo(String host, int port, String database, String username, Secret password) {
 
     /**
      * Creates immutable PostgreSQL connection details.

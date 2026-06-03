@@ -19,8 +19,7 @@ final class BundlePublisherTest {
     @TempDir
     Path tempDir;
 
-    BundlePublisherTest() {
-    }
+    BundlePublisherTest() {}
 
     @Test
     void writesBundleAndChecksumIntoReleaseDirectory() throws IOException {
@@ -29,7 +28,8 @@ final class BundlePublisherTest {
         final BundlePublisher publisher = new BundlePublisher();
 
         final PublishResult result = publisher.publish(bundleDirectory, publishDirectory, manifest());
-        final Path bundleFileName = java.util.Objects.requireNonNull(result.bundle().getFileName(), "bundle.fileName");
+        final Path bundleFileName =
+                java.util.Objects.requireNonNull(result.bundle().getFileName(), "bundle.fileName");
 
         assertThat(result.bundle()).exists();
         assertThat(result.bundleChecksum()).exists();
@@ -48,7 +48,8 @@ final class BundlePublisherTest {
         Files.writeString(normalized.resolve("bin/psql"), "binary", StandardCharsets.UTF_8);
         Files.createDirectories(normalized.resolve("share"));
         Files.writeString(normalized.resolve("share/extension.sql"), "share", StandardCharsets.UTF_8);
-        Files.writeString(normalized.resolve("manifest.json"), "{\"postgresVersion\":\"16.14\"}", StandardCharsets.UTF_8);
+        Files.writeString(
+                normalized.resolve("manifest.json"), "{\"postgresVersion\":\"16.14\"}", StandardCharsets.UTF_8);
         return normalized;
     }
 

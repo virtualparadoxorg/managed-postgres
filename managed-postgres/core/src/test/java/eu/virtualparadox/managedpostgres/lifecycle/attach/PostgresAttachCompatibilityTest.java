@@ -23,8 +23,7 @@ public final class PostgresAttachCompatibilityTest {
 
     private final PostgresAttachCompatibility compatibility = new PostgresAttachCompatibility();
 
-    PostgresAttachCompatibilityTest() {
-    }
+    PostgresAttachCompatibilityTest() {}
 
     @Test
     void majorVersionMetadataMismatchRejectsAttach() {
@@ -33,9 +32,9 @@ public final class PostgresAttachCompatibilityTest {
         final var metadata = PostgresMetadataFixture.metadataWithVersion(layout.dataDirectory(), "17.0", 17);
 
         assertThat(compatibility.mismatch(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                metadata))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        metadata))
                 .hasValueSatisfying(mismatch -> assertThat(mismatch).contains("major"));
     }
 
@@ -46,9 +45,9 @@ public final class PostgresAttachCompatibilityTest {
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());
 
         assertThat(compatibility.mismatch(
-                configuration(storageRoot, "16.5", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                metadata))
+                        configuration(storageRoot, "16.5", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        metadata))
                 .isEmpty();
     }
 
@@ -59,9 +58,9 @@ public final class PostgresAttachCompatibilityTest {
         final var metadata = PostgresMetadataFixture.compatibleMetadata(layout.dataDirectory());
 
         assertThat(compatibility.mismatch(
-                configuration(storageRoot, "16.5", UpgradePolicy.DISABLED, ConfigDriftPolicy.FAIL),
-                layout,
-                metadata))
+                        configuration(storageRoot, "16.5", UpgradePolicy.DISABLED, ConfigDriftPolicy.FAIL),
+                        layout,
+                        metadata))
                 .hasValueSatisfying(mismatch -> assertThat(mismatch).contains("version"));
     }
 
@@ -72,9 +71,9 @@ public final class PostgresAttachCompatibilityTest {
         final var metadata = PostgresMetadataFixture.metadataWithConfigHash(layout.dataDirectory(), "old-hash");
 
         assertThat(compatibility.mismatch(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
-                layout,
-                metadata))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.FAIL),
+                        layout,
+                        metadata))
                 .hasValueSatisfying(mismatch -> assertThat(mismatch).contains("configHash"));
     }
 
@@ -85,9 +84,9 @@ public final class PostgresAttachCompatibilityTest {
         final var metadata = PostgresMetadataFixture.metadataWithConfigHash(layout.dataDirectory(), "old-hash");
 
         assertThat(compatibility.mismatch(
-                configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.IGNORE),
-                layout,
-                metadata))
+                        configuration(storageRoot, "16.4", UpgradePolicy.MINOR_ONLY, ConfigDriftPolicy.IGNORE),
+                        layout,
+                        metadata))
                 .isEmpty();
     }
 
@@ -132,16 +131,14 @@ public final class PostgresAttachCompatibilityTest {
 
     private static StartPostgresWorkflow.Configuration applicationConfiguration(final Path storageRoot) {
         final var configuration = ManagedPostgresConfigurationFixture.configuration(storageRoot)
-                .withClusterBootstrap(ClusterBootstrap.defaultCluster()
-                        .database("app")
-                        .owner("app_owner"));
+                .withClusterBootstrap(
+                        ClusterBootstrap.defaultCluster().database("app").owner("app_owner"));
 
         return new StartPostgresWorkflow.Configuration(configuration);
     }
 
     private static Map<String, String> compatibilityValues(final DiagnosticReport report) {
-        return report.sections()
-                .stream()
+        return report.sections().stream()
                 .filter(section -> "postgres-attach-compatibility".equals(section.name()))
                 .findFirst()
                 .map(DiagnosticSection::values)

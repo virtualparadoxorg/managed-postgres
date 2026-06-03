@@ -73,12 +73,8 @@ public record CliRuntimeSourceOptions(
      * @param path existing runtime path
      * @return runtime-source option values
      */
-    public static CliRuntimeSourceOptions sourceAndPath(
-            final Optional<String> source,
-            final Optional<Path> path) {
-        return empty()
-                .withOptionalSource(source)
-                .withOptionalPath(path);
+    public static CliRuntimeSourceOptions sourceAndPath(final Optional<String> source, final Optional<Path> path) {
+        return empty().withOptionalSource(source).withOptionalPath(path);
     }
 
     /**
@@ -89,14 +85,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withSource(final String value) {
         return new CliRuntimeSourceOptions(
-                Optional.of(value),
-                path,
-                repository,
-                resource,
-                checksum,
-                signaturePublicKey,
-                signature,
-                cache);
+                Optional.of(value), path, repository, resource, checksum, signaturePublicKey, signature, cache);
     }
 
     private CliRuntimeSourceOptions withOptionalSource(final Optional<String> value) {
@@ -119,14 +108,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withPath(final Path value) {
         return new CliRuntimeSourceOptions(
-                source,
-                Optional.of(value),
-                repository,
-                resource,
-                checksum,
-                signaturePublicKey,
-                signature,
-                cache);
+                source, Optional.of(value), repository, resource, checksum, signaturePublicKey, signature, cache);
     }
 
     private CliRuntimeSourceOptions withOptionalPath(final Optional<Path> value) {
@@ -149,14 +131,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withRepository(final String value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                Optional.of(value),
-                resource,
-                checksum,
-                signaturePublicKey,
-                signature,
-                cache);
+                source, path, Optional.of(value), resource, checksum, signaturePublicKey, signature, cache);
     }
 
     /**
@@ -167,14 +142,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withResource(final String value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                Optional.of(value),
-                checksum,
-                signaturePublicKey,
-                signature,
-                cache);
+                source, path, repository, Optional.of(value), checksum, signaturePublicKey, signature, cache);
     }
 
     /**
@@ -185,14 +153,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withChecksum(final String value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                resource,
-                Optional.of(value),
-                signaturePublicKey,
-                signature,
-                cache);
+                source, path, repository, resource, Optional.of(value), signaturePublicKey, signature, cache);
     }
 
     /**
@@ -203,14 +164,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withSignaturePublicKey(final String value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                resource,
-                checksum,
-                Optional.of(value),
-                signature,
-                cache);
+                source, path, repository, resource, checksum, Optional.of(value), signature, cache);
     }
 
     /**
@@ -221,14 +175,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withSignature(final String value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                resource,
-                checksum,
-                signaturePublicKey,
-                Optional.of(value),
-                cache);
+                source, path, repository, resource, checksum, signaturePublicKey, Optional.of(value), cache);
     }
 
     /**
@@ -239,14 +186,7 @@ public record CliRuntimeSourceOptions(
      */
     public CliRuntimeSourceOptions withCache(final Path value) {
         return new CliRuntimeSourceOptions(
-                source,
-                path,
-                repository,
-                resource,
-                checksum,
-                signaturePublicKey,
-                signature,
-                Optional.of(value));
+                source, path, repository, resource, checksum, signaturePublicKey, signature, Optional.of(value));
     }
 
     /**

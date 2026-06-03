@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.lifecycle.probe;
 
-import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,8 +27,7 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
     /**
      * Creates a DriverManagerJdbcProbeClient instance.
      */
-    public DriverManagerJdbcProbeClient() {
-    }
+    public DriverManagerJdbcProbeClient() {}
 
     /**
      * {@inheritDoc}
@@ -37,11 +36,8 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
     public JdbcProbeSnapshot probe(final PostgresConnectionInfo connectionInfo) {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         try (Connection connection = DriverManager.getConnection(
-                jdbcUrl(checkedConnectionInfo),
-                connectionProperties(checkedConnectionInfo))) {
-            return new JdbcProbeSnapshot(
-                    Path.of(dataDirectory(connection)),
-                    serverVersion(connection));
+                jdbcUrl(checkedConnectionInfo), connectionProperties(checkedConnectionInfo))) {
+            return new JdbcProbeSnapshot(Path.of(dataDirectory(connection)), serverVersion(connection));
         } catch (final SQLException exception) {
             throw jdbcProbeFailure(checkedConnectionInfo, exception);
         }
@@ -90,10 +86,8 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
     }
 
     private static String jdbcUrl(final PostgresConnectionInfo connectionInfo) {
-        return "jdbc:postgresql://%s:%d/%s".formatted(
-                hostForUrl(connectionInfo.host()),
-                connectionInfo.port(),
-                connectionInfo.database());
+        return "jdbc:postgresql://%s:%d/%s"
+                .formatted(hostForUrl(connectionInfo.host()), connectionInfo.port(), connectionInfo.database());
     }
 
     private static String hostForUrl(final String host) {
@@ -108,8 +102,7 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
     }
 
     private static PostgresAttachException jdbcProbeFailure(
-            final PostgresConnectionInfo connectionInfo,
-            final SQLException exception) {
+            final PostgresConnectionInfo connectionInfo, final SQLException exception) {
         return new PostgresAttachException(
                 "JDBC attach probe failed",
                 exception,

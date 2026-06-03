@@ -9,16 +9,16 @@ import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.runtime.Checksum;
 import eu.virtualparadox.managedpostgres.runtime.download.RuntimeCacheLayout;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioRuntimeArchives;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioRuntimeArchives;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 
 final class FakeRuntimeDownloadedRuntimeIT {
 
@@ -27,15 +27,13 @@ final class FakeRuntimeDownloadedRuntimeIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeDownloadedRuntimeIT() {
-    }
+    FakeRuntimeDownloadedRuntimeIT() {}
 
     @Test
     void downloadedRuntimeArchiveInstallsStartsAndReusesCacheWhenRepositoryArtifactDisappears() throws IOException {
         final Path callLog = temporaryDirectory.resolve("pg_ctl-calls.log");
         final FakePostgresRuntime packagedRuntime = FakePostgresRuntime.create(
-                temporaryDirectory.resolve("packaged-runtime"),
-                ScenarioShell.recordingPgCtl(callLog));
+                temporaryDirectory.resolve("packaged-runtime"), ScenarioShell.recordingPgCtl(callLog));
         final Path archive = packagedRuntime.writeZipArchive(
                 temporaryDirectory.resolve("repository").resolve("postgres-16.4.zip"));
         final String checksumText = ScenarioRuntimeArchives.checksumText(archive);
@@ -51,8 +49,8 @@ final class FakeRuntimeDownloadedRuntimeIT {
             assertThat(first.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(ScenarioMetadata.metadataPath(firstStorageRoot)).isRegularFile();
             assertThat(cachedRuntime.resolve("bin").resolve("initdb")).satisfies(ScenarioRuntimeArchives::isExecutable);
-            assertThat(cachedRuntime.resolve("bin").resolve("pg_isready")).satisfies(
-                    ScenarioRuntimeArchives::isExecutable);
+            assertThat(cachedRuntime.resolve("bin").resolve("pg_isready"))
+                    .satisfies(ScenarioRuntimeArchives::isExecutable);
         }
 
         Files.delete(archive);
@@ -63,27 +61,18 @@ final class FakeRuntimeDownloadedRuntimeIT {
         }
 
         ScenarioRuntimeArchives.assertRuntimeCachePublished(
-                cacheLayout,
-                POSTGRESQL_VERSION,
-                checksum,
-                cachedRuntime,
-                callLog);
+                cacheLayout, POSTGRESQL_VERSION, checksum, cachedRuntime, callLog);
     }
 
-    private static RunningPostgres startLocalPostgres(
-            final Path storageRoot,
-            final RuntimeSource runtimeSource) {
-        return ScenarioManagedPostgres.localPostgres("downloaded-db", storageRoot, runtimeSource).start();
+    private static RunningPostgres startLocalPostgres(final Path storageRoot, final RuntimeSource runtimeSource) {
+        return ScenarioManagedPostgres.localPostgres("downloaded-db", storageRoot, runtimeSource)
+                .start();
     }
 
     private static RuntimeSource downloadedRuntimeSource(
-            final Path archive,
-            final Path cacheRoot,
-            final String checksumText) {
-        return RuntimeSource.downloaded(runtime -> runtime
-                .repository(RuntimeRepository.custom(archive.toUri()))
+            final Path archive, final Path cacheRoot, final String checksumText) {
+        return RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(archive.toUri()))
                 .cache(RuntimeCache.projectLocal(cacheRoot))
                 .checksum(checksumText));
     }
-
 }

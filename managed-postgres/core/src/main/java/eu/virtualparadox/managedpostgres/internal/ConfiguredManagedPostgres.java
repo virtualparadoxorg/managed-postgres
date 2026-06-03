@@ -32,8 +32,7 @@ public final class ConfiguredManagedPostgres implements ManagedPostgres {
      * @param service service value
      */
     public ConfiguredManagedPostgres(
-            final ManagedPostgresConfiguration configuration,
-            final ManagedPostgresService service) {
+            final ManagedPostgresConfiguration configuration, final ManagedPostgresService service) {
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.service = Objects.requireNonNull(service, "service");
     }

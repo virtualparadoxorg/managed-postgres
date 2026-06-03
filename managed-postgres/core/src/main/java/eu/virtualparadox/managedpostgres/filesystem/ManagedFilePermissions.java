@@ -30,9 +30,7 @@ public final class ManagedFilePermissions {
      * @return owner-only read/write permissions
      */
     public static ManagedFilePermissions ownerOnlyReadWrite() {
-        return new ManagedFilePermissions(Set.of(
-                PosixFilePermission.OWNER_READ,
-                PosixFilePermission.OWNER_WRITE));
+        return new ManagedFilePermissions(Set.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
     }
 
     /**

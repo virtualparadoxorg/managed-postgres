@@ -4,15 +4,15 @@ import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 
 /**
  * Runs PostgreSQL's {@code pg_isready} readiness probe.
@@ -73,8 +73,7 @@ public final class PgIsReadyProbe {
             result = PostgresProbeResult.healthy("pg_isready reports PostgreSQL healthy");
         } else {
             result = PostgresProbeResult.unhealthy(
-                    "pg_isready reports PostgreSQL not ready",
-                    commandDiagnostic(commandResult));
+                    "pg_isready reports PostgreSQL not ready", commandDiagnostic(commandResult));
         }
 
         return result;

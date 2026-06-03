@@ -8,8 +8,7 @@ import eu.virtualparadox.managedpostgres.RunningPostgres;
  */
 public final class ManagedPostgresBootstrapContextTestSupport {
 
-    private ManagedPostgresBootstrapContextTestSupport() {
-    }
+    private ManagedPostgresBootstrapContextTestSupport() {}
 
     /**
      * Stores fake managed PostgreSQL handles in the bootstrap context.

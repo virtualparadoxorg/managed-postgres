@@ -20,14 +20,12 @@ import org.junit.jupiter.api.Test;
 
 final class CliExceptionHandlerTest {
 
-    CliExceptionHandlerTest() {
-    }
+    CliExceptionHandlerTest() {}
 
     @Test
     void managedPostgresExceptionMapsToSpecificExitCodeAndRendersDiagnostics() {
-        final CliFailure failure = handle(new PostgresBackupException(
-                "backup failed",
-                report("backup", Map.of("target", "backup.dump"))));
+        final CliFailure failure =
+                handle(new PostgresBackupException("backup failed", report("backup", Map.of("target", "backup.dump"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.BACKUP_RESTORE_ERROR.code());
         assertThat(failure.errorOutput()).contains("backup failed");
@@ -37,9 +35,8 @@ final class CliExceptionHandlerTest {
 
     @Test
     void restoreFailureMapsToBackupRestoreExitCode() {
-        final CliFailure failure = handle(new PostgresRestoreException(
-                "restore failed",
-                report("restore", Map.of("target", "backup.dump"))));
+        final CliFailure failure = handle(
+                new PostgresRestoreException("restore failed", report("restore", Map.of("target", "backup.dump"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.BACKUP_RESTORE_ERROR.code());
         assertThat(failure.errorOutput()).contains("restore failed");
@@ -48,8 +45,7 @@ final class CliExceptionHandlerTest {
     @Test
     void startupTimeoutMapsToReadinessTimeoutExitCode() {
         final CliFailure failure = handle(new PostgresStartupException(
-                "postgres did not become ready",
-                report("startup-timeout", Map.of("timeout", "PT60S"))));
+                "postgres did not become ready", report("startup-timeout", Map.of("timeout", "PT60S"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.READINESS_TIMEOUT.code());
         assertThat(failure.errorOutput()).contains("startup-timeout");
@@ -58,8 +54,7 @@ final class CliExceptionHandlerTest {
     @Test
     void startupFailureWithoutTimeoutMapsToStartupExitCode() {
         final CliFailure failure = handle(new PostgresStartupException(
-                "postgres exited before ready",
-                report("startup", Map.of("exitCode", "1"))));
+                "postgres exited before ready", report("startup", Map.of("exitCode", "1"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.STARTUP_ERROR.code());
         assertThat(failure.errorOutput()).contains("startup");
@@ -68,8 +63,7 @@ final class CliExceptionHandlerTest {
     @Test
     void upgradeFailureMapsToVersionMismatchExitCode() {
         final CliFailure failure = handle(new PostgresUpgradeException(
-                "major version mismatch",
-                report("postgres-version", Map.of("requested", "17.0", "existing", "16"))));
+                "major version mismatch", report("postgres-version", Map.of("requested", "17.0", "existing", "16"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.VERSION_MISMATCH.code());
         assertThat(failure.errorOutput()).contains("major version mismatch");
@@ -78,8 +72,7 @@ final class CliExceptionHandlerTest {
     @Test
     void lockDiagnosticMapsToLockUnavailableExitCode() {
         final CliFailure failure = handle(new ManagedPostgresException(
-                "lock unavailable",
-                report("postgres-lock", Map.of("path", ".local/postgres/locks/app-db.lock"))));
+                "lock unavailable", report("postgres-lock", Map.of("path", ".local/postgres/locks/app-db.lock"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.LOCK_UNAVAILABLE.code());
         assertThat(failure.errorOutput()).contains("postgres-lock");
@@ -88,8 +81,7 @@ final class CliExceptionHandlerTest {
     @Test
     void runtimeDiagnosticMapsToRuntimeExitCode() {
         final CliFailure failure = handle(new ManagedPostgresException(
-                "runtime missing",
-                report("runtime-resolution", Map.of("path", "postgres/bin"))));
+                "runtime missing", report("runtime-resolution", Map.of("path", "postgres/bin"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.RUNTIME_ERROR.code());
         assertThat(failure.errorOutput()).contains("runtime-resolution");
@@ -97,9 +89,8 @@ final class CliExceptionHandlerTest {
 
     @Test
     void clusterDiagnosticMapsToClusterExitCode() {
-        final CliFailure failure = handle(new ManagedPostgresException(
-                "metadata corrupt",
-                report("metadata", Map.of("path", "metadata.json"))));
+        final CliFailure failure = handle(
+                new ManagedPostgresException("metadata corrupt", report("metadata", Map.of("path", "metadata.json"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.CLUSTER_ERROR.code());
         assertThat(failure.errorOutput()).contains("metadata");
@@ -108,8 +99,7 @@ final class CliExceptionHandlerTest {
     @Test
     void unclassifiedManagedFailureMapsToGenericExitCode() {
         final CliFailure failure = handle(new ManagedPostgresException(
-                "unknown managed failure",
-                report("unclassified", Map.of("detail", "unknown"))));
+                "unknown managed failure", report("unclassified", Map.of("detail", "unknown"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.GENERIC_ERROR.code());
         assertThat(failure.errorOutput()).contains("unclassified");
@@ -117,9 +107,8 @@ final class CliExceptionHandlerTest {
 
     @Test
     void shutdownFailureMapsToClusterExitCode() {
-        final CliFailure failure = handle(new PostgresShutdownException(
-                "shutdown failed",
-                report("shutdown", Map.of("mode", "fast"))));
+        final CliFailure failure =
+                handle(new PostgresShutdownException("shutdown failed", report("shutdown", Map.of("mode", "fast"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.CLUSTER_ERROR.code());
         assertThat(failure.errorOutput()).contains("shutdown failed");
@@ -127,9 +116,8 @@ final class CliExceptionHandlerTest {
 
     @Test
     void attachFailureMapsToClusterExitCode() {
-        final CliFailure failure = handle(new PostgresAttachException(
-                "attach failed",
-                report("attach", Map.of("reason", "not compatible"))));
+        final CliFailure failure = handle(
+                new PostgresAttachException("attach failed", report("attach", Map.of("reason", "not compatible"))));
 
         assertThat(failure.exitCode()).isEqualTo(CliExitCode.CLUSTER_ERROR.code());
         assertThat(failure.errorOutput()).contains("attach failed");
@@ -156,9 +144,11 @@ final class CliExceptionHandlerTest {
     void secretLookingValuesAreRedactedFromRenderedFailures() {
         final CliFailure failure = handle(new ManagedPostgresException(
                 "command failed password=plain-secret",
-                report("command", Map.of(
-                        "password", "super-secret",
-                        "environment", "PGPASSWORD=another-secret"))));
+                report(
+                        "command",
+                        Map.of(
+                                "password", "super-secret",
+                                "environment", "PGPASSWORD=another-secret"))));
 
         assertThat(failure.errorOutput())
                 .contains("password=<redacted>")
@@ -172,9 +162,7 @@ final class CliExceptionHandlerTest {
         final ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
         final CliFailure failure;
 
-        try (PrintWriter writer = new PrintWriter(
-                new OutputStreamWriter(errorOutput, StandardCharsets.UTF_8),
-                true)) {
+        try (PrintWriter writer = new PrintWriter(new OutputStreamWriter(errorOutput, StandardCharsets.UTF_8), true)) {
             final CliExceptionHandler handler = new CliExceptionHandler(writer);
             final int exitCode = handler.handle(throwable);
             writer.flush();
@@ -188,6 +176,5 @@ final class CliExceptionHandlerTest {
         return new DiagnosticReport(java.util.List.of(new DiagnosticSection(name, values)));
     }
 
-    private record CliFailure(int exitCode, String errorOutput) {
-    }
+    private record CliFailure(int exitCode, String errorOutput) {}
 }

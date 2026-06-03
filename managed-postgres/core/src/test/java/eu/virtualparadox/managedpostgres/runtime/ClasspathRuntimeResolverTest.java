@@ -27,8 +27,7 @@ public final class ClasspathRuntimeResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    ClasspathRuntimeResolverTest() {
-    }
+    ClasspathRuntimeResolverTest() {}
 
     @Test
     void cachedValidatedRuntimeIsReusedWithoutOpeningResource() throws IOException {
@@ -46,9 +45,8 @@ public final class ClasspathRuntimeResolverTest {
             }
         };
 
-        final Path resolvedRuntime = new ClasspathRuntimeResolver(failingClassLoader).resolve(
-                classpathSource("/postgres-runtime.zip", cacheRoot, checksumText),
-                "16.4");
+        final Path resolvedRuntime = new ClasspathRuntimeResolver(failingClassLoader)
+                .resolve(classpathSource("/postgres-runtime.zip", cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(cachedRuntime);
     }
@@ -63,9 +61,8 @@ public final class ClasspathRuntimeResolverTest {
         final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum);
         RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
 
-        final ResolvedRuntime resolvedRuntime = new ClasspathRuntimeResolver(classLoader(temporaryDirectory)).resolveWithTelemetry(
-                classpathSource("/unused.zip", cacheRoot, checksumText),
-                "16.4");
+        final ResolvedRuntime resolvedRuntime = new ClasspathRuntimeResolver(classLoader(temporaryDirectory))
+                .resolveWithTelemetry(classpathSource("/unused.zip", cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime.runtimeDirectory()).isEqualTo(cachedRuntime);
         assertThat(resolvedRuntime.installDuration()).isZero();
@@ -94,12 +91,13 @@ public final class ClasspathRuntimeResolverTest {
             }
         };
 
-        final Path resolvedRuntime = new ClasspathRuntimeResolver(failingClassLoader).resolve(
-                classpathSource(
-                        "/postgres-runtime.zip",
-                        RuntimeCache.projectLocal(cacheRoot).keepVersions(1),
-                        checksumText),
-                "16.4");
+        final Path resolvedRuntime = new ClasspathRuntimeResolver(failingClassLoader)
+                .resolve(
+                        classpathSource(
+                                "/postgres-runtime.zip",
+                                RuntimeCache.projectLocal(cacheRoot).keepVersions(1),
+                                checksumText),
+                        "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(cachedRuntime);
         assertThat(cachedRuntime).isDirectory();
@@ -120,9 +118,8 @@ public final class ClasspathRuntimeResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum);
 
-        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("/postgres-runtime.zip", cacheRoot, checksumText),
-                "16.4");
+        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                .resolve(classpathSource("/postgres-runtime.zip", cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(finalRuntime);
         assertThat(finalRuntime.resolve("bin").resolve("pg_ctl")).isRegularFile();
@@ -141,9 +138,10 @@ public final class ClasspathRuntimeResolverTest {
                 entry("bin/postgres", "postgres"));
         final String checksumText = RuntimeArchiveTestSupport.checksumText(archive);
 
-        final ResolvedRuntime resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolveWithTelemetry(
-                classpathSource("/postgres-runtime.zip", temporaryDirectory.resolve("cache"), checksumText),
-                "16.4");
+        final ResolvedRuntime resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                .resolveWithTelemetry(
+                        classpathSource("/postgres-runtime.zip", temporaryDirectory.resolve("cache"), checksumText),
+                        "16.4");
 
         assertThat(resolvedRuntime.runtimeDirectory()).isDirectory();
         assertThat(resolvedRuntime.installDuration()).isPositive();
@@ -163,9 +161,8 @@ public final class ClasspathRuntimeResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum);
 
-        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("/postgres-runtime.tgz", cacheRoot, checksumText),
-                "16.4");
+        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                .resolve(classpathSource("/postgres-runtime.tgz", cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(finalRuntime);
         assertThat(finalRuntime.resolve("bin").resolve("pg_ctl")).isRegularFile();
@@ -184,9 +181,8 @@ public final class ClasspathRuntimeResolverTest {
         final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum);
         RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
 
-        final Path resolvedRuntime = new DefaultRuntimeResolver().resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText),
-                "16.4");
+        final Path resolvedRuntime = new DefaultRuntimeResolver()
+                .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(cachedRuntime);
     }
@@ -200,14 +196,12 @@ public final class ClasspathRuntimeResolverTest {
                 entry("bin/psql", "psql"),
                 entry("bin/postgres", "postgres"));
         final Path cacheRoot = temporaryDirectory.resolve("cache");
-        final String wrongChecksumText =
-                "sha256:0000000000000000000000000000000000000000000000000000000000000000";
+        final String wrongChecksumText = "sha256:0000000000000000000000000000000000000000000000000000000000000000";
         final Checksum wrongChecksum = Checksum.parse(wrongChecksumText);
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, wrongChecksumText),
-                "16.4"))
+        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                        .resolve(classpathSource("postgres-runtime.zip", cacheRoot, wrongChecksumText), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("classpath")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -226,9 +220,8 @@ public final class ClasspathRuntimeResolverTest {
         final Path cacheRoot = temporaryDirectory.resolve("cache");
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText),
-                "16.4"))
+        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                        .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("classpath")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -245,31 +238,25 @@ public final class ClasspathRuntimeResolverTest {
                 temporaryDirectory.resolve("cache"),
                 "sha256:0000000000000000000000000000000000000000000000000000000000000000");
 
-        assertThatThrownBy(() -> new ClasspathRuntimeResolver(getClass().getClassLoader()).resolve(
-                runtimeSource,
-                "16.4"))
+        assertThatThrownBy(
+                        () -> new ClasspathRuntimeResolver(getClass().getClassLoader()).resolve(runtimeSource, "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("classpath")
                 .satisfies(throwable -> assertThat(((ManagedPostgresException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("classpath"));
     }
 
     private static RuntimeSource classpathSource(
-            final String resource,
-            final Path cacheRoot,
-            final String checksumText) {
+            final String resource, final Path cacheRoot, final String checksumText) {
         return classpathSource(resource, RuntimeCache.projectLocal(cacheRoot), checksumText);
     }
 
     private static RuntimeSource classpathSource(
-            final String resource,
-            final RuntimeCache runtimeCache,
-            final String checksumText) {
-        return RuntimeSource.classpath(resource, runtime -> runtime
-                .cache(runtimeCache)
-                .checksum(checksumText));
+            final String resource, final RuntimeCache runtimeCache, final String checksumText) {
+        return RuntimeSource.classpath(
+                resource, runtime -> runtime.cache(runtimeCache).checksum(checksumText));
     }
 
     private static void setModifiedTime(final Path directory, final String instant) throws IOException {
@@ -299,8 +286,7 @@ public final class ClasspathRuntimeResolverTest {
 
     private Path zipWithEntries(final EntrySpec... entries) throws IOException {
         return RuntimeArchiveTestSupport.zipWithEntries(
-                Files.createTempFile(temporaryDirectory, "runtime-", ".zip"),
-                entries);
+                Files.createTempFile(temporaryDirectory, "runtime-", ".zip"), entries);
     }
 
     private static Path zipWithEntries(final Path archive, final EntrySpec... entries) throws IOException {

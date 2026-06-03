@@ -45,11 +45,8 @@ public final class DoctorMetadataReader {
     private DoctorMetadataSnapshot readPersistentMetadata(final Path metadataPath) {
         DoctorMetadataSnapshot snapshot;
         try {
-            final Optional<PostgresInstanceMetadata> metadata =
-                    new MetadataStore(metadataPath, fileSystem).read();
-            snapshot = metadata
-                    .map(DoctorMetadataSnapshot::present)
-                    .orElseGet(DoctorMetadataSnapshot::absent);
+            final Optional<PostgresInstanceMetadata> metadata = new MetadataStore(metadataPath, fileSystem).read();
+            snapshot = metadata.map(DoctorMetadataSnapshot::present).orElseGet(DoctorMetadataSnapshot::absent);
         } catch (final ManagedPostgresException exception) {
             snapshot = DoctorMetadataSnapshot.unreadable(exception);
         }

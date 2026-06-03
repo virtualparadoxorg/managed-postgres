@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.stop;
 
 import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
-import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.PostgresAttachCompatibility;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 
 /**
  * Verifies that persisted metadata belongs to the requested stop configuration.
@@ -14,8 +14,7 @@ public final class PostgresStopCompatibility {
     /**
      * Creates a PostgresStopCompatibility instance.
      */
-    public PostgresStopCompatibility() {
-    }
+    public PostgresStopCompatibility() {}
 
     /**
      * Performs the verify operation.
@@ -28,7 +27,8 @@ public final class PostgresStopCompatibility {
             final StartPostgresWorkflow.Configuration configuration,
             final PostgresLayout layout,
             final PostgresInstanceMetadata metadata) {
-        new PostgresAttachCompatibility().mismatch(configuration, layout, metadata)
+        new PostgresAttachCompatibility()
+                .mismatch(configuration, layout, metadata)
                 .ifPresent(reason -> {
                     throw new PostgresShutdownException(
                             "PostgreSQL metadata does not match stop configuration",

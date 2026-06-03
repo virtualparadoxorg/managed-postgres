@@ -82,15 +82,13 @@ public final class PostgresStatusService {
     }
 
     private static DiagnosticReport metadataDiagnostic(final IOException exception) {
-        return new DiagnosticReport(List.of(new DiagnosticSection(
-                "metadata",
-                Map.of(
-                        "status", "stale",
-                        "message", diagnosticMessage(exception)))));
+        return new DiagnosticReport(List.of(
+                new DiagnosticSection("metadata", Map.of("status", "stale", "message", diagnosticMessage(exception)))));
     }
 
     private static String diagnosticMessage(final IOException exception) {
-        return StringUtils.defaultIfBlank(exception.getMessage(), exception.getClass().getName());
+        return StringUtils.defaultIfBlank(
+                exception.getMessage(), exception.getClass().getName());
     }
 
     private static PostgresStatusSnapshot unvalidatedMetadata(final PostgresInstanceMetadata metadata) {

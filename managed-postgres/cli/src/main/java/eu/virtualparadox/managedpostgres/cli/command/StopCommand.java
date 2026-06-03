@@ -15,10 +15,7 @@ import picocli.CommandLine.Mixin;
 /**
  * Stops managed PostgreSQL.
  */
-@Command(
-        name = "stop",
-        description = "Stop managed PostgreSQL.",
-        sortOptions = false)
+@Command(name = "stop", description = "Stop managed PostgreSQL.", sortOptions = false)
 public final class StopCommand implements Callable<Integer> {
 
     @Mixin

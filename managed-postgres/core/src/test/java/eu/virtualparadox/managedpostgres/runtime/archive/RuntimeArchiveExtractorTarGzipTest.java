@@ -22,15 +22,12 @@ final class RuntimeArchiveExtractorTarGzipTest {
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeArchiveExtractorTarGzipTest() {
-    }
+    RuntimeArchiveExtractorTarGzipTest() {}
 
     @Test
     void validTarGzipExtractsRuntimeFilesUnderStaging() throws IOException {
         final Path archive = tarGzipArchive(
-                entry("PG_VERSION", "16"),
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/postgres", "postgres"));
+                entry("PG_VERSION", "16"), entry("bin/pg_ctl", "pg_ctl"), entry("bin/postgres", "postgres"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         assertThat(new RuntimeArchiveExtractor().extract(archive, staging)).isEqualTo(staging);
@@ -40,10 +37,8 @@ final class RuntimeArchiveExtractorTarGzipTest {
 
     @Test
     void tgzContentExtractsByMagicHeader() throws IOException {
-        final Path archive = tgzArchive(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+        final Path archive =
+                tgzArchive(entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         new RuntimeArchiveExtractor().extract(archive, staging);
@@ -53,15 +48,14 @@ final class RuntimeArchiveExtractorTarGzipTest {
 
     @Test
     void tarGzipDirectoryEntriesAreCreated() throws IOException {
-        final Path archive = tarGzipArchive(
-                directory("runtime/"),
-                entry("runtime/PG_VERSION", "16"));
+        final Path archive = tarGzipArchive(directory("runtime/"), entry("runtime/PG_VERSION", "16"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         new RuntimeArchiveExtractor().extract(archive, staging);
 
         assertThat(staging.resolve("runtime")).isDirectory();
-        assertThat(Files.readString(staging.resolve("runtime").resolve("PG_VERSION"))).isEqualTo("16");
+        assertThat(Files.readString(staging.resolve("runtime").resolve("PG_VERSION")))
+                .isEqualTo("16");
     }
 
     @Test
@@ -78,13 +72,9 @@ final class RuntimeArchiveExtractorTarGzipTest {
     @Test
     void tarGzipLinksAreRejected() throws IOException {
         final Path symlinkArchive = tarGzipWithSymbolicLink(
-                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"),
-                "bin/postgres",
-                "../evil");
+                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"), "bin/postgres", "../evil");
         final Path hardlinkArchive = tarGzipWithHardLink(
-                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"),
-                "bin/psql",
-                "bin/postgres");
+                Files.createTempFile(temporaryDirectory, "runtime-", ".tar.gz"), "bin/psql", "bin/postgres");
         final Path staging = temporaryDirectory.resolve("staging");
 
         assertThatThrownBy(() -> new RuntimeArchiveExtractor().extract(symlinkArchive, staging.resolve("symbolic")))
@@ -97,9 +87,7 @@ final class RuntimeArchiveExtractorTarGzipTest {
 
     @Test
     void tarGzipExecutablePermissionIsRepairedForRuntimeBinFilesWhereSupported() throws IOException {
-        final Path archive = tarGzipArchive(
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/postgres", "postgres"));
+        final Path archive = tarGzipArchive(entry("bin/pg_ctl", "pg_ctl"), entry("bin/postgres", "postgres"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         new RuntimeArchiveExtractor().extract(archive, staging);

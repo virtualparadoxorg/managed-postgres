@@ -26,8 +26,7 @@ public final class PostgresVersionPreflightTest {
     private static final Instant NOW = Instant.parse("2026-05-27T00:00:00Z");
     private final PostgresVersionPreflight preflight = new PostgresVersionPreflight();
 
-    PostgresVersionPreflightTest() {
-    }
+    PostgresVersionPreflightTest() {}
 
     @Test
     void samePostgresqlVersionIsAccepted() {
@@ -42,8 +41,7 @@ public final class PostgresVersionPreflightTest {
     @Test
     void minorPostgresqlVersionChangeIsRejectedByDisabledUpgradePolicy() {
         assertThatThrownBy(() -> preflight.verifyMetadataVersion(
-                configuration("16.5", UpgradePolicy.DISABLED),
-                metadata("16.4", 16)))
+                        configuration("16.5", UpgradePolicy.DISABLED), metadata("16.4", 16)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .hasMessageContaining("PostgreSQL version change")
                 .satisfies(throwable -> assertThat(throwable.getMessage()).doesNotContain("test-password"));
@@ -52,13 +50,12 @@ public final class PostgresVersionPreflightTest {
     @Test
     void majorPostgresqlVersionChangeIsAlwaysRejected() {
         assertThatThrownBy(() -> preflight.verifyMetadataVersion(
-                configuration("17.0", UpgradePolicy.MINOR_ONLY),
-                metadata("16.4", 16)))
+                        configuration("17.0", UpgradePolicy.MINOR_ONLY), metadata("16.4", 16)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .hasMessageContaining("major")
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)
-                        .diagnosticReport()
-                        .renderText())
+                                .diagnosticReport()
+                                .renderText())
                         .contains("requestedMajor")
                         .contains("metadataMajor"));
     }
@@ -66,15 +63,13 @@ public final class PostgresVersionPreflightTest {
     @Test
     void malformedRequestedVersionIsRejectedWithDiagnostics() {
         assertThatThrownBy(() -> preflight.verifyMetadataVersion(
-                configuration("sixteen", UpgradePolicy.MINOR_ONLY),
-                metadata("16.4", 16)))
+                        configuration("sixteen", UpgradePolicy.MINOR_ONLY), metadata("16.4", 16)))
                 .isInstanceOf(PostgresUpgradeException.class)
                 .hasMessageContaining("PostgreSQL version");
     }
 
     private static StartPostgresWorkflow.Configuration configuration(
-            final String postgresqlVersion,
-            final UpgradePolicy upgradePolicy) {
+            final String postgresqlVersion, final UpgradePolicy upgradePolicy) {
         return new StartPostgresWorkflow.Configuration(
                 "app-db",
                 postgresqlVersion,

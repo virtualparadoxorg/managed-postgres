@@ -2,18 +2,17 @@ package eu.virtualparadox.managedpostgres.lifecycle.handle;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 /**
  * Resolves the application-facing PostgreSQL identity from startup configuration and metadata.
  */
 public final class PostgresApplicationConnection {
 
-    private PostgresApplicationConnection() {
-    }
+    private PostgresApplicationConnection() {}
 
     /**
      * Returns the from metadata result.
@@ -23,8 +22,7 @@ public final class PostgresApplicationConnection {
      * @return from metadata result
      */
     public static PostgresConnectionInfo fromMetadata(
-            final PostgresInstanceMetadata metadata,
-            final StartPostgresWorkflow.Configuration configuration) {
+            final PostgresInstanceMetadata metadata, final StartPostgresWorkflow.Configuration configuration) {
         final PostgresInstanceMetadata checkedMetadata = Objects.requireNonNull(metadata, "metadata");
 
         return new PostgresConnectionInfo(
@@ -56,7 +54,9 @@ public final class PostgresApplicationConnection {
                 Objects.requireNonNull(configuration, "configuration");
         final ClusterBootstrap clusterBootstrap = checkedConfiguration.clusterBootstrap();
 
-        return clusterBootstrap.owner().orElse(checkedConfiguration.credentials().username());
+        return clusterBootstrap
+                .owner()
+                .orElse(checkedConfiguration.credentials().username());
     }
 
     /**
@@ -70,7 +70,9 @@ public final class PostgresApplicationConnection {
                 Objects.requireNonNull(configuration, "configuration");
         final ClusterBootstrap clusterBootstrap = checkedConfiguration.clusterBootstrap();
 
-        return clusterBootstrap.password().orElse(checkedConfiguration.credentials().password());
+        return clusterBootstrap
+                .password()
+                .orElse(checkedConfiguration.credentials().password());
     }
 
     private static ClusterBootstrap clusterBootstrap(final StartPostgresWorkflow.Configuration configuration) {

@@ -2,12 +2,12 @@ package eu.virtualparadox.managedpostgres.lifecycle.stop;
 
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.HeldPostgresLocks;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLockService;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
+import java.util.Objects;
 
 /**
  * Stops a configured managed PostgreSQL instance from persisted metadata.
@@ -57,19 +57,18 @@ public final class StopPostgresWorkflow {
                 Objects.requireNonNull(configuration, "configuration");
         final PostgresLayout layout = PostgresLayout.plan(checkedConfiguration.storage(), fileSystem);
         final MetadataStore metadataStore = new MetadataStore(layout.metadataPath(), fileSystem);
-        metadataReader.read(metadataStore)
-                .ifPresent(metadata -> {
-                    try (HeldPostgresLocks locks = lockService.acquireLifecycleLocks(layout)) {
-                        requireHeldLocks(locks);
-                        compatibility.verify(checkedConfiguration, layout, metadata);
-                        stopCommand.stop(checkedConfiguration, layout);
-                        if (checkedConfiguration.stableRandomPortSelection()) {
-                            metadataStore.writePortReservation(checkedConfiguration.name(), metadata.port());
-                        } else {
-                            metadataStore.delete();
-                        }
-                    }
-                });
+        metadataReader.read(metadataStore).ifPresent(metadata -> {
+            try (HeldPostgresLocks locks = lockService.acquireLifecycleLocks(layout)) {
+                requireHeldLocks(locks);
+                compatibility.verify(checkedConfiguration, layout, metadata);
+                stopCommand.stop(checkedConfiguration, layout);
+                if (checkedConfiguration.stableRandomPortSelection()) {
+                    metadataStore.writePortReservation(checkedConfiguration.name(), metadata.port());
+                } else {
+                    metadataStore.delete();
+                }
+            }
+        });
     }
 
     private static void requireHeldLocks(final HeldPostgresLocks locks) {

@@ -28,8 +28,7 @@ public final class ClasspathRuntimeSignatureResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    ClasspathRuntimeSignatureResolverTest() {
-    }
+    ClasspathRuntimeSignatureResolverTest() {}
 
     @Test
     void signedClasspathRuntimeVerifiesPublishesAndWritesMarker() throws IOException {
@@ -42,9 +41,8 @@ public final class ClasspathRuntimeSignatureResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum, signature);
 
-        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature),
-                "16.4");
+        final Path resolvedRuntime = new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(finalRuntime);
         assertThat(finalRuntime.resolve("bin").resolve("postgres")).isRegularFile();
@@ -62,9 +60,8 @@ public final class ClasspathRuntimeSignatureResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum, signature);
 
-        new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature),
-                "16.4");
+        new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature), "16.4");
 
         new RuntimeSignatureVerifier().requireVerifiedMarker(finalRuntime, signature);
     }
@@ -79,9 +76,8 @@ public final class ClasspathRuntimeSignatureResolverTest {
         final Path cacheRoot = temporaryDirectory.resolve("cache");
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot)).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature),
-                "16.4"))
+        assertThatThrownBy(() -> new ClasspathRuntimeResolver(classLoader(resourceRoot))
+                        .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("classpath")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -102,20 +98,15 @@ public final class ClasspathRuntimeSignatureResolverTest {
         final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum, signature);
         RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
 
-        assertThatThrownBy(() -> new ClasspathRuntimeResolver(failingClassLoader()).resolve(
-                classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature),
-                "16.4"))
+        assertThatThrownBy(() -> new ClasspathRuntimeResolver(failingClassLoader())
+                        .resolve(classpathSource("postgres-runtime.zip", cacheRoot, checksumText, signature), "16.4"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("signature marker");
     }
 
     private static RuntimeSource classpathSource(
-            final String resource,
-            final Path cacheRoot,
-            final String checksum,
-            final RuntimeSignature signature) {
-        return RuntimeSource.classpath(resource, runtime -> runtime
-                .cache(RuntimeCache.projectLocal(cacheRoot))
+            final String resource, final Path cacheRoot, final String checksum, final RuntimeSignature signature) {
+        return RuntimeSource.classpath(resource, runtime -> runtime.cache(RuntimeCache.projectLocal(cacheRoot))
                 .checksum(checksum)
                 .signature(signature));
     }
@@ -145,10 +136,7 @@ public final class ClasspathRuntimeSignatureResolverTest {
 
     private static Path archive(final Path archive) throws IOException {
         return RuntimeArchiveTestSupport.zipWithEntries(
-                archive,
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/psql", "psql"),
-                entry("bin/postgres", "postgres"));
+                archive, entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
     }
 
     private static Path archiveWithReservedMarker(final Path archive) throws IOException {

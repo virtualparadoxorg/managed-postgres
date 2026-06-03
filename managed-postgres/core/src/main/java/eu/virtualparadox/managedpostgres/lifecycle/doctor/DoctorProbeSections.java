@@ -13,8 +13,7 @@ public final class DoctorProbeSections {
     /**
      * Creates a DoctorProbeSections instance.
      */
-    public DoctorProbeSections() {
-    }
+    public DoctorProbeSections() {}
 
     /**
      * Returns the skipped result.
@@ -50,10 +49,7 @@ public final class DoctorProbeSections {
      * @param status status value
      * @return section result
      */
-    public DiagnosticSection section(
-            final DoctorProbeValues values,
-            final String summary,
-            final String status) {
+    public DiagnosticSection section(final DoctorProbeValues values, final String summary, final String status) {
         values.put("status", status);
         values.put("summary", redact(summary));
 

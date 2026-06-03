@@ -8,8 +8,7 @@ import java.util.Objects;
 
 final class PostgresPreflightDiagnostics {
 
-    private PostgresPreflightDiagnostics() {
-    }
+    private PostgresPreflightDiagnostics() {}
 
     static DiagnosticReport version(final Map<String, String> values) {
         return diagnostic("version-preflight", values);
@@ -21,7 +20,6 @@ final class PostgresPreflightDiagnostics {
 
     private static DiagnosticReport diagnostic(final String section, final Map<String, String> values) {
         return new DiagnosticReport(List.of(new DiagnosticSection(
-                Objects.requireNonNull(section, "section"),
-                Objects.requireNonNull(values, "values"))));
+                Objects.requireNonNull(section, "section"), Objects.requireNonNull(values, "values"))));
     }
 }

@@ -28,8 +28,7 @@ public final class PostgresConfigDriftPreflightTest {
     private static final Instant NOW = Instant.parse("2026-05-27T00:00:00Z");
     private final PostgresConfigDriftPreflight preflight = new PostgresConfigDriftPreflight();
 
-    PostgresConfigDriftPreflightTest() {
-    }
+    PostgresConfigDriftPreflightTest() {}
 
     @Test
     void matchingConfigHashIsAccepted() {
@@ -42,23 +41,20 @@ public final class PostgresConfigDriftPreflightTest {
 
     @Test
     void mismatchingConfigHashIsRejectedByFailPolicy() {
-        final Optional<String> mismatch = preflight.mismatch(
-                configuration(ConfigDriftPolicy.FAIL),
-                metadata("old-hash"));
+        final Optional<String> mismatch =
+                preflight.mismatch(configuration(ConfigDriftPolicy.FAIL), metadata("old-hash"));
 
-        assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .contains("expectedConfigHash")
-                        .contains("actualConfigHash")
-                        .doesNotContain("test-password"));
+        assertThat(mismatch).hasValueSatisfying(summary -> assertThat(summary)
+                .contains("configHash")
+                .contains("expectedConfigHash")
+                .contains("actualConfigHash")
+                .doesNotContain("test-password"));
     }
 
     @Test
     void mismatchingConfigHashIsAcceptedByIgnorePolicy() {
-        final Optional<String> mismatch = preflight.mismatch(
-                configuration(ConfigDriftPolicy.IGNORE),
-                metadata("old-hash"));
+        final Optional<String> mismatch =
+                preflight.mismatch(configuration(ConfigDriftPolicy.IGNORE), metadata("old-hash"));
 
         assertThat(mismatch).isEmpty();
     }
@@ -71,12 +67,11 @@ public final class PostgresConfigDriftPreflightTest {
                         ClusterBootstrap.defaultCluster().extension("pgcrypto")),
                 metadata(configHash("127.0.0.1", 15432)));
 
-        assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .contains("expectedConfigHash")
-                        .contains("actualConfigHash")
-                        .doesNotContain("test-password"));
+        assertThat(mismatch).hasValueSatisfying(summary -> assertThat(summary)
+                .contains("configHash")
+                .contains("expectedConfigHash")
+                .contains("actualConfigHash")
+                .doesNotContain("test-password"));
     }
 
     @Test
@@ -87,12 +82,11 @@ public final class PostgresConfigDriftPreflightTest {
                         ClusterBootstrap.defaultCluster().database("app")),
                 metadata(configHash("127.0.0.1", 15432)));
 
-        assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .contains("expectedConfigHash")
-                        .contains("actualConfigHash")
-                        .doesNotContain("test-password"));
+        assertThat(mismatch).hasValueSatisfying(summary -> assertThat(summary)
+                .contains("configHash")
+                .contains("expectedConfigHash")
+                .contains("actualConfigHash")
+                .doesNotContain("test-password"));
     }
 
     @Test
@@ -103,12 +97,11 @@ public final class PostgresConfigDriftPreflightTest {
                         ClusterBootstrap.defaultCluster().owner("app_owner")),
                 metadata(configHash("127.0.0.1", 15432)));
 
-        assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .contains("expectedConfigHash")
-                        .contains("actualConfigHash")
-                        .doesNotContain("test-password"));
+        assertThat(mismatch).hasValueSatisfying(summary -> assertThat(summary)
+                .contains("configHash")
+                .contains("expectedConfigHash")
+                .contains("actualConfigHash")
+                .doesNotContain("test-password"));
     }
 
     @Test
@@ -117,11 +110,10 @@ public final class PostgresConfigDriftPreflightTest {
                 configuration(ConfigDriftPolicy.FAIL).withPostgresConfiguration(Resources.ci()),
                 metadata(configHash("127.0.0.1", 15432)));
 
-        assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .contains("expectedConfigHash")
-                        .contains("actualConfigHash"));
+        assertThat(mismatch).hasValueSatisfying(summary -> assertThat(summary)
+                .contains("configHash")
+                .contains("expectedConfigHash")
+                .contains("actualConfigHash"));
     }
 
     @Test
@@ -129,13 +121,8 @@ public final class PostgresConfigDriftPreflightTest {
         final Optional<String> mismatch = preflight.mismatch(
                 configuration(
                         ConfigDriftPolicy.FAIL,
-                        ClusterBootstrap.defaultCluster()
-                                .database("app")
-                                .owner("app_owner")),
-                metadata(
-                        legacyConfigHash("127.0.0.1", 15432),
-                        "app",
-                        "app_owner"));
+                        ClusterBootstrap.defaultCluster().database("app").owner("app_owner")),
+                metadata(legacyConfigHash("127.0.0.1", 15432), "app", "app_owner"));
 
         assertThat(mismatch).isEmpty();
     }
@@ -145,18 +132,12 @@ public final class PostgresConfigDriftPreflightTest {
         final Optional<String> mismatch = preflight.mismatch(
                 configuration(
                         ConfigDriftPolicy.FAIL,
-                        ClusterBootstrap.defaultCluster()
-                                .database("app")
-                                .owner("app_owner")),
-                metadata(
-                        legacyConfigHash("127.0.0.1", 15432),
-                        "legacy_app",
-                        "legacy_owner"));
+                        ClusterBootstrap.defaultCluster().database("app").owner("app_owner")),
+                metadata(legacyConfigHash("127.0.0.1", 15432), "legacy_app", "legacy_owner"));
 
         assertThat(mismatch)
-                .hasValueSatisfying(summary -> assertThat(summary)
-                        .contains("configHash")
-                        .doesNotContain("test-password"));
+                .hasValueSatisfying(
+                        summary -> assertThat(summary).contains("configHash").doesNotContain("test-password"));
     }
 
     private static StartPostgresWorkflow.Configuration configuration(final ConfigDriftPolicy configDriftPolicy) {
@@ -164,8 +145,7 @@ public final class PostgresConfigDriftPreflightTest {
     }
 
     private static StartPostgresWorkflow.Configuration configuration(
-            final ConfigDriftPolicy configDriftPolicy,
-            final ClusterBootstrap clusterBootstrap) {
+            final ConfigDriftPolicy configDriftPolicy, final ClusterBootstrap clusterBootstrap) {
         return new StartPostgresWorkflow.Configuration(
                 "app-db",
                 "16.4",
@@ -186,9 +166,7 @@ public final class PostgresConfigDriftPreflightTest {
     }
 
     private static PostgresInstanceMetadata metadata(
-            final String configHash,
-            final String database,
-            final String owner) {
+            final String configHash, final String database, final String owner) {
         return new PostgresInstanceMetadata(
                 1,
                 "instance-id",
@@ -209,12 +187,14 @@ public final class PostgresConfigDriftPreflightTest {
     }
 
     private static String configHash(final String host, final int port) {
-        return new ConfigHashCalculator().calculate(
-                PostgresStartArtifacts.configHashSettings(configuration(ConfigDriftPolicy.FAIL), host, port));
+        return new ConfigHashCalculator()
+                .calculate(
+                        PostgresStartArtifacts.configHashSettings(configuration(ConfigDriftPolicy.FAIL), host, port));
     }
 
     private static String legacyConfigHash(final String host, final int port) {
-        return new ConfigHashCalculator().calculate(
-                PostgresStartArtifacts.legacyConfigHashSettings(configuration(ConfigDriftPolicy.FAIL), host, port));
+        return new ConfigHashCalculator()
+                .calculate(PostgresStartArtifacts.legacyConfigHashSettings(
+                        configuration(ConfigDriftPolicy.FAIL), host, port));
     }
 }

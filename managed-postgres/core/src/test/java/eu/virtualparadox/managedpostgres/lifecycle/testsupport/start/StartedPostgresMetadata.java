@@ -2,10 +2,10 @@ package eu.virtualparadox.managedpostgres.lifecycle.testsupport.start;
 
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.handle.StartedPostgresHandle;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
-import eu.virtualparadox.managedpostgres.lifecycle.handle.StartedPostgresHandle;
 
 public record StartedPostgresMetadata(String database, String owner) {
 
@@ -15,10 +15,10 @@ public record StartedPostgresMetadata(String database, String owner) {
         }
 
         final PostgresLayout startedLayout = startedHandle.layout();
-        final PostgresInstanceMetadata metadata =
-                new MetadataStore(startedLayout.metadataPath(), new FileSystemOperationJournal())
-                        .read()
-                        .orElseThrow();
+        final PostgresInstanceMetadata metadata = new MetadataStore(
+                        startedLayout.metadataPath(), new FileSystemOperationJournal())
+                .read()
+                .orElseThrow();
 
         return new StartedPostgresMetadata(metadata.database(), metadata.owner());
     }

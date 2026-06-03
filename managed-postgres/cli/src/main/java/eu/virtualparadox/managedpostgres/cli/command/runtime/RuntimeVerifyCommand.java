@@ -24,10 +24,7 @@ import picocli.CommandLine.Mixin;
 /**
  * Resolves and validates a configured PostgreSQL runtime source.
  */
-@Command(
-        name = "verify",
-        description = "Resolve and verify a PostgreSQL runtime source.",
-        sortOptions = false)
+@Command(name = "verify", description = "Resolve and verify a PostgreSQL runtime source.", sortOptions = false)
 public final class RuntimeVerifyCommand implements Callable<Integer> {
 
     @Mixin
@@ -49,9 +46,7 @@ public final class RuntimeVerifyCommand implements Callable<Integer> {
         this(output, new CliYamlConfigurationLoader(), new DefaultRuntimeResolver());
     }
 
-    RuntimeVerifyCommand(
-            final PrintWriter output,
-            final CliYamlConfigurationLoader configurationLoader) {
+    RuntimeVerifyCommand(final PrintWriter output, final CliYamlConfigurationLoader configurationLoader) {
         this(output, configurationLoader, new DefaultRuntimeResolver());
     }
 
@@ -76,22 +71,31 @@ public final class RuntimeVerifyCommand implements Callable<Integer> {
     private ResolvedRuntime resolve(final CliManagedPostgresConfiguration configuration) {
         try {
             return runtimeResolver.resolveWithTelemetry(
-                    configuration.runtimeSource(),
-                    configuration.postgresqlVersion());
+                    configuration.runtimeSource(), configuration.postgresqlVersion());
         } catch (final ManagedPostgresException exception) {
             throw exception;
         } catch (final IllegalArgumentException exception) {
-            final Path configuredPath = configuration.runtimeSource().existingPath().orElse(null);
+            final Path configuredPath =
+                    configuration.runtimeSource().existingPath().orElse(null);
             throw new ManagedPostgresException(
                     "runtime verification failed",
                     exception,
                     new DiagnosticReport(List.of(new DiagnosticSection(
                             "runtime-validation",
                             configuredPath == null
-                                    ? Map.of("source", configuration.runtimeSource().kind())
+                                    ? Map.of(
+                                            "source",
+                                            configuration.runtimeSource().kind())
                                     : Map.of(
-                                            "source", configuration.runtimeSource().kind(),
-                                            "path", configuredPath.toAbsolutePath().normalize().toString())))));
+                                            "source",
+                                                    configuration
+                                                            .runtimeSource()
+                                                            .kind(),
+                                            "path",
+                                                    configuredPath
+                                                            .toAbsolutePath()
+                                                            .normalize()
+                                                            .toString())))));
         }
     }
 

@@ -15,15 +15,13 @@ public final class RuntimeSignatureTestSupport {
 
     private static final int BUFFER_SIZE = 8192;
 
-    private RuntimeSignatureTestSupport() {
-    }
+    private RuntimeSignatureTestSupport() {}
 
     public static RuntimeSignature validSignatureFor(final Path artifact) {
         try {
             final KeyPair keyPair = keyPair();
             return RuntimeSignature.ed25519(
-                    encoded(keyPair.getPublic().getEncoded()),
-                    encoded(signature(artifact, keyPair)));
+                    encoded(keyPair.getPublic().getEncoded()), encoded(signature(artifact, keyPair)));
         } catch (final GeneralSecurityException | IOException exception) {
             throw new IllegalStateException("failed to create test runtime signature", exception);
         }
@@ -35,8 +33,7 @@ public final class RuntimeSignatureTestSupport {
             Files.writeString(differentArtifact, "different-content");
             final KeyPair keyPair = keyPair();
             return RuntimeSignature.ed25519(
-                    encoded(keyPair.getPublic().getEncoded()),
-                    encoded(signature(differentArtifact, keyPair)));
+                    encoded(keyPair.getPublic().getEncoded()), encoded(signature(differentArtifact, keyPair)));
         } catch (final GeneralSecurityException | IOException exception) {
             throw new IllegalStateException("failed to create invalid test runtime signature", exception);
         }

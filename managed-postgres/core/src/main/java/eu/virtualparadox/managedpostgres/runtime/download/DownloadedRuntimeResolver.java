@@ -79,9 +79,8 @@ public final class DownloadedRuntimeResolver implements RuntimeResolver, Telemet
      */
     @Override
     public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
-        final DownloadedRuntimeResolutionContext context = DownloadedRuntimeResolutionContext.create(
-                runtimeSource,
-                postgresqlVersion);
+        final DownloadedRuntimeResolutionContext context =
+                DownloadedRuntimeResolutionContext.create(runtimeSource, postgresqlVersion);
         return cacheResolver.resolveWithTelemetry(
                 context.layout(),
                 context.finalRuntime(),

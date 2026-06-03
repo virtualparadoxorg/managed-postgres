@@ -13,8 +13,7 @@ public final class CommandRedactor {
     private static final Pattern PASSWORD_ASSIGNMENT = Pattern.compile("(?i)(\\bpassword=)([^&;\\r\\n]+)");
     private static final Pattern PG_PASSWORD_ENVIRONMENT = Pattern.compile("(?i)(\\bPGPASSWORD=)([^\\r\\n]+)");
 
-    private CommandRedactor() {
-    }
+    private CommandRedactor() {}
 
     /**
      * Redacts known password forms from the supplied text.
@@ -24,7 +23,8 @@ public final class CommandRedactor {
      */
     public static String redact(final String value) {
         final String nonNullValue = Objects.requireNonNull(value, "value");
-        final String passwordRedacted = PASSWORD_ASSIGNMENT.matcher(nonNullValue).replaceAll("$1" + REDACTED_VALUE);
+        final String passwordRedacted =
+                PASSWORD_ASSIGNMENT.matcher(nonNullValue).replaceAll("$1" + REDACTED_VALUE);
 
         return PG_PASSWORD_ENVIRONMENT.matcher(passwordRedacted).replaceAll("$1" + REDACTED_VALUE);
     }

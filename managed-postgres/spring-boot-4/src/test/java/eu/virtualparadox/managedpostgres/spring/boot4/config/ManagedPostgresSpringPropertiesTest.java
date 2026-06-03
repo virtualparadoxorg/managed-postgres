@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
+import static eu.virtualparadox.managedpostgres.spring.boot4.config.SpringEnvironmentFixture.environment;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static eu.virtualparadox.managedpostgres.spring.boot4.config.SpringEnvironmentFixture.environment;
 
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
@@ -14,8 +14,7 @@ public final class ManagedPostgresSpringPropertiesTest {
 
     private static final String RAW_PASSWORD = "spring-secret";
 
-    ManagedPostgresSpringPropertiesTest() {
-    }
+    ManagedPostgresSpringPropertiesTest() {}
 
     @Test
     void defaultPropertiesKeepManagedPostgresDisabled() {
@@ -44,8 +43,8 @@ public final class ManagedPostgresSpringPropertiesTest {
 
     @Test
     void enabledPropertyIsParsedFromEnvironment() {
-        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.enabled", "true")));
+        final ManagedPostgresSpringProperties properties =
+                ManagedPostgresSpringProperties.from(environment(Map.of("managed-postgres.enabled", "true")));
 
         assertThat(properties.enabled()).isTrue();
     }
@@ -69,55 +68,59 @@ public final class ManagedPostgresSpringPropertiesTest {
     @Test
     void configurationPropertiesIsEmptyReflectsEachOptionalBranch() {
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()).isEmpty()).isTrue();
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty())
+                        .isEmpty())
+                .isTrue();
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.of("tiny"),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()).isEmpty()).isFalse();
+                                Optional.of("tiny"),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty())
+                        .isEmpty())
+                .isFalse();
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.empty(),
-                Optional.of(20),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty()).isEmpty()).isFalse();
+                                Optional.empty(), Optional.of(20), Optional.empty(), Optional.empty(), Optional.empty())
+                        .isEmpty())
+                .isFalse();
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of("80MB"),
-                Optional.empty(),
-                Optional.empty()).isEmpty()).isFalse();
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.of("80MB"),
+                                Optional.empty(),
+                                Optional.empty())
+                        .isEmpty())
+                .isFalse();
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of("8MB"),
-                Optional.empty()).isEmpty()).isFalse();
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.empty(),
+                                Optional.of("8MB"),
+                                Optional.empty())
+                        .isEmpty())
+                .isFalse();
         assertThat(new ManagedPostgresSpringProperties.ConfigurationProperties(
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.of(12)).isEmpty()).isFalse();
+                                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(12))
+                        .isEmpty())
+                .isFalse();
     }
 
     @Test
     void existingRuntimeSourceRequiresRuntimePath() {
-        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "existing"))))
+        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(
+                        environment(Map.of("managed-postgres.runtime.source", "existing"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.path");
     }
 
     @Test
     void runtimePathWithoutRuntimeSourceInfersExistingRuntime() {
-        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.path", "runtime/postgres-16.4")));
+        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(
+                environment(Map.of("managed-postgres.runtime.path", "runtime/postgres-16.4")));
 
         assertThat(properties.runtime().source()).isEqualTo("existing");
         assertThat(properties.runtime().path()).contains(Path.of("runtime/postgres-16.4"));
@@ -126,32 +129,29 @@ public final class ManagedPostgresSpringPropertiesTest {
     @Test
     void systemRuntimeSourceRejectsRuntimePath() {
         assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "system",
-                "managed-postgres.runtime.path", "runtime/postgres-16.4"))))
+                        "managed-postgres.runtime.source", "system",
+                        "managed-postgres.runtime.path", "runtime/postgres-16.4"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.path");
     }
 
     @Test
     void unknownRuntimeSourceIsRejectedBeforeLifecycleStart() {
-        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.runtime.source", "container"))))
+        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(
+                        environment(Map.of("managed-postgres.runtime.source", "container"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("runtime.source");
     }
 
     @Test
     void clusterPasswordIsSecretAndNeverAppearsInToString() {
-        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.cluster.owner", "app",
-                "managed-postgres.cluster.password", RAW_PASSWORD)));
+        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(
+                Map.of("managed-postgres.cluster.owner", "app", "managed-postgres.cluster.password", RAW_PASSWORD)));
 
         final Optional<Secret> password = properties.cluster().password();
 
         assertThat(password).contains(Secret.of(RAW_PASSWORD));
-        assertThat(properties.toString())
-                .contains("REDACTED")
-                .doesNotContain(RAW_PASSWORD);
+        assertThat(properties.toString()).contains("REDACTED").doesNotContain(RAW_PASSWORD);
     }
 
     @Test
@@ -186,13 +186,13 @@ public final class ManagedPostgresSpringPropertiesTest {
 
     @Test
     void clusterOwnerAndPasswordMustBeConfiguredTogether() {
-        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.cluster.owner", "app"))))
+        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(
+                        environment(Map.of("managed-postgres.cluster.owner", "app"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("cluster.owner")
                 .hasMessageContaining("cluster.password");
-        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.cluster.password", RAW_PASSWORD))))
+        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(
+                        environment(Map.of("managed-postgres.cluster.password", RAW_PASSWORD))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("cluster.owner")
                 .hasMessageContaining("cluster.password");
@@ -200,8 +200,8 @@ public final class ManagedPostgresSpringPropertiesTest {
 
     @Test
     void invalidPathPropertyFailsBeforeLifecycleStart() {
-        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(environment(Map.of(
-                "managed-postgres.storage.path", "bad\u0000path"))))
+        assertThatThrownBy(() -> ManagedPostgresSpringProperties.from(
+                        environment(Map.of("managed-postgres.storage.path", "bad\u0000path"))))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("storage.path")
                 .hasCauseInstanceOf(java.nio.file.InvalidPathException.class);

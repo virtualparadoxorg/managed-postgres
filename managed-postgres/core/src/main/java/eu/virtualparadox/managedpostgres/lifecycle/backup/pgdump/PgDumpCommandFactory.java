@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.backup.pgdump;
 
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeBinaryLocator;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 
 /**
  * Builds pg_dump command requests for logical backups.
@@ -27,8 +27,7 @@ public final class PgDumpCommandFactory {
      */
     public PgDumpCommandFactory(final Path runtimeDirectory, final Duration timeout) {
         this.pgDump = RuntimeBinaryLocator.resolveBinary(
-                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"),
-                "pg_dump");
+                Objects.requireNonNull(runtimeDirectory, "runtimeDirectory"), "pg_dump");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 
@@ -57,6 +56,7 @@ public final class PgDumpCommandFactory {
         command.add(checkedTarget.toString());
 
         return CommandRequest.of(command, timeout)
-                .withEnvironmentVariable(PGPASSWORD, checkedConnectionInfo.password().reveal());
+                .withEnvironmentVariable(
+                        PGPASSWORD, checkedConnectionInfo.password().reveal());
     }
 }

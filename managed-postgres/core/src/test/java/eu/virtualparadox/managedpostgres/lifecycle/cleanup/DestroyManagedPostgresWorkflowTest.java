@@ -32,16 +32,15 @@ public final class DestroyManagedPostgresWorkflowTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DestroyManagedPostgresWorkflowTest() {
-    }
+    DestroyManagedPostgresWorkflowTest() {}
 
     @Test
     void destroyStopsCompatiblePersistentClusterBeforeDeletingLayout() throws IOException {
         final FakePostgresRuntime fakeRuntime = new FakePostgresRuntime(temporaryDirectory);
         final Path runtimeDirectory = fakeRuntime.runtimeWithScripts(java.util.List.of());
-        final ManagedPostgresConfiguration configuration =
-                CleanupWorkflowTestConfigurations.persistentConfiguration(temporaryDirectory.resolve("cluster"))
-                        .withRuntimeSource(RuntimeSource.existing(runtimeDirectory));
+        final ManagedPostgresConfiguration configuration = CleanupWorkflowTestConfigurations.persistentConfiguration(
+                        temporaryDirectory.resolve("cluster"))
+                .withRuntimeSource(RuntimeSource.existing(runtimeDirectory));
         final PostgresLayout layout = PostgresLayout.create(configuration.storage(), new FileSystemOperationJournal());
         writeMetadata(layout, configuration);
 
@@ -53,12 +52,13 @@ public final class DestroyManagedPostgresWorkflowTest {
 
     @Test
     void destroyDeletesStoppedManagedLayoutWithoutMetadataWhenStructureMatches() {
-        final ManagedPostgresConfiguration configuration =
-                CleanupWorkflowTestConfigurations.persistentConfiguration(temporaryDirectory.resolve("stopped-cluster"))
-                        .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
+        final ManagedPostgresConfiguration configuration = CleanupWorkflowTestConfigurations.persistentConfiguration(
+                        temporaryDirectory.resolve("stopped-cluster"))
+                .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
         final PostgresLayout layout = PostgresLayout.create(configuration.storage(), new FileSystemOperationJournal());
 
-        workflow(new FixedRuntimeResolver(temporaryDirectory.resolve("runtime"))).destroyCluster(configuration);
+        workflow(new FixedRuntimeResolver(temporaryDirectory.resolve("runtime")))
+                .destroyCluster(configuration);
 
         assertThat(layout.root()).doesNotExist();
     }
@@ -76,16 +76,17 @@ public final class DestroyManagedPostgresWorkflowTest {
 
     @Test
     void destroyRejectsPidFileWithoutMetadata() throws IOException {
-        final ManagedPostgresConfiguration configuration =
-                CleanupWorkflowTestConfigurations.persistentConfiguration(temporaryDirectory.resolve("cluster-with-pid"))
-                        .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
+        final ManagedPostgresConfiguration configuration = CleanupWorkflowTestConfigurations.persistentConfiguration(
+                        temporaryDirectory.resolve("cluster-with-pid"))
+                .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
         final PostgresLayout layout = PostgresLayout.create(configuration.storage(), new FileSystemOperationJournal());
         Files.writeString(layout.dataDirectory().resolve("postmaster.pid"), "12345\n");
 
         assertThatExceptionOfType(PostgresDestroyException.class)
                 .isThrownBy(() -> workflow(new FixedRuntimeResolver(temporaryDirectory.resolve("runtime")))
                         .destroyCluster(configuration))
-                .withMessage("Managed PostgreSQL destroy refused because live PostgreSQL ownership could not be verified");
+                .withMessage(
+                        "Managed PostgreSQL destroy refused because live PostgreSQL ownership could not be verified");
         assertThat(layout.root()).exists();
     }
 
@@ -106,20 +107,21 @@ public final class DestroyManagedPostgresWorkflowTest {
 
     @Test
     void destroyMissingPersistentLayoutIsANoop() {
-        final ManagedPostgresConfiguration configuration =
-                CleanupWorkflowTestConfigurations.persistentConfiguration(temporaryDirectory.resolve("missing-cluster"))
-                        .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
+        final ManagedPostgresConfiguration configuration = CleanupWorkflowTestConfigurations.persistentConfiguration(
+                        temporaryDirectory.resolve("missing-cluster"))
+                .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
 
-        workflow(new FixedRuntimeResolver(temporaryDirectory.resolve("runtime"))).destroyCluster(configuration);
+        workflow(new FixedRuntimeResolver(temporaryDirectory.resolve("runtime")))
+                .destroyCluster(configuration);
 
         assertThat(configuration.storage().path()).doesNotExist();
     }
 
     @Test
     void destroyRejectsMetadataMismatchBeforeDeletingLayout() throws IOException {
-        final ManagedPostgresConfiguration configuration =
-                CleanupWorkflowTestConfigurations.persistentConfiguration(temporaryDirectory.resolve("cluster-mismatch"))
-                        .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
+        final ManagedPostgresConfiguration configuration = CleanupWorkflowTestConfigurations.persistentConfiguration(
+                        temporaryDirectory.resolve("cluster-mismatch"))
+                .withRuntimeSource(RuntimeSource.existing(temporaryDirectory.resolve("runtime")));
         final PostgresLayout layout = PostgresLayout.create(configuration.storage(), new FileSystemOperationJournal());
         writeMetadata(layout, configuration.withName("other-db"));
 
@@ -137,16 +139,13 @@ public final class DestroyManagedPostgresWorkflowTest {
                 new PostgresLockService());
     }
 
-    private static void writeMetadata(
-            final PostgresLayout layout,
-            final ManagedPostgresConfiguration configuration) {
+    private static void writeMetadata(final PostgresLayout layout, final ManagedPostgresConfiguration configuration) {
         new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal())
                 .write(metadata(layout, configuration));
     }
 
     private static PostgresInstanceMetadata metadata(
-            final PostgresLayout layout,
-            final ManagedPostgresConfiguration configuration) {
+            final PostgresLayout layout, final ManagedPostgresConfiguration configuration) {
         final PostgresInstanceMetadata base = PostgresMetadataFixture.metadata(layout.dataDirectory(), 15432);
 
         return new PostgresInstanceMetadata(
@@ -163,10 +162,9 @@ public final class DestroyManagedPostgresWorkflowTest {
                 base.postgresqlMajor(),
                 base.attachmentMode(),
                 base.pid(),
-                new ConfigHashCalculator().calculate(PostgresStartArtifacts.configHashSettings(
-                        new StartPostgresWorkflow.Configuration(configuration),
-                        base.host(),
-                        base.port())),
+                new ConfigHashCalculator()
+                        .calculate(PostgresStartArtifacts.configHashSettings(
+                                new StartPostgresWorkflow.Configuration(configuration), base.host(), base.port())),
                 base.createdAt(),
                 base.updatedAt());
     }
@@ -183,9 +181,7 @@ public final class DestroyManagedPostgresWorkflowTest {
         }
 
         @Override
-        public Path resolve(
-                final RuntimeSource runtimeSource,
-                final String postgresqlVersion) {
+        public Path resolve(final RuntimeSource runtimeSource, final String postgresqlVersion) {
             return runtimeDirectory;
         }
     }

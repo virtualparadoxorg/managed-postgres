@@ -7,12 +7,12 @@ import static org.mockito.Mockito.verify;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
-import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
-import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresService;
@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ConfiguredManagedPostgresTest {
 
-    ConfiguredManagedPostgresTest() {
-    }
+    ConfiguredManagedPostgresTest() {}
 
     @Test
     void stopDelegatesToLifecycleService() {

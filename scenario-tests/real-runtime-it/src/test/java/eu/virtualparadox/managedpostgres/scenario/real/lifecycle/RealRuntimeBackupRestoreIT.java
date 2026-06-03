@@ -57,14 +57,15 @@ final class RealRuntimeBackupRestoreIT {
     @TempDir
     private Path temporaryDirectory;
 
-    RealRuntimeBackupRestoreIT() {
-    }
+    RealRuntimeBackupRestoreIT() {}
 
     @Test
     void backupRestoreRoundTripPreservesDataAndCreatesSafetyBackup() throws IOException, SQLException {
         final Optional<RealPostgresRuntime> resolvedRuntime = new RealPostgresRuntimeEnvironment().resolve();
-        assumeTrue(resolvedRuntime.isPresent(), "Real PostgreSQL runtime not configured. Set "
-                + "-Dmanaged.postgres.realRuntime.path=/path/to/postgres or MANAGED_POSTGRES_REAL_RUNTIME.");
+        assumeTrue(
+                resolvedRuntime.isPresent(),
+                "Real PostgreSQL runtime not configured. Set "
+                        + "-Dmanaged.postgres.realRuntime.path=/path/to/postgres or MANAGED_POSTGRES_REAL_RUNTIME.");
 
         final RealPostgresRuntime runtime = resolvedRuntime.orElseThrow();
         final Path storageRoot = temporaryDirectory.resolve("storage");
@@ -75,8 +76,7 @@ final class RealRuntimeBackupRestoreIT {
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storage(new Storage(storageRoot, true))
                 .credentials(Credentials.of("postgres", Secret.of(ADMIN_PASSWORD)))
-                .cluster(cluster -> cluster
-                        .database("app")
+                .cluster(cluster -> cluster.database("app")
                         .owner("app_owner")
                         .password(Secret.of(APPLICATION_PASSWORD))
                         .extension(PLAIN_LANGUAGE_EXTENSION)
@@ -87,7 +87,8 @@ final class RealRuntimeBackupRestoreIT {
             assertThat(postgres.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(currentDatabase(connectionInfo)).isEqualTo("app");
             assertThat(currentUser(connectionInfo)).isEqualTo("app_owner");
-            assertThat(extensionInstalled(connectionInfo, PLAIN_LANGUAGE_EXTENSION)).isTrue();
+            assertThat(extensionInstalled(connectionInfo, PLAIN_LANGUAGE_EXTENSION))
+                    .isTrue();
             assertOptionalCryptoExtension(connectionInfo);
 
             createTableAndRows(connectionInfo);
@@ -99,10 +100,12 @@ final class RealRuntimeBackupRestoreIT {
             dropApplicationTable(connectionInfo);
             assertThat(tableExists(connectionInfo, APPLICATION_TABLE)).isFalse();
 
-            postgres.restoreFrom(backup, RestoreOptions.builder()
-                    .dropCurrentDatabase(true)
-                    .createSafetyBackup(true)
-                    .build());
+            postgres.restoreFrom(
+                    backup,
+                    RestoreOptions.builder()
+                            .dropCurrentDatabase(true)
+                            .createSafetyBackup(true)
+                            .build());
 
             assertThat(tableExists(connectionInfo, APPLICATION_TABLE)).isTrue();
             assertThat(rowCount(connectionInfo)).isEqualTo(2);
@@ -145,9 +148,8 @@ final class RealRuntimeBackupRestoreIT {
         return value;
     }
 
-    private static boolean extensionAvailable(
-            final PostgresConnectionInfo connectionInfo,
-            final String extensionName) throws SQLException {
+    private static boolean extensionAvailable(final PostgresConnectionInfo connectionInfo, final String extensionName)
+            throws SQLException {
         final boolean value;
         try (Connection connection = RealPostgresJdbc.connection(connectionInfo);
                 PreparedStatement statement = connection.prepareStatement(EXTENSION_AVAILABLE_SQL)) {
@@ -158,9 +160,8 @@ final class RealRuntimeBackupRestoreIT {
         return value;
     }
 
-    private static boolean extensionInstalled(
-            final PostgresConnectionInfo connectionInfo,
-            final String extensionName) throws SQLException {
+    private static boolean extensionInstalled(final PostgresConnectionInfo connectionInfo, final String extensionName)
+            throws SQLException {
         final boolean value;
         try (Connection connection = RealPostgresJdbc.connection(connectionInfo);
                 PreparedStatement statement = connection.prepareStatement(EXTENSION_INSTALLED_SQL)) {
@@ -211,9 +212,8 @@ final class RealRuntimeBackupRestoreIT {
         }
     }
 
-    private static boolean tableExists(
-            final PostgresConnectionInfo connectionInfo,
-            final String tableName) throws SQLException {
+    private static boolean tableExists(final PostgresConnectionInfo connectionInfo, final String tableName)
+            throws SQLException {
         final boolean value;
         try (Connection connection = RealPostgresJdbc.connection(connectionInfo);
                 PreparedStatement statement = connection.prepareStatement(TABLE_EXISTS_SQL)) {
@@ -259,9 +259,7 @@ final class RealRuntimeBackupRestoreIT {
         final int extensionIndex = name.lastIndexOf('.');
         final String safetyName;
         if (extensionIndex > 0) {
-            safetyName = name.substring(0, extensionIndex)
-                    + ".before-restore"
-                    + name.substring(extensionIndex);
+            safetyName = name.substring(0, extensionIndex) + ".before-restore" + name.substring(extensionIndex);
         } else {
             safetyName = name + ".before-restore.dump";
         }
@@ -279,6 +277,7 @@ final class RealRuntimeBackupRestoreIT {
     }
 
     private static String fileName(final Path path) {
-        return StringUtils.defaultString(Objects.requireNonNull(path.getFileName(), "fileName").toString());
+        return StringUtils.defaultString(
+                Objects.requireNonNull(path.getFileName(), "fileName").toString());
     }
 }

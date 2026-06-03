@@ -33,14 +33,15 @@ final class RealRuntimeLifecycleIT {
     @TempDir
     private Path temporaryDirectory;
 
-    RealRuntimeLifecycleIT() {
-    }
+    RealRuntimeLifecycleIT() {}
 
     @Test
     void temporaryRealRuntimeStartsAcceptsJdbcAndStops() throws IOException, SQLException {
         final Optional<RealPostgresRuntime> resolvedRuntime = new RealPostgresRuntimeEnvironment().resolve();
-        assumeTrue(resolvedRuntime.isPresent(), "Real PostgreSQL runtime not configured. Set "
-                + "-Dmanaged.postgres.realRuntime.path=/path/to/postgres or MANAGED_POSTGRES_REAL_RUNTIME.");
+        assumeTrue(
+                resolvedRuntime.isPresent(),
+                "Real PostgreSQL runtime not configured. Set "
+                        + "-Dmanaged.postgres.realRuntime.path=/path/to/postgres or MANAGED_POSTGRES_REAL_RUNTIME.");
 
         final RealPostgresRuntime runtime = resolvedRuntime.orElseThrow();
         final Path storageRoot = temporaryDirectory.resolve("storage");
@@ -50,16 +51,15 @@ final class RealRuntimeLifecycleIT {
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storage(new Storage(storageRoot, true))
                 .credentials(Credentials.of("postgres", Secret.of(ADMIN_PASSWORD)))
-                .cluster(cluster -> cluster
-                        .database("app")
-                        .owner("app_owner")
-                        .password(Secret.of(APPLICATION_PASSWORD)))
+                .cluster(
+                        cluster -> cluster.database("app").owner("app_owner").password(Secret.of(APPLICATION_PASSWORD)))
                 .start();
         try {
             final PostgresConnectionInfo connectionInfo = postgres.connectionInfo();
             assertThat(postgres.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(selectOne(connectionInfo)).isEqualTo(1);
-            assertThat(dataDirectory(connectionInfo)).startsWith(storageRoot.toAbsolutePath().normalize().toString());
+            assertThat(dataDirectory(connectionInfo))
+                    .startsWith(storageRoot.toAbsolutePath().normalize().toString());
         } finally {
             postgres.close();
         }

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
+import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,8 +13,6 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.ResourceLock;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
-import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
 
 @ResourceLock("driver-manager")
 final class FakeRuntimeRestoreIT {
@@ -20,8 +20,7 @@ final class FakeRuntimeRestoreIT {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimeRestoreIT() {
-    }
+    FakeRuntimeRestoreIT() {}
 
     @Test
     void localStartBackupThenRestoreCreatesSafetyBackupAndRunsPgRestore() throws IOException {
@@ -30,12 +29,15 @@ final class FakeRuntimeRestoreIT {
         final Path storageRoot = temporaryDirectory.resolve("cluster");
         final Path backup = temporaryDirectory.resolve("backups").resolve("app.dump");
 
-        try (RunningPostgres postgres = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
+        try (RunningPostgres postgres =
+                ScenarioManagedPostgres.applicationCluster(storageRoot, runtime).start()) {
             postgres.backupTo(backup);
-            postgres.restoreFrom(backup, RestoreOptions.builder()
-                    .dropCurrentDatabase(true)
-                    .createSafetyBackup(true)
-                    .build());
+            postgres.restoreFrom(
+                    backup,
+                    RestoreOptions.builder()
+                            .dropCurrentDatabase(true)
+                            .createSafetyBackup(true)
+                            .build());
         }
 
         final Path safetyBackup = temporaryDirectory.resolve("backups").resolve("app.before-restore.dump");

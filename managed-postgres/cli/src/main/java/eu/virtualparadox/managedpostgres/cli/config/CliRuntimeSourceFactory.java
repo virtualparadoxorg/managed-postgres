@@ -19,8 +19,7 @@ public final class CliRuntimeSourceFactory {
     /**
      * Creates a CLI runtime source factory.
      */
-    public CliRuntimeSourceFactory() {
-    }
+    public CliRuntimeSourceFactory() {}
 
     /**
      * Creates a runtime source from optional CLI or YAML values.
@@ -32,9 +31,8 @@ public final class CliRuntimeSourceFactory {
     public RuntimeSource create(final Optional<String> source, final Optional<Path> existingPath) {
         final Optional<String> checkedSource = Objects.requireNonNull(source, "source");
         final Optional<Path> checkedExistingPath = Objects.requireNonNull(existingPath, "existingPath");
-        final RuntimeSource runtimeSource = createDirect(CliRuntimeSourceOptions.sourceAndPath(
-                checkedSource,
-                checkedExistingPath));
+        final RuntimeSource runtimeSource =
+                createDirect(CliRuntimeSourceOptions.sourceAndPath(checkedSource, checkedExistingPath));
 
         return runtimeSource;
     }

@@ -46,8 +46,7 @@ public final class ExternalPostgresHandle extends AbstractPostgresHandle {
             throw new PostgresBackupException(
                     "PostgreSQL logical backup execution is not configured for external mode",
                     new DiagnosticReport(List.of(new DiagnosticSection(
-                            "postgres-backup",
-                            Map.of("reason", "external mode has no managed runtime commands")))));
+                            "postgres-backup", Map.of("reason", "external mode has no managed runtime commands")))));
         };
     }
 

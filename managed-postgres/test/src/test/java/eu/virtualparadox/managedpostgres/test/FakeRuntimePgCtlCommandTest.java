@@ -18,8 +18,7 @@ final class FakeRuntimePgCtlCommandTest {
     @TempDir
     private Path temporaryDirectory;
 
-    FakeRuntimePgCtlCommandTest() {
-    }
+    FakeRuntimePgCtlCommandTest() {}
 
     @Test
     void fakeRuntimeCreatesPgCtlCommand() throws IOException {
@@ -61,19 +60,18 @@ final class FakeRuntimePgCtlCommandTest {
     @Test
     void fakeRuntimeWritesRuntimeZipArchive() throws IOException {
         final FakePostgresRuntime runtime = FakePostgresRuntime.create(temporaryDirectory.resolve("runtime"));
-        final Path archive = runtime.writeZipArchive(temporaryDirectory.resolve("artifacts").resolve("runtime.zip"));
+        final Path archive =
+                runtime.writeZipArchive(temporaryDirectory.resolve("artifacts").resolve("runtime.zip"));
 
         assertThat(Files.isRegularFile(archive)).isTrue();
-        assertThat(zipEntryNames(archive))
-                .contains("bin/", "bin/pg_ctl", "bin/initdb", "bin/postgres");
+        assertThat(zipEntryNames(archive)).contains("bin/", "bin/pg_ctl", "bin/initdb", "bin/postgres");
     }
 
     @Test
     void fakeRuntimeRejectsUnsupportedOverrideScript() {
         assertThatIllegalArgumentException()
                 .isThrownBy(() -> FakePostgresRuntime.create(
-                        temporaryDirectory.resolve("runtime"),
-                        FakePostgresScript.named("unsupported")))
+                        temporaryDirectory.resolve("runtime"), FakePostgresScript.named("unsupported")))
                 .withMessageContaining("unsupported fake PostgreSQL script");
     }
 

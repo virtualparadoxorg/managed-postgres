@@ -16,7 +16,8 @@ public final class Gauge implements Meter {
         this.valueFunction = valueFunction;
     }
 
-    public static Builder builder(final String name, final Object target, final ToDoubleFunction<Object> valueFunction) {
+    public static Builder builder(
+            final String name, final Object target, final ToDoubleFunction<Object> valueFunction) {
         return new Builder(name, target, valueFunction);
     }
 

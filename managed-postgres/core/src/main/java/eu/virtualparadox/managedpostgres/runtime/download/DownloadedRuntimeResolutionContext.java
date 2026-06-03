@@ -5,10 +5,10 @@ import eu.virtualparadox.managedpostgres.config.RuntimeCache;
 import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.runtime.RuntimeSignature;
+import eu.virtualparadox.managedpostgres.runtime.Checksum;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.runtime.Checksum;
 
 /**
  * Captures downloaded runtime resolution context details for managed PostgreSQL internals.
@@ -57,17 +57,16 @@ record DownloadedRuntimeResolutionContext(
      * @return create result
      */
     static DownloadedRuntimeResolutionContext create(
-            final RuntimeSource runtimeSource,
-            final String postgresqlVersion) {
+            final RuntimeSource runtimeSource, final String postgresqlVersion) {
         final RuntimeSource checkedRuntimeSource = Objects.requireNonNull(runtimeSource, "runtimeSource");
         if (!DOWNLOADED.equals(checkedRuntimeSource.kind())) {
             throw new IllegalArgumentException("downloaded runtime resolver requires a downloaded runtime source");
         }
 
-        final DownloadedRuntime runtime = checkedRuntimeSource.downloadedRuntime()
+        final DownloadedRuntime runtime = checkedRuntimeSource
+                .downloadedRuntime()
                 .orElseThrow(() -> DownloadedRuntimeResolutionDiagnostics.failure(
-                        "downloaded runtime configuration is missing",
-                        checkedRuntimeSource));
+                        "downloaded runtime configuration is missing", checkedRuntimeSource));
         final Optional<RuntimeRepository> repository = runtime.repository();
         final Checksum checksum = checksum(runtime, checkedRuntimeSource);
         final Optional<RuntimeSignature> signature = runtime.signature();
@@ -104,14 +103,12 @@ record DownloadedRuntimeResolutionContext(
     }
 
     private static RuntimeCache cache(final DownloadedRuntime runtime) {
-        return runtime.cache()
-                .orElseGet(() -> RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE));
+        return runtime.cache().orElseGet(() -> RuntimeCache.userCache(DEFAULT_CACHE_NAMESPACE));
     }
 
     private static Checksum checksum(final DownloadedRuntime runtime, final RuntimeSource runtimeSource) {
         return Checksum.parse(runtime.checksum()
                 .orElseThrow(() -> DownloadedRuntimeResolutionDiagnostics.failure(
-                        "downloaded runtime checksum is not configured",
-                        runtimeSource)));
+                        "downloaded runtime checksum is not configured", runtimeSource)));
     }
 }

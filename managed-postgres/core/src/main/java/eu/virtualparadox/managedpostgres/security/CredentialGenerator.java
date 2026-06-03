@@ -13,8 +13,7 @@ public final class CredentialGenerator {
     /**
      * Creates a credential generator.
      */
-    public CredentialGenerator() {
-    }
+    public CredentialGenerator() {}
 
     /**
      * Generates temporary credentials for the default PostgreSQL owner.

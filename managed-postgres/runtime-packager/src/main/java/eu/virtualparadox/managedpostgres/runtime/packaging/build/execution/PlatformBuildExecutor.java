@@ -30,7 +30,6 @@ public final class PlatformBuildExecutor implements BuildExecutor {
             final PostgresRelease release,
             final Path sourceTree,
             final Path buildDirectory) {
-        return buildExecutor.build(
-                Objects.requireNonNull(driver, "driver"), release, sourceTree, buildDirectory);
+        return buildExecutor.build(Objects.requireNonNull(driver, "driver"), release, sourceTree, buildDirectory);
     }
 }

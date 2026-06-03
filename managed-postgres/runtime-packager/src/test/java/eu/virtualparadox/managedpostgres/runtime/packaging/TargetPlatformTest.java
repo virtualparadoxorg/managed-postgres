@@ -7,13 +7,11 @@ import org.junit.jupiter.api.Test;
 
 final class TargetPlatformTest {
 
-    TargetPlatformTest() {
-    }
+    TargetPlatformTest() {}
 
     @Test
     void parsesStableTargetIdentifier() {
-        assertThat(TargetPlatform.parse("linux-x86_64-glibc"))
-                .isEqualTo(TargetPlatform.LINUX_X86_64_GLIBC);
+        assertThat(TargetPlatform.parse("linux-x86_64-glibc")).isEqualTo(TargetPlatform.LINUX_X86_64_GLIBC);
     }
 
     @Test

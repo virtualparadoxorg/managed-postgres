@@ -10,10 +10,7 @@ import picocli.CommandLine.Command;
 /**
  * Groups runtime-specific CLI operations.
  */
-@Command(
-        name = "runtime",
-        description = "Runtime source operations.",
-        sortOptions = false)
+@Command(name = "runtime", description = "Runtime source operations.", sortOptions = false)
 public final class RuntimeCommand implements Callable<Integer> {
 
     private final PrintWriter output;

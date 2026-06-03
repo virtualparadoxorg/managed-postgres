@@ -27,8 +27,7 @@ public final class RuntimeSignatureVerifier {
     /**
      * Creates a runtime signature verifier.
      */
-    public RuntimeSignatureVerifier() {
-    }
+    public RuntimeSignatureVerifier() {}
 
     /**
      * Verifies that an artifact matches the configured detached signature.
@@ -89,11 +88,13 @@ public final class RuntimeSignatureVerifier {
         try {
             markerContent = Files.readString(marker, StandardCharsets.UTF_8);
         } catch (final IOException exception) {
-            throw new IllegalArgumentException("runtime signature marker is missing or unreadable: " + marker, exception);
+            throw new IllegalArgumentException(
+                    "runtime signature marker is missing or unreadable: " + marker, exception);
         }
         if (!markerContent.contains("algorithm=" + checkedSignature.algorithm())
                 || !markerContent.contains(expectedFingerprint)) {
-            throw new IllegalArgumentException("runtime signature marker does not match configured signature: " + marker);
+            throw new IllegalArgumentException(
+                    "runtime signature marker does not match configured signature: " + marker);
         }
     }
 
@@ -111,8 +112,7 @@ public final class RuntimeSignatureVerifier {
     private static PublicKey publicKey(final RuntimeSignature signature) {
         final byte[] publicKeyBytes = decodePublicKey(signature);
         try {
-            return KeyFactory.getInstance(signature.algorithm())
-                    .generatePublic(new X509EncodedKeySpec(publicKeyBytes));
+            return KeyFactory.getInstance(signature.algorithm()).generatePublic(new X509EncodedKeySpec(publicKeyBytes));
         } catch (final GeneralSecurityException exception) {
             throw new IllegalArgumentException("runtime signature public key is invalid", exception);
         }
@@ -148,9 +148,7 @@ public final class RuntimeSignatureVerifier {
     }
 
     private static void verifySignature(
-            final Signature verifier,
-            final Path artifact,
-            final RuntimeSignature signature) {
+            final Signature verifier, final Path artifact, final RuntimeSignature signature) {
         final boolean verified;
         try {
             verified = verifier.verify(decodeSignature(signature));

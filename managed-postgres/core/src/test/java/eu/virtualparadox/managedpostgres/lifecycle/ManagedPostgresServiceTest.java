@@ -4,22 +4,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
-import java.nio.file.Path;
-import org.junit.jupiter.api.Test;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.ManagedPostgresConfigurationFixture;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.CleanupManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.DestroyManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorService;
 import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.stop.StopPostgresWorkflow;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.ManagedPostgresConfigurationFixture;
+import java.nio.file.Path;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the public lifecycle service facade.
  */
 public final class ManagedPostgresServiceTest {
 
-    ManagedPostgresServiceTest() {
-    }
+    ManagedPostgresServiceTest() {}
 
     @Test
     void stopDelegatesToConfiguredStopWorkflow() {
@@ -41,11 +40,7 @@ public final class ManagedPostgresServiceTest {
         final CleanupManagedPostgresWorkflow cleanupWorkflow = mock(CleanupManagedPostgresWorkflow.class);
         final DestroyManagedPostgresWorkflow destroyWorkflow = mock(DestroyManagedPostgresWorkflow.class);
         final ManagedPostgresService service = new ManagedPostgresService(
-                startWorkflow,
-                stopWorkflow,
-                mock(DoctorService.class),
-                cleanupWorkflow,
-                destroyWorkflow);
+                startWorkflow, stopWorkflow, mock(DoctorService.class), cleanupWorkflow, destroyWorkflow);
         final ManagedPostgresConfiguration configuration =
                 ManagedPostgresConfigurationFixture.configuration(Path.of(".local/postgres"));
 
@@ -61,11 +56,7 @@ public final class ManagedPostgresServiceTest {
         final CleanupManagedPostgresWorkflow cleanupWorkflow = mock(CleanupManagedPostgresWorkflow.class);
         final DestroyManagedPostgresWorkflow destroyWorkflow = mock(DestroyManagedPostgresWorkflow.class);
         final ManagedPostgresService service = new ManagedPostgresService(
-                startWorkflow,
-                stopWorkflow,
-                mock(DoctorService.class),
-                cleanupWorkflow,
-                destroyWorkflow);
+                startWorkflow, stopWorkflow, mock(DoctorService.class), cleanupWorkflow, destroyWorkflow);
         final ManagedPostgresConfiguration configuration =
                 ManagedPostgresConfigurationFixture.configuration(Path.of(".local/postgres"));
 

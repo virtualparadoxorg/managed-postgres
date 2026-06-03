@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 public final class ClusterBootstrapTest {
 
-    ClusterBootstrapTest() {
-    }
+    ClusterBootstrapTest() {}
 
     @Test
     void clusterBootstrapDefaultsToPostgresDatabaseWithoutExplicitOwnerOverride() {
@@ -44,13 +43,11 @@ public final class ClusterBootstrapTest {
 
     @Test
     void clusterBootstrapSupportsImmutableExtensionRequests() {
-        final ClusterBootstrap clusterBootstrap = ClusterBootstrap.defaultCluster()
-                .extension("pgcrypto")
-                .optionalExtension("postgis");
+        final ClusterBootstrap clusterBootstrap =
+                ClusterBootstrap.defaultCluster().extension("pgcrypto").optionalExtension("postgis");
 
-        assertThat(clusterBootstrap.extensions()).containsExactly(
-                BootstrapExtension.required("pgcrypto"),
-                BootstrapExtension.optional("postgis"));
+        assertThat(clusterBootstrap.extensions())
+                .containsExactly(BootstrapExtension.required("pgcrypto"), BootstrapExtension.optional("postgis"));
         assertThatThrownBy(() -> clusterBootstrap.extensions().add(BootstrapExtension.required("uuid-ossp")))
                 .isInstanceOf(UnsupportedOperationException.class);
         assertThat(ClusterBootstrap.defaultCluster().extensions()).isEmpty();
@@ -64,7 +61,8 @@ public final class ClusterBootstrapTest {
         assertThatThrownBy(() -> new ClusterBootstrap("postgres", Optional.of(""), Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("owner");
-        assertThatThrownBy(() -> assertThat(ClusterBootstrap.defaultCluster().owner(" ")).isNotNull())
+        assertThatThrownBy(() ->
+                        assertThat(ClusterBootstrap.defaultCluster().owner(" ")).isNotNull())
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("owner");
         assertThatThrownBy(ClusterBootstrapTest::invokeClusterBootstrapPasswordWithNullSecret)
@@ -86,12 +84,14 @@ public final class ClusterBootstrapTest {
     }
 
     private static void invokeClusterBootstrapPasswordWithNullSecret() throws ReflectiveOperationException {
-        ClusterBootstrap.class.getMethod("password", Secret.class)
+        ClusterBootstrap.class
+                .getMethod("password", Secret.class)
                 .invoke(ClusterBootstrap.defaultCluster(), new Object[] {null});
     }
 
     private static void invokeBootstrapExtensionWithNullPolicy() throws ReflectiveOperationException {
-        BootstrapExtension.class.getConstructor(String.class, BootstrapExtension.Policy.class)
+        BootstrapExtension.class
+                .getConstructor(String.class, BootstrapExtension.Policy.class)
                 .newInstance(new Object[] {"pgcrypto", null});
     }
 }

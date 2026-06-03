@@ -7,8 +7,7 @@ import eu.virtualparadox.managedpostgres.lifecycle.backup.operation.PostgresBack
  */
 public final class UnexpectedBackupOperationProvider {
 
-    private UnexpectedBackupOperationProvider() {
-    }
+    private UnexpectedBackupOperationProvider() {}
 
     public static PostgresBackupOperationProvider unexpectedBackupProvider() {
         return ignoredContext -> ignoredTarget -> {

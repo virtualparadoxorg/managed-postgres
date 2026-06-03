@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import eu.virtualparadox.managedpostgres.cli.config.CliManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.cli.config.CliYamlConfigurationLoader;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,8 +19,7 @@ final class CliCommonOptionsTest {
     @TempDir
     private Path temporaryDirectory;
 
-    CliCommonOptionsTest() {
-    }
+    CliCommonOptionsTest() {}
 
     @Test
     void emptyOptionsUseLocalDefaults() throws IOException {
@@ -39,7 +38,9 @@ final class CliCommonOptionsTest {
         final Path runtimePath = temporaryDirectory.resolve("runtime");
         final CliCommonOptions options = new CliCommonOptions();
 
-        Files.writeString(configPath, """
+        Files.writeString(
+                configPath,
+                """
                 managed-postgres:
                   name: file-db
                   version: "15.7"
@@ -52,8 +53,7 @@ final class CliCommonOptionsTest {
         options.useStorage(".method/postgres");
         options.useExistingRuntime(runtimePath);
 
-        final CliManagedPostgresConfiguration configuration =
-                options.toConfiguration(new CliYamlConfigurationLoader());
+        final CliManagedPostgresConfiguration configuration = options.toConfiguration(new CliYamlConfigurationLoader());
 
         assertThat(configuration.name()).isEqualTo("method-db");
         assertThat(configuration.postgresqlVersion()).isEqualTo("16.4");
@@ -66,7 +66,9 @@ final class CliCommonOptionsTest {
         final Path configPath = temporaryDirectory.resolve("managed-postgres.yml");
         final CliCommonOptions options = new CliCommonOptions();
 
-        Files.writeString(configPath, """
+        Files.writeString(
+                configPath,
+                """
                 managed-postgres:
                   runtime:
                     source: system
@@ -77,12 +79,11 @@ final class CliCommonOptionsTest {
         options.useRuntimeChecksum("sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
         options.useRuntimeCache(Path.of(".local/runtime-cache"));
 
-        final CliManagedPostgresConfiguration configuration =
-                options.toConfiguration(new CliYamlConfigurationLoader());
+        final CliManagedPostgresConfiguration configuration = options.toConfiguration(new CliYamlConfigurationLoader());
 
         assertThat(configuration.runtimeSource().kind()).isEqualTo("downloaded");
-        assertThat(configuration.runtimeSource().downloadedRuntime()).hasValueSatisfying(runtime ->
-                assertThat(runtime.checksum())
+        assertThat(configuration.runtimeSource().downloadedRuntime())
+                .hasValueSatisfying(runtime -> assertThat(runtime.checksum())
                         .contains("sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"));
     }
 
@@ -95,14 +96,14 @@ final class CliCommonOptionsTest {
         options.postgresConfigurationOptions().useTempBuffers("10MB");
         options.postgresConfigurationOptions().useStatementTimeoutSeconds(21);
 
-        final CliManagedPostgresConfiguration configuration =
-                options.toConfiguration(new CliYamlConfigurationLoader());
+        final CliManagedPostgresConfiguration configuration = options.toConfiguration(new CliYamlConfigurationLoader());
 
-        assertThat(configuration.postgresConfiguration()).isEqualTo(Resources.tiny()
-                .maxConnections(28)
-                .sharedBuffers("96MB")
-                .tempBuffers("10MB")
-                .statementTimeoutSeconds(21));
+        assertThat(configuration.postgresConfiguration())
+                .isEqualTo(Resources.tiny()
+                        .maxConnections(28)
+                        .sharedBuffers("96MB")
+                        .tempBuffers("10MB")
+                        .statementTimeoutSeconds(21));
     }
 
     @Test

@@ -19,8 +19,7 @@ public final class ManagedPathOwnership {
     /**
      * Creates ownership marker support.
      */
-    public ManagedPathOwnership() {
-    }
+    public ManagedPathOwnership() {}
 
     /**
      * Resolves the ownership marker path for a staging directory.
@@ -41,8 +40,8 @@ public final class ManagedPathOwnership {
     public void writeMarker(final Path staging, final String operationName) {
         final Path markerPath = markerPath(staging);
         final String checkedOperationName = Objects.requireNonNull(operationName, "operationName");
-        final String content = "owner=managed-postgres%noperation=%s%ncreatedAt=%s%n"
-                .formatted(checkedOperationName, Instant.now());
+        final String content =
+                "owner=managed-postgres%noperation=%s%ncreatedAt=%s%n".formatted(checkedOperationName, Instant.now());
 
         try {
             Files.createDirectories(parentDirectory(markerPath));

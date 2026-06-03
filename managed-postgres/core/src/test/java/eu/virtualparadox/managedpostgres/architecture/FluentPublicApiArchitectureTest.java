@@ -15,22 +15,23 @@ import org.junit.jupiter.api.Test;
  */
 final class FluentPublicApiArchitectureTest {
 
-    FluentPublicApiArchitectureTest() {
-    }
+    FluentPublicApiArchitectureTest() {}
 
     @Test
     void publicBuilderAndRuntimeDslMethodsAreFluent() {
-        final JavaClasses classes = new ClassFileImporter()
-                .importPackages("eu.virtualparadox.managedpostgres");
-        final DescribedPredicate<JavaClass> fluentApiTypes =
-                JavaClass.Predicates.simpleName("ManagedPostgresBuilder")
-                        .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"));
+        final JavaClasses classes = new ClassFileImporter().importPackages("eu.virtualparadox.managedpostgres");
+        final DescribedPredicate<JavaClass> fluentApiTypes = JavaClass.Predicates.simpleName("ManagedPostgresBuilder")
+                .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"));
 
         final ArchRule rule = methods()
-                .that().areDeclaredInClassesThat(fluentApiTypes)
-                .and().arePublic()
-                .and().areNotStatic()
-                .should().notHaveRawReturnType(void.class)
+                .that()
+                .areDeclaredInClassesThat(fluentApiTypes)
+                .and()
+                .arePublic()
+                .and()
+                .areNotStatic()
+                .should()
+                .notHaveRawReturnType(void.class)
                 .because("public builder/DSL methods must be fluent (return a value to chain)");
 
         rule.check(classes);

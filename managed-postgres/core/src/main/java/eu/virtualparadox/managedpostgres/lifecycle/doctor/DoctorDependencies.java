@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.layout.DoctorLayoutPlanner;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataReader;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.runtime.DoctorRuntimeInspector;
+import java.util.Objects;
 
 /**
  * Doctor service collaborators.
@@ -53,8 +53,7 @@ public record DoctorDependencies(
      * @return with probe inspector result
      */
     public static DoctorDependencies withProbeInspector(
-            final ManagedFileSystem fileSystem,
-            final DoctorProbeInspector probeInspector) {
+            final ManagedFileSystem fileSystem, final DoctorProbeInspector probeInspector) {
         final ManagedFileSystem checkedFileSystem = Objects.requireNonNull(fileSystem, "fileSystem");
         return new DoctorDependencies(
                 new DoctorLayoutPlanner(checkedFileSystem),

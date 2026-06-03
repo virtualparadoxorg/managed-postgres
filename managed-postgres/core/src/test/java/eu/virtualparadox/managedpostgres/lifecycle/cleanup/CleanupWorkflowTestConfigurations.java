@@ -10,23 +10,17 @@ import java.nio.file.Path;
 
 final class CleanupWorkflowTestConfigurations {
 
-    private CleanupWorkflowTestConfigurations() {
-    }
+    private CleanupWorkflowTestConfigurations() {}
 
     static ManagedPostgresConfiguration persistentConfiguration(final Path storageRoot) {
         return persistentConfiguration(storageRoot, CleanupPolicy.safeDefaults(), RuntimeSource.system());
     }
 
     static ManagedPostgresConfiguration persistentConfiguration(
-            final Path storageRoot,
-            final CleanupPolicy cleanupPolicy,
-            final RuntimeSource runtimeSource) {
-        final ManagedPostgresConfiguration base =
-                ManagedPostgresConfigurationFixture.configuration(storageRoot);
+            final Path storageRoot, final CleanupPolicy cleanupPolicy, final RuntimeSource runtimeSource) {
+        final ManagedPostgresConfiguration base = ManagedPostgresConfigurationFixture.configuration(storageRoot);
 
-        return base
-                .withRuntimeSource(runtimeSource)
-                .withCleanupPolicy(cleanupPolicy);
+        return base.withRuntimeSource(runtimeSource).withCleanupPolicy(cleanupPolicy);
     }
 
     static ManagedPostgresConfiguration temporaryConfiguration(final Path storageRoot) {

@@ -23,8 +23,7 @@ public final class PostgresReadinessWaiterTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresReadinessWaiterTest() {
-    }
+    PostgresReadinessWaiterTest() {}
 
     @Test
     void waiterCountsUnhealthyPollsBeforeSuccessfulReadiness() throws IOException {
@@ -35,8 +34,7 @@ public final class PostgresReadinessWaiterTest {
                 runtimeDirectory,
                 connectionInfo(),
                 PostgresLayout.plan(
-                        new Storage(temporaryDirectory.resolve("postgres"), false),
-                        new FileSystemOperationJournal()));
+                        new Storage(temporaryDirectory.resolve("postgres"), false), new FileSystemOperationJournal()));
 
         assertThat(outcome.finalResult().healthy()).isTrue();
         assertThat(outcome.failedHealthcheckCount()).isEqualTo(2);
@@ -61,7 +59,8 @@ public final class PostgresReadinessWaiterTest {
                         + "printf 'accepting\\n'\n"
                         + "exit 0\n",
                 StandardCharsets.UTF_8);
-        assertThat(binDirectory.resolve("pg_isready").toFile().setExecutable(true)).isTrue();
+        assertThat(binDirectory.resolve("pg_isready").toFile().setExecutable(true))
+                .isTrue();
 
         return runtimeDirectory;
     }

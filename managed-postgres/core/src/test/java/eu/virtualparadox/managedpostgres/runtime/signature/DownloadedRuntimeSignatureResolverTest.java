@@ -29,8 +29,7 @@ public final class DownloadedRuntimeSignatureResolverTest {
     @TempDir
     private Path temporaryDirectory;
 
-    DownloadedRuntimeSignatureResolverTest() {
-    }
+    DownloadedRuntimeSignatureResolverTest() {}
 
     @Test
     void signedDownloadedRuntimeVerifiesPublishesAndWritesMarker() throws IOException {
@@ -42,9 +41,8 @@ public final class DownloadedRuntimeSignatureResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum, signature);
 
-        final Path resolvedRuntime = new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, checksumText, signature),
-                "16.4");
+        final Path resolvedRuntime = new DownloadedRuntimeResolver()
+                .resolve(downloadedSource(archive, cacheRoot, checksumText, signature), "16.4");
 
         assertThat(resolvedRuntime).isEqualTo(finalRuntime);
         assertThat(finalRuntime.resolve("bin").resolve("postgres")).isRegularFile();
@@ -61,9 +59,7 @@ public final class DownloadedRuntimeSignatureResolverTest {
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
         final Path finalRuntime = layout.runtimeDirectory("16.4", checksum, signature);
 
-        new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, checksumText, signature),
-                "16.4");
+        new DownloadedRuntimeResolver().resolve(downloadedSource(archive, cacheRoot, checksumText, signature), "16.4");
 
         new RuntimeSignatureVerifier().requireVerifiedMarker(finalRuntime, signature);
     }
@@ -77,9 +73,8 @@ public final class DownloadedRuntimeSignatureResolverTest {
         final Path cacheRoot = temporaryDirectory.resolve("cache");
         final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
 
-        assertThatThrownBy(() -> new DownloadedRuntimeResolver().resolve(
-                downloadedSource(archive, cacheRoot, checksumText, signature),
-                "16.4"))
+        assertThatThrownBy(() -> new DownloadedRuntimeResolver()
+                        .resolve(downloadedSource(archive, cacheRoot, checksumText, signature), "16.4"))
                 .isInstanceOf(ManagedPostgresException.class)
                 .hasMessageContaining("downloaded")
                 .hasCauseInstanceOf(IllegalArgumentException.class);
@@ -102,20 +97,15 @@ public final class DownloadedRuntimeSignatureResolverTest {
             throw new AssertionError("signed cache hit must not redownload");
         };
 
-        assertThatThrownBy(() -> new DownloadedRuntimeResolver(downloader).resolve(
-                downloadedSource(archive, cacheRoot, checksumText, signature),
-                "16.4"))
+        assertThatThrownBy(() -> new DownloadedRuntimeResolver(downloader)
+                        .resolve(downloadedSource(archive, cacheRoot, checksumText, signature), "16.4"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("signature marker");
     }
 
     private RuntimeSource downloadedSource(
-            final Path archive,
-            final Path cacheRoot,
-            final String checksum,
-            final RuntimeSignature signature) {
-        return RuntimeSource.downloaded(runtime -> runtime
-                .repository(RuntimeRepository.custom(archive.toUri()))
+            final Path archive, final Path cacheRoot, final String checksum, final RuntimeSignature signature) {
+        return RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(archive.toUri()))
                 .cache(RuntimeCache.projectLocal(cacheRoot))
                 .checksum(checksum)
                 .signature(signature));

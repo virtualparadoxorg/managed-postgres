@@ -13,8 +13,7 @@ public final class ScenarioMetadata {
     private static final String METADATA_FILE = "metadata.json";
     private static final String STALE_METADATA_FILE = "metadata.stale.json";
 
-    private ScenarioMetadata() {
-    }
+    private ScenarioMetadata() {}
 
     public static Optional<PostgresInstanceMetadata> read(final Path storageRoot) {
         return new MetadataStore(metadataPath(storageRoot), new FileSystemOperationJournal()).read();
@@ -27,7 +26,8 @@ public final class ScenarioMetadata {
     public static PostgresInstanceMetadata require(final Path storageRoot) {
         final Optional<PostgresInstanceMetadata> metadata = read(storageRoot);
 
-        return metadata.orElseThrow(() -> new IllegalStateException("metadata not found: " + metadataPath(storageRoot)));
+        return metadata.orElseThrow(
+                () -> new IllegalStateException("metadata not found: " + metadataPath(storageRoot)));
     }
 
     public static Path metadataPath(final Path storageRoot) {

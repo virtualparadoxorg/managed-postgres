@@ -9,17 +9,11 @@ import java.nio.file.Path;
 
 public final class NoopRunningPostgres implements RunningPostgres {
 
-    public NoopRunningPostgres() {
-    }
+    public NoopRunningPostgres() {}
 
     @Override
     public PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "postgres",
-                "postgres",
-                Secret.redacted());
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "postgres", "postgres", Secret.redacted());
     }
 
     @Override
@@ -28,18 +22,14 @@ public final class NoopRunningPostgres implements RunningPostgres {
     }
 
     @Override
-    public void backupTo(final Path target) {
-    }
+    public void backupTo(final Path target) {}
 
     @Override
-    public void restoreFrom(final Path backup, final RestoreOptions options) {
-    }
+    public void restoreFrom(final Path backup, final RestoreOptions options) {}
 
     @Override
-    public void stop() {
-    }
+    public void stop() {}
 
     @Override
-    public void close() {
-    }
+    public void close() {}
 }

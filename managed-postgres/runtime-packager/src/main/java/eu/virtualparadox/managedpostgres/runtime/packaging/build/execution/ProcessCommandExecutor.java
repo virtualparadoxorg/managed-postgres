@@ -17,8 +17,7 @@ public final class ProcessCommandExecutor {
     /**
      * Creates a native process executor for pre-split command arguments.
      */
-    public ProcessCommandExecutor() {
-    }
+    public ProcessCommandExecutor() {}
 
     /**
      * Executes a native command in the supplied working directory.
@@ -34,9 +33,12 @@ public final class ProcessCommandExecutor {
             final Map<String, String> environmentOverrides,
             final String failureMessage) {
         final ProcessBuilder processBuilder = new ProcessBuilder(Objects.requireNonNull(command, "command"));
-        processBuilder.directory(Objects.requireNonNull(workingDirectory, "workingDirectory").toFile());
+        processBuilder.directory(
+                Objects.requireNonNull(workingDirectory, "workingDirectory").toFile());
         processBuilder.redirectErrorStream(true);
-        processBuilder.environment().putAll(Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides")));
+        processBuilder
+                .environment()
+                .putAll(Map.copyOf(Objects.requireNonNull(environmentOverrides, "environmentOverrides")));
         try {
             final Path outputFile = Files.createTempFile("managed-postgres-build-", ".log");
             try {

@@ -21,17 +21,14 @@ final class BackupCommandTest {
 
     private static final Path BACKUP = Path.of("target/backups/app.dump");
 
-    BackupCommandTest() {
-    }
+    BackupCommandTest() {}
 
     @Test
     void backupCommandAcceptsBackupPathAsFirstPositionalParameter() {
         final TestRunningPostgres runningPostgres = TestRunningPostgres.withConnection(connectionInfo());
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(
-                    postgres,
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(postgres, BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
             assertThat(runningPostgres.backupTarget()).hasValue(BACKUP);
@@ -43,9 +40,7 @@ final class BackupCommandTest {
         final TestRunningPostgres runningPostgres = TestRunningPostgres.withConnection(connectionInfo());
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(
-                    postgres,
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(postgres, BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.OK.code());
             assertThat(postgres.invocations().start()).isEqualTo(1);
@@ -65,25 +60,17 @@ final class BackupCommandTest {
 
     @Test
     void backupExceptionMapsToBackupRestoreExitCode() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "backup",
-                Map.of("password", "secret-password"))));
-        final PostgresBackupException failure = new PostgresBackupException(
-                "backup failed password=secret-password",
-                diagnostics);
-        final TestRunningPostgres runningPostgres = TestRunningPostgres.withBackupFailure(
-                connectionInfo(),
-                failure);
+        final DiagnosticReport diagnostics =
+                new DiagnosticReport(List.of(new DiagnosticSection("backup", Map.of("password", "secret-password"))));
+        final PostgresBackupException failure =
+                new PostgresBackupException("backup failed password=secret-password", diagnostics);
+        final TestRunningPostgres runningPostgres = TestRunningPostgres.withBackupFailure(connectionInfo(), failure);
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(
-                    postgres,
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(postgres, BACKUP.toString());
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.BACKUP_RESTORE_ERROR.code());
-            assertThat(run.errorOutput())
-                    .contains("Managed Postgres error")
-                    .doesNotContain("secret-password");
+            assertThat(run.errorOutput()).contains("Managed Postgres error").doesNotContain("secret-password");
         }
     }
 
@@ -92,9 +79,7 @@ final class BackupCommandTest {
         final TestRunningPostgres runningPostgres = TestRunningPostgres.withConnection(connectionInfo());
 
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withRunning(runningPostgres)) {
-            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(
-                    postgres,
-                    BACKUP.toString());
+            final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runBackup(postgres, BACKUP.toString());
 
             assertThat(run.output()).doesNotContain("secret-password");
             assertThat(run.errorOutput()).doesNotContain("secret-password");
@@ -102,11 +87,6 @@ final class BackupCommandTest {
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of("secret-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("secret-password"));
     }
 }

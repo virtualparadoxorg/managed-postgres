@@ -20,10 +20,7 @@ import picocli.CommandLine.Option;
 /**
  * Restarts managed PostgreSQL and prints non-secret connection details.
  */
-@Command(
-        name = "restart",
-        description = "Restart managed PostgreSQL.",
-        sortOptions = false)
+@Command(name = "restart", description = "Restart managed PostgreSQL.", sortOptions = false)
 public final class RestartCommand implements Callable<Integer> {
 
     @Mixin

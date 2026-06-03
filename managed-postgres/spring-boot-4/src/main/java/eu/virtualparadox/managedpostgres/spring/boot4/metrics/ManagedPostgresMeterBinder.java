@@ -27,8 +27,7 @@ public final class ManagedPostgresMeterBinder {
      * @param metrics bootstrap timing metrics
      */
     public ManagedPostgresMeterBinder(
-            final RunningPostgres runningPostgres,
-            final ManagedPostgresBootstrapMetrics metrics) {
+            final RunningPostgres runningPostgres, final ManagedPostgresBootstrapMetrics metrics) {
         this.runningPostgres = Objects.requireNonNull(runningPostgres, "runningPostgres");
         this.metrics = Objects.requireNonNull(metrics, "metrics");
     }
@@ -80,21 +79,18 @@ public final class ManagedPostgresMeterBinder {
         try {
             final Class<?> gaugeClass = Class.forName(GAUGE_CLASS_NAME);
             final Class<?> registryClass = Class.forName(REGISTRY_CLASS_NAME);
-            final Method builderMethod = gaugeClass.getMethod(
-                    "builder",
-                    String.class,
-                    Object.class,
-                    ToDoubleFunction.class);
+            final Method builderMethod =
+                    gaugeClass.getMethod("builder", String.class, Object.class, ToDoubleFunction.class);
             final Object builder = builderMethod.invoke(null, name, runningPostgres, valueFunction);
-            final Object describedBuilder = builder.getClass()
-                    .getMethod("description", String.class)
-                    .invoke(builder, description);
+            final Object describedBuilder =
+                    builder.getClass().getMethod("description", String.class).invoke(builder, description);
             describedBuilder.getClass().getMethod("register", registryClass).invoke(describedBuilder, registry);
         } catch (ClassNotFoundException
                 | IllegalAccessException
                 | InvocationTargetException
                 | NoSuchMethodException exception) {
-            throw new ManagedPostgresSpringException("Unable to register managed PostgreSQL Micrometer gauges", exception);
+            throw new ManagedPostgresSpringException(
+                    "Unable to register managed PostgreSQL Micrometer gauges", exception);
         }
     }
 

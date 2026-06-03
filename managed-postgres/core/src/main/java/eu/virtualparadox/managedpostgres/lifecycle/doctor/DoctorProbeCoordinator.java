@@ -1,10 +1,10 @@
 package eu.virtualparadox.managedpostgres.lifecycle.doctor;
 
 import eu.virtualparadox.managedpostgres.PostgresStatus;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachValidation;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataProbe;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.metadata.DoctorMetadataSnapshot;
+import java.util.Objects;
 
 /**
  * Coordinates high-level doctor probe status decisions.

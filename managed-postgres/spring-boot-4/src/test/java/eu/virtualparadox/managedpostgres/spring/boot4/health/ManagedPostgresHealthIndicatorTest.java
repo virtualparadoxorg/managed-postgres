@@ -27,8 +27,7 @@ public final class ManagedPostgresHealthIndicatorTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(ManagedPostgresAutoConfiguration.class));
 
-    ManagedPostgresHealthIndicatorTest() {
-    }
+    ManagedPostgresHealthIndicatorTest() {}
 
     @AfterEach
     void resetBootstrapContext() {
@@ -95,19 +94,21 @@ public final class ManagedPostgresHealthIndicatorTest {
                 .withUserConfiguration(CustomHealthIndicatorConfiguration.class)
                 .withPropertyValues("managed-postgres.enabled=true")
                 .run(context -> assertThat(context.getBean("managedPostgresHealthIndicator"))
-                        .isSameAs(context.getBean(CustomHealthIndicatorConfiguration.class).indicator()));
+                        .isSameAs(context.getBean(CustomHealthIndicatorConfiguration.class)
+                                .indicator()));
     }
 
     private static Health healthFor(final PostgresStatus status) {
-        return new ManagedPostgresHealthIndicator(BootstrapFixture.create(status).runningPostgres()).health();
+        return new ManagedPostgresHealthIndicator(
+                        BootstrapFixture.create(status).runningPostgres())
+                .health();
     }
 
     private static final class CustomHealthIndicatorConfiguration {
 
         private final HealthIndicator indicator = () -> Health.up().build();
 
-        private CustomHealthIndicatorConfiguration() {
-        }
+        private CustomHealthIndicatorConfiguration() {}
 
         @Bean
         HealthIndicator managedPostgresHealthIndicator() {
@@ -123,12 +124,8 @@ public final class ManagedPostgresHealthIndicatorTest {
 
         private final ManagedPostgres postgres = mock(ManagedPostgres.class);
         private final RunningPostgres runningPostgres = mock(RunningPostgres.class);
-        private final PostgresConnectionInfo connectionInfo = new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of(RAW_PASSWORD));
+        private final PostgresConnectionInfo connectionInfo =
+                new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of(RAW_PASSWORD));
 
         private BootstrapFixture(final PostgresStatus status) {
             when(runningPostgres.status()).thenReturn(status);

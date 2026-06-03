@@ -18,10 +18,7 @@ public final class RuntimePackagingOrchestrator {
      * Creates an orchestrator with the default runtime-packager collaborators.
      */
     public RuntimePackagingOrchestrator() {
-        this(
-                new SourceWorkspacePreparer(),
-                new PlatformBuildExecutor(),
-                new BundlePublicationWorkflow());
+        this(new SourceWorkspacePreparer(), new PlatformBuildExecutor(), new BundlePublicationWorkflow());
     }
 
     /**
@@ -30,10 +27,7 @@ public final class RuntimePackagingOrchestrator {
      * @param buildExecutor source-build executor
      */
     public RuntimePackagingOrchestrator(final BuildExecutor buildExecutor) {
-        this(
-                new SourceWorkspacePreparer(),
-                buildExecutor,
-                new BundlePublicationWorkflow());
+        this(new SourceWorkspacePreparer(), buildExecutor, new BundlePublicationWorkflow());
     }
 
     RuntimePackagingOrchestrator(
@@ -42,8 +36,7 @@ public final class RuntimePackagingOrchestrator {
             final BundlePublicationWorkflow bundlePublicationWorkflow) {
         this.sourceWorkspacePreparer = Objects.requireNonNull(sourceWorkspacePreparer, "sourceWorkspacePreparer");
         this.buildExecutor = Objects.requireNonNull(buildExecutor, "buildExecutor");
-        this.bundlePublicationWorkflow =
-                Objects.requireNonNull(bundlePublicationWorkflow, "bundlePublicationWorkflow");
+        this.bundlePublicationWorkflow = Objects.requireNonNull(bundlePublicationWorkflow, "bundlePublicationWorkflow");
     }
 
     /**
@@ -56,10 +49,7 @@ public final class RuntimePackagingOrchestrator {
         final RuntimePackagingRequest validatedRequest = Objects.requireNonNull(request, "request");
         final PreparedSourceWorkspace workspace = sourceWorkspacePreparer.prepare(validatedRequest);
         final Path rawInstallTree = buildExecutor.build(
-                workspace.driver(),
-                validatedRequest.release(),
-                workspace.sourceTree(),
-                workspace.buildDirectory());
+                workspace.driver(), validatedRequest.release(), workspace.sourceTree(), workspace.buildDirectory());
         return bundlePublicationWorkflow.publish(validatedRequest, rawInstallTree, workspace);
     }
 }

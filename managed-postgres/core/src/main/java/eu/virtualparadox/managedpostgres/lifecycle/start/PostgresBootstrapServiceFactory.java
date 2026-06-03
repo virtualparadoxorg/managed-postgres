@@ -1,17 +1,17 @@
 package eu.virtualparadox.managedpostgres.lifecycle.start;
 
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
-import java.nio.file.Path;
-import java.time.Duration;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
-import eu.virtualparadox.managedpostgres.lifecycle.psql.CommandRunnerPsqlBootstrapClient;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;
+import eu.virtualparadox.managedpostgres.lifecycle.psql.CommandRunnerPsqlBootstrapClient;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlBootstrapClient;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlBootstrapCommandRunner;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlBootstrapDiagnostics;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlCommandFactory;
 import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlScriptFileStore;
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.Objects;
 
 /**
  * Coordinates postgres bootstrap service factory behavior for managed PostgreSQL internals.
@@ -30,9 +30,7 @@ public final class PostgresBootstrapServiceFactory {
      * @param timeout timeout value
      */
     public PostgresBootstrapServiceFactory(
-            final ManagedFileSystem fileSystem,
-            final CommandRunner commandRunner,
-            final Duration timeout) {
+            final ManagedFileSystem fileSystem, final CommandRunner commandRunner, final Duration timeout) {
         this.fileSystem = Objects.requireNonNull(fileSystem, "fileSystem");
         this.commandRunner = Objects.requireNonNull(commandRunner, "commandRunner");
         this.timeout = Objects.requireNonNull(timeout, "timeout");
@@ -47,9 +45,7 @@ public final class PostgresBootstrapServiceFactory {
      * @return create result
      */
     public PostgresBootstrapService create(
-            final Path runtimeDirectory,
-            final PostgresLayout layout,
-            final String postgresqlVersion) {
+            final Path runtimeDirectory, final PostgresLayout layout, final String postgresqlVersion) {
         final PsqlBootstrapDiagnostics diagnostics = new PsqlBootstrapDiagnostics();
         final PsqlBootstrapClient bootstrapClient = new CommandRunnerPsqlBootstrapClient(
                 new PsqlCommandFactory(runtimeDirectory, timeout),

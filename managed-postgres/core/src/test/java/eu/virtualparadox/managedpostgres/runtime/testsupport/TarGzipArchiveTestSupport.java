@@ -13,8 +13,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 public final class TarGzipArchiveTestSupport {
 
-    private TarGzipArchiveTestSupport() {
-    }
+    private TarGzipArchiveTestSupport() {}
 
     public static Path tarGzipWithEntries(final Path archive, final EntrySpec... entries) throws IOException {
         final Path parent = archive.getParent();
@@ -33,25 +32,18 @@ public final class TarGzipArchiveTestSupport {
         return archive;
     }
 
-    public static Path tarGzipWithSymbolicLink(
-            final Path archive,
-            final String name,
-            final String linkTarget) throws IOException {
+    public static Path tarGzipWithSymbolicLink(final Path archive, final String name, final String linkTarget)
+            throws IOException {
         return tarGzipWithLink(archive, name, linkTarget, TarConstants.LF_SYMLINK);
     }
 
-    public static Path tarGzipWithHardLink(
-            final Path archive,
-            final String name,
-            final String linkTarget) throws IOException {
+    public static Path tarGzipWithHardLink(final Path archive, final String name, final String linkTarget)
+            throws IOException {
         return tarGzipWithLink(archive, name, linkTarget, TarConstants.LF_LINK);
     }
 
     private static Path tarGzipWithLink(
-            final Path archive,
-            final String name,
-            final String linkTarget,
-            final byte linkFlag) throws IOException {
+            final Path archive, final String name, final String linkTarget, final byte linkFlag) throws IOException {
         final Path parent = archive.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -68,9 +60,8 @@ public final class TarGzipArchiveTestSupport {
         return archive;
     }
 
-    private static void writeTarEntry(
-            final TarArchiveOutputStream tarOutputStream,
-            final EntrySpec entry) throws IOException {
+    private static void writeTarEntry(final TarArchiveOutputStream tarOutputStream, final EntrySpec entry)
+            throws IOException {
         final TarArchiveEntry tarEntry = new TarArchiveEntry(entry.name());
         if (entry.directory()) {
             tarOutputStream.putArchiveEntry(tarEntry);
@@ -81,9 +72,8 @@ public final class TarGzipArchiveTestSupport {
     }
 
     private static void writeTarFileEntry(
-            final TarArchiveOutputStream tarOutputStream,
-            final TarArchiveEntry tarEntry,
-            final EntrySpec entry) throws IOException {
+            final TarArchiveOutputStream tarOutputStream, final TarArchiveEntry tarEntry, final EntrySpec entry)
+            throws IOException {
         final byte[] content = entry.content().getBytes(StandardCharsets.UTF_8);
         tarEntry.setSize(content.length);
         tarOutputStream.putArchiveEntry(tarEntry);

@@ -21,15 +21,12 @@ final class RuntimeArchiveExtractorZipTest {
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeArchiveExtractorZipTest() {
-    }
+    RuntimeArchiveExtractorZipTest() {}
 
     @Test
     void validZipExtractsRuntimeFilesUnderStaging() throws IOException {
-        final Path archive = zipArchive(
-                entry("PG_VERSION", "16"),
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/postgres", "postgres"));
+        final Path archive =
+                zipArchive(entry("PG_VERSION", "16"), entry("bin/pg_ctl", "pg_ctl"), entry("bin/postgres", "postgres"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         assertThat(new RuntimeArchiveExtractor().extract(archive, staging)).isEqualTo(staging);
@@ -39,10 +36,8 @@ final class RuntimeArchiveExtractorZipTest {
 
     @Test
     void reExtractingOverAnExistingTreeOverwritesIdempotently() throws IOException {
-        final Path archive = zipArchive(
-                entry("PG_VERSION", "16"),
-                entry("bin/pg_ctl", "pg_ctl"),
-                entry("bin/postgres", "postgres"));
+        final Path archive =
+                zipArchive(entry("PG_VERSION", "16"), entry("bin/pg_ctl", "pg_ctl"), entry("bin/postgres", "postgres"));
         final Path staging = temporaryDirectory.resolve("staging");
 
         new RuntimeArchiveExtractor().extract(archive, staging);
@@ -73,7 +68,8 @@ final class RuntimeArchiveExtractorZipTest {
         new RuntimeArchiveExtractor().extract(archive, staging);
 
         assertThat(staging.resolve("runtime")).isDirectory();
-        assertThat(Files.readString(staging.resolve("runtime").resolve("PG_VERSION"))).isEqualTo("16");
+        assertThat(Files.readString(staging.resolve("runtime").resolve("PG_VERSION")))
+                .isEqualTo("16");
     }
 
     @Test

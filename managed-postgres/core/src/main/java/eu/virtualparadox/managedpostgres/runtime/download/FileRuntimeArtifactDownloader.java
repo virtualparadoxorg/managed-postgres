@@ -47,14 +47,11 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
      * @throws IOException if checksum verification cannot read the downloaded target
      */
     @Override
-    public Path download(
-            final RuntimeRepository repository,
-            final Path target,
-            final Checksum checksum) throws IOException {
+    public Path download(final RuntimeRepository repository, final Path target, final Checksum checksum)
+            throws IOException {
         final RuntimeRepository checkedRepository = Objects.requireNonNull(repository, "repository");
-        final Path checkedTarget = Objects.requireNonNull(target, "target")
-                .toAbsolutePath()
-                .normalize();
+        final Path checkedTarget =
+                Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final Checksum checkedChecksum = Objects.requireNonNull(checksum, "checksum");
 
         try {
@@ -64,10 +61,7 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
             return checksumVerifier.verify(checkedTarget, checkedChecksum);
         } catch (final IOException exception) {
             throw downloadFailure(
-                    "failed to download PostgreSQL runtime artifact",
-                    checkedRepository,
-                    checkedTarget,
-                    exception);
+                    "failed to download PostgreSQL runtime artifact", checkedRepository, checkedTarget, exception);
         }
     }
 
@@ -105,23 +99,20 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
     }
 
     private static ManagedPostgresException downloadFailure(
-            final String message,
-            final RuntimeRepository repository,
-            final Path target) {
+            final String message, final RuntimeRepository repository, final Path target) {
         return new ManagedPostgresException(message, diagnostic(repository, target));
     }
 
     private static ManagedPostgresException downloadFailure(
-            final String message,
-            final RuntimeRepository repository,
-            final Path target,
-            final Throwable cause) {
+            final String message, final RuntimeRepository repository, final Path target, final Throwable cause) {
         return new ManagedPostgresException(message, cause, diagnostic(repository, target));
     }
 
     private static DiagnosticReport diagnostic(final RuntimeRepository repository, final Path target) {
-        return new DiagnosticReport(List.of(new DiagnosticSection("runtime-download", Map.of(
-                "repository", repository.uri().toString(),
-                "target", target.toString()))));
+        return new DiagnosticReport(List.of(new DiagnosticSection(
+                "runtime-download",
+                Map.of(
+                        "repository", repository.uri().toString(),
+                        "target", target.toString()))));
     }
 }

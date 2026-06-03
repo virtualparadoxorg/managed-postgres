@@ -3,22 +3,21 @@ package eu.virtualparadox.managedpostgres.runtime;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import eu.virtualparadox.managedpostgres.runtime.download.RuntimeCacheLayout;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.runtime.download.RuntimeCacheLayout;
 
 public final class RuntimeCacheLayoutTest {
 
-    private static final Checksum CHECKSUM = Checksum.parse(
-            "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+    private static final Checksum CHECKSUM =
+            Checksum.parse("sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeCacheLayoutTest() {
-    }
+    RuntimeCacheLayoutTest() {}
 
     @Test
     void cachePathsAreDeterministicFromVersionAndChecksum() {

@@ -28,9 +28,7 @@ public final class PostgresShutdownException extends ManagedPostgresException {
      * @param diagnosticReport diagnostic report
      */
     public PostgresShutdownException(
-            final String message,
-            final Throwable cause,
-            final DiagnosticReport diagnosticReport) {
+            final String message, final Throwable cause, final DiagnosticReport diagnosticReport) {
         super(message, cause, diagnosticReport);
     }
 }

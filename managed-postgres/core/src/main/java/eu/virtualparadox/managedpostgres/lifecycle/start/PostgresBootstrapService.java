@@ -6,13 +6,13 @@ import eu.virtualparadox.managedpostgres.config.bootstrap.BootstrapExtension;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
+import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlBootstrapClient;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import eu.virtualparadox.managedpostgres.lifecycle.psql.PsqlBootstrapClient;
 
 /**
  * Coordinates postgres bootstrap service behavior for managed PostgreSQL internals.
@@ -40,9 +40,7 @@ public final class PostgresBootstrapService {
      * @param postgresqlVersion PostgreSQL version value
      */
     public PostgresBootstrapService(
-            final PsqlBootstrapClient bootstrapClient,
-            final Path runtimeDirectory,
-            final String postgresqlVersion) {
+            final PsqlBootstrapClient bootstrapClient, final Path runtimeDirectory, final String postgresqlVersion) {
         this.bootstrapClient = Objects.requireNonNull(bootstrapClient, "bootstrapClient");
         this.runtimeDirectory = Objects.requireNonNull(runtimeDirectory, "runtimeDirectory")
                 .toAbsolutePath()
@@ -58,8 +56,7 @@ public final class PostgresBootstrapService {
      * @return bootstrap result
      */
     public PostgresConnectionInfo bootstrap(
-            final PostgresConnectionInfo adminConnectionInfo,
-            final ClusterBootstrap clusterBootstrap) {
+            final PostgresConnectionInfo adminConnectionInfo, final ClusterBootstrap clusterBootstrap) {
         final BootstrapPlan plan = BootstrapPlan.from(adminConnectionInfo, clusterBootstrap);
         createRoleIfRequired(plan);
         createDatabaseIfRequired(plan);
@@ -103,9 +100,8 @@ public final class PostgresBootstrapService {
     }
 
     private void verifyExistingDatabase(final BootstrapPlan plan) {
-        final Optional<String> databaseOwner = bootstrapClient.databaseOwner(
-                plan.adminConnectionInfo(),
-                plan.databaseName());
+        final Optional<String> databaseOwner =
+                bootstrapClient.databaseOwner(plan.adminConnectionInfo(), plan.databaseName());
         if (databaseOwner.filter(plan.roleName()::equals).isEmpty()) {
             throw new PostgresStartupException(
                     "PostgreSQL bootstrap database owner is incompatible",
@@ -124,8 +120,7 @@ public final class PostgresBootstrapService {
     }
 
     private void createExtensionIfRequired(
-            final PostgresConnectionInfo applicationConnectionInfo,
-            final BootstrapExtension extension) {
+            final PostgresConnectionInfo applicationConnectionInfo, final BootstrapExtension extension) {
         if (!bootstrapClient.extensionAvailable(applicationConnectionInfo, extension.name())) {
             handleUnavailableExtension(extension, applicationConnectionInfo);
             return;
@@ -136,18 +131,15 @@ public final class PostgresBootstrapService {
     }
 
     private void handleUnavailableExtension(
-            final BootstrapExtension extension,
-            final PostgresConnectionInfo applicationConnectionInfo) {
+            final BootstrapExtension extension, final PostgresConnectionInfo applicationConnectionInfo) {
         if (extension.policy() == BootstrapExtension.Policy.FAIL_IF_UNAVAILABLE) {
             throw new PostgresStartupException(
-                    "PostgreSQL extension is unavailable",
-                    extensionDiagnostic(extension, applicationConnectionInfo));
+                    "PostgreSQL extension is unavailable", extensionDiagnostic(extension, applicationConnectionInfo));
         }
     }
 
     private DiagnosticReport extensionDiagnostic(
-            final BootstrapExtension extension,
-            final PostgresConnectionInfo applicationConnectionInfo) {
+            final BootstrapExtension extension, final PostgresConnectionInfo applicationConnectionInfo) {
         return new DiagnosticReport(List.of(new DiagnosticSection(
                 "postgres-extension",
                 Map.of(
@@ -160,8 +152,6 @@ public final class PostgresBootstrapService {
     }
 
     private static DiagnosticReport bootstrapDiagnostic(final Map<String, String> details) {
-        return new DiagnosticReport(List.of(new DiagnosticSection(
-                "postgres-bootstrap",
-                new LinkedHashMap<>(details))));
+        return new DiagnosticReport(List.of(new DiagnosticSection("postgres-bootstrap", new LinkedHashMap<>(details))));
     }
 }

@@ -6,20 +6,20 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
-import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.start.StartPostgresWorkflow;
 
 public final class PostgresApplicationConnectionTest {
 
@@ -28,8 +28,7 @@ public final class PostgresApplicationConnectionTest {
     @TempDir
     private Path temporaryDirectory;
 
-    PostgresApplicationConnectionTest() {
-    }
+    PostgresApplicationConnectionTest() {}
 
     @Test
     void defaultClusterUsesAdminCredentials() {
@@ -37,7 +36,8 @@ public final class PostgresApplicationConnectionTest {
 
         assertThat(PostgresApplicationConnection.database(configuration)).isEqualTo("postgres");
         assertThat(PostgresApplicationConnection.owner(configuration)).isEqualTo("postgres");
-        assertThat(PostgresApplicationConnection.password(configuration).reveal()).isEqualTo("admin-password");
+        assertThat(PostgresApplicationConnection.password(configuration).reveal())
+                .isEqualTo("admin-password");
     }
 
     @Test

@@ -16,14 +16,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 public final class RuntimeCacheCleanerTest {
 
-    private static final Checksum CHECKSUM = Checksum.parse(
-            "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
+    private static final Checksum CHECKSUM =
+            Checksum.parse("sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
     @TempDir
     private Path temporaryDirectory;
 
-    RuntimeCacheCleanerTest() {
-    }
+    RuntimeCacheCleanerTest() {}
 
     @Test
     void cleanerDeletesOnlyOwnedPartialDownloadFiles() throws IOException {

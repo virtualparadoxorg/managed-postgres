@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.cli.CliExitCode;
 import eu.virtualparadox.managedpostgres.cli.command.support.CliCommandTestSupport;
-import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgres;
 import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFactory;
+import eu.virtualparadox.managedpostgres.cli.command.support.TestManagedPostgresFailureFactory;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
@@ -19,8 +19,7 @@ import org.junit.jupiter.api.Test;
 
 final class StartCommandTest {
 
-    StartCommandTest() {
-    }
+    StartCommandTest() {}
 
     @Test
     void startCommandStartsViaManagedPostgresStart() {
@@ -37,8 +36,8 @@ final class StartCommandTest {
         try (TestManagedPostgres postgres = TestManagedPostgresFactory.withConnection(connectionInfo())) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runStart(postgres, "--keep-running");
 
-            assertThat(run.configuration()).hasValueSatisfying(configuration ->
-                    assertThat(configuration.stopPolicy()).isEqualTo(StopPolicy.KEEP_RUNNING));
+            assertThat(run.configuration()).hasValueSatisfying(configuration -> assertThat(configuration.stopPolicy())
+                    .isEqualTo(StopPolicy.KEEP_RUNNING));
         }
     }
 
@@ -67,29 +66,20 @@ final class StartCommandTest {
 
     @Test
     void lifecycleStartupExceptionMapsToStartupExitCode() {
-        final DiagnosticReport diagnostics = new DiagnosticReport(List.of(new DiagnosticSection(
-                "startup",
-                Map.of("password", "secret-password"))));
-        final PostgresStartupException failure = new PostgresStartupException(
-                "startup failed password=secret-password",
-                diagnostics);
+        final DiagnosticReport diagnostics =
+                new DiagnosticReport(List.of(new DiagnosticSection("startup", Map.of("password", "secret-password"))));
+        final PostgresStartupException failure =
+                new PostgresStartupException("startup failed password=secret-password", diagnostics);
 
         try (TestManagedPostgres postgres = TestManagedPostgresFailureFactory.withStartFailure(failure)) {
             final CliCommandTestSupport.CliRun run = CliCommandTestSupport.runStart(postgres);
 
             assertThat(run.exitCode()).isEqualTo(CliExitCode.STARTUP_ERROR.code());
-            assertThat(run.errorOutput())
-                    .contains("Managed Postgres error")
-                    .doesNotContain("secret-password");
+            assertThat(run.errorOutput()).contains("Managed Postgres error").doesNotContain("secret-password");
         }
     }
 
     private static PostgresConnectionInfo connectionInfo() {
-        return new PostgresConnectionInfo(
-                "127.0.0.1",
-                15432,
-                "app",
-                "app",
-                Secret.of("secret-password"));
+        return new PostgresConnectionInfo("127.0.0.1", 15432, "app", "app", Secret.of("secret-password"));
     }
 }

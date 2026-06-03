@@ -13,8 +13,7 @@ import java.util.Set;
  */
 public final class RawInstallTreeFixture {
 
-    private RawInstallTreeFixture() {
-    }
+    private RawInstallTreeFixture() {}
 
     /**
      * Creates a minimal raw install tree for packaging tests.

@@ -7,13 +7,13 @@ import eu.virtualparadox.managedpostgres.exception.PostgresDestroyException;
 import eu.virtualparadox.managedpostgres.exception.PostgresShutdownException;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import java.util.List;
+
 /**
  * Failure-oriented factory for managed-postgres CLI test doubles.
  */
 public final class TestManagedPostgresFailureFactory {
 
-    private TestManagedPostgresFailureFactory() {
-    }
+    private TestManagedPostgresFailureFactory() {}
 
     /**
      * Creates a managed-postgres test double that fails during `start()`.
@@ -26,9 +26,9 @@ public final class TestManagedPostgresFailureFactory {
                 () -> {
                     throw failure;
                 },
-                () -> { },
-                () -> { },
-                () -> { });
+                () -> {},
+                () -> {},
+                () -> {});
     }
 
     /**
@@ -39,12 +39,12 @@ public final class TestManagedPostgresFailureFactory {
      */
     public static TestManagedPostgres withStopFailure(final PostgresShutdownException failure) {
         return withFailures(
-                () -> { },
+                () -> {},
                 () -> {
                     throw failure;
                 },
-                () -> { },
-                () -> { });
+                () -> {},
+                () -> {});
     }
 
     /**
@@ -55,12 +55,12 @@ public final class TestManagedPostgresFailureFactory {
      */
     public static TestManagedPostgres withCleanupFailure(final PostgresCleanupException failure) {
         return withFailures(
-                () -> { },
-                () -> { },
+                () -> {},
+                () -> {},
                 () -> {
                     throw failure;
                 },
-                () -> { });
+                () -> {});
     }
 
     /**
@@ -70,13 +70,9 @@ public final class TestManagedPostgresFailureFactory {
      * @return configured managed-postgres test double
      */
     public static TestManagedPostgres withDestroyFailure(final PostgresDestroyException failure) {
-        return withFailures(
-                () -> { },
-                () -> { },
-                () -> { },
-                () -> {
-                    throw failure;
-                });
+        return withFailures(() -> {}, () -> {}, () -> {}, () -> {
+            throw failure;
+        });
     }
 
     private static TestManagedPostgres withFailures(
@@ -87,10 +83,6 @@ public final class TestManagedPostgresFailureFactory {
         return new TestManagedPostgres(
                 new DoctorReport(PostgresStatus.FAILED, List.of()),
                 TestRunningPostgres.empty(),
-                new TestManagedPostgres.Failures(
-                        startFailure,
-                        stopFailure,
-                        cleanupFailure,
-                        destroyFailure));
+                new TestManagedPostgres.Failures(startFailure, stopFailure, cleanupFailure, destroyFailure));
     }
 }

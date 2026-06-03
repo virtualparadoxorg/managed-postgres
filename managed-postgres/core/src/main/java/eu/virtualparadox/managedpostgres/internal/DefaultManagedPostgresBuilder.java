@@ -28,8 +28,7 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     }
 
     private DefaultManagedPostgresBuilder(
-            final ManagedPostgresMode mode,
-            final ManagedPostgresConfiguration configuration) {
+            final ManagedPostgresMode mode, final ManagedPostgresConfiguration configuration) {
         super(configuration);
         this.mode = Objects.requireNonNull(mode, "mode");
     }
@@ -56,9 +55,8 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public DefaultManagedPostgresBuilder network(final UnaryOperator<Network> customizer) {
         final UnaryOperator<Network> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final Network network = Objects.requireNonNull(
-                checkedCustomizer.apply(configuration().network()),
-                "network");
+        final Network network =
+                Objects.requireNonNull(checkedCustomizer.apply(configuration().network()), "network");
 
         return copy(configuration().withNetwork(network));
     }
@@ -69,9 +67,8 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public DefaultManagedPostgresBuilder cluster(final UnaryOperator<ClusterBootstrap> customizer) {
         final UnaryOperator<ClusterBootstrap> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final ClusterBootstrap clusterBootstrap = Objects.requireNonNull(
-                checkedCustomizer.apply(configuration().clusterBootstrap()),
-                "clusterBootstrap");
+        final ClusterBootstrap clusterBootstrap =
+                Objects.requireNonNull(checkedCustomizer.apply(configuration().clusterBootstrap()), "clusterBootstrap");
 
         return copy(configuration().withClusterBootstrap(clusterBootstrap));
     }

@@ -6,43 +6,42 @@ import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
-import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
-import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
+import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresService;
+import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachValidation;
+import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
+import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
+import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.security.Secret;
-import java.util.Optional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachValidation;
-import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
-import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresStartArtifacts;
-import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
-import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresService;
 
 public final class DoctorServiceTest {
 
     @TempDir
     private Path temporaryDirectory;
 
-    DoctorServiceTest() {
-    }
+    DoctorServiceTest() {}
 
     @Test
     void doctorDoesNotCreateDirectoriesForNeverStartedPersistentConfiguration() {
@@ -99,14 +98,29 @@ public final class DoctorServiceTest {
                 .containsEntry("status", "not-inspected");
         assertThat(section(report, "credentials"))
                 .containsEntry("status", "absent")
-                .containsEntry("path", root.resolve("state/credentials.properties")
-                        .toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "path",
+                        root.resolve("state/credentials.properties")
+                                .toAbsolutePath()
+                                .normalize()
+                                .toString());
         assertThat(section(report, "layout"))
                 .containsEntry("root", root.toAbsolutePath().normalize().toString())
-                .containsEntry("dataDirectory", root.resolve("data").toAbsolutePath().normalize().toString())
-                .containsEntry("runtimeDirectory", root.resolve("runtime").toAbsolutePath().normalize().toString())
-                .containsEntry("stateDirectory", root.resolve("state").toAbsolutePath().normalize().toString())
-                .containsEntry("metadataPath", root.resolve("state/metadata.json").toAbsolutePath().normalize().toString());
+                .containsEntry(
+                        "dataDirectory",
+                        root.resolve("data").toAbsolutePath().normalize().toString())
+                .containsEntry(
+                        "runtimeDirectory",
+                        root.resolve("runtime").toAbsolutePath().normalize().toString())
+                .containsEntry(
+                        "stateDirectory",
+                        root.resolve("state").toAbsolutePath().normalize().toString())
+                .containsEntry(
+                        "metadataPath",
+                        root.resolve("state/metadata.json")
+                                .toAbsolutePath()
+                                .normalize()
+                                .toString());
     }
 
     @Test
@@ -196,7 +210,8 @@ public final class DoctorServiceTest {
 
     @Test
     void managedPostgresServiceExposesDoctorDiagnostics() {
-        final DoctorReport report = new ManagedPostgresService().doctor(configuration(temporaryDirectory.resolve("cluster")));
+        final DoctorReport report =
+                new ManagedPostgresService().doctor(configuration(temporaryDirectory.resolve("cluster")));
 
         assertThat(report.status()).isEqualTo(PostgresStatus.STOPPED);
         assertThat(section(report, "configuration")).containsEntry("name", "app-db");
@@ -207,8 +222,7 @@ public final class DoctorServiceTest {
     }
 
     private DoctorReport doctor(
-            final ManagedPostgresConfiguration configuration,
-            final DoctorProbeInspector probeInspector) {
+            final ManagedPostgresConfiguration configuration, final DoctorProbeInspector probeInspector) {
         final FileSystemOperationJournal fileSystem = new FileSystemOperationJournal();
         return new DoctorService(DoctorDependencies.withProbeInspector(fileSystem, probeInspector))
                 .doctor(configuration);

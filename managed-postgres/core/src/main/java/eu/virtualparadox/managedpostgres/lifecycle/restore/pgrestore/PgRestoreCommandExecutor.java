@@ -3,12 +3,12 @@ package eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore;
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.exception.PostgresRestoreException;
-import java.nio.file.Path;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
 import eu.virtualparadox.managedpostgres.lifecycle.restore.PostgresRestoreDiagnostics;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * Runs {@code pg_restore} and converts command failures into restore exceptions.
@@ -54,13 +54,13 @@ public final class PgRestoreCommandExecutor {
                     "PostgreSQL pg_restore command failed",
                     exception,
                     diagnostics.commandRunnerFailure(
-                            Objects.toString(exception.getMessage(), exception.getClass().getName()),
+                            Objects.toString(
+                                    exception.getMessage(), exception.getClass().getName()),
                             connectionInfo));
         }
         if (!result.successful()) {
             throw new PostgresRestoreException(
-                    "PostgreSQL pg_restore command failed",
-                    diagnostics.commandFailure(result, connectionInfo));
+                    "PostgreSQL pg_restore command failed", diagnostics.commandFailure(result, connectionInfo));
         }
     }
 }

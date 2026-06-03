@@ -3,11 +3,11 @@ package eu.virtualparadox.managedpostgres.lifecycle.psql;
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
-import eu.virtualparadox.managedpostgres.security.Secret;
-import java.util.Objects;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRequest;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandResult;
 import eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner;
+import eu.virtualparadox.managedpostgres.security.Secret;
+import java.util.Objects;
 
 /**
  * Coordinates psql bootstrap command runner behavior for managed PostgreSQL internals.
@@ -56,8 +56,7 @@ public final class PsqlBootstrapCommandRunner {
                     "PostgreSQL bootstrap command failed",
                     exception,
                     diagnostics.commandRunnerFailure(Objects.toString(
-                            exception.getMessage(),
-                            exception.getClass().getName())));
+                            exception.getMessage(), exception.getClass().getName())));
         }
     }
 

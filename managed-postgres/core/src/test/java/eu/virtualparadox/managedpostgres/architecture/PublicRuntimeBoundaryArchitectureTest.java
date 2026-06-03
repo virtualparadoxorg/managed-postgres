@@ -15,22 +15,20 @@ public final class PublicRuntimeBoundaryArchitectureTest {
             "managed-postgres/core/src/main/java/eu/virtualparadox/managedpostgres/runtime/classpath/"
                     + "ClasspathRuntimeResolutionContext.java";
 
-    PublicRuntimeBoundaryArchitectureTest() {
-    }
+    PublicRuntimeBoundaryArchitectureTest() {}
 
     @Test
     void runtimeSignatureVerifierRemainsInternalImplementationDetail() throws IOException {
         final List<String> verifierPaths = ArchitectureSourceTree.sourcePathsNamed("RuntimeSignatureVerifier.java");
 
-        assertThat(verifierPaths)
-                .singleElement()
-                .satisfies(path -> assertThat(path)
-                        .contains("/src/main/java/eu/virtualparadox/managedpostgres/internal/"));
+        assertThat(verifierPaths).singleElement().satisfies(path -> assertThat(path)
+                .contains("/src/main/java/eu/virtualparadox/managedpostgres/internal/"));
     }
 
     @Test
     void attachCompatibilityReportRemainsInternalImplementationDetail() throws IOException {
-        assertThat(ArchitectureSourceTree.sourcePathsNamed("AttachCompatibilityReport.java")).isEmpty();
+        assertThat(ArchitectureSourceTree.sourcePathsNamed("AttachCompatibilityReport.java"))
+                .isEmpty();
     }
 
     @Test

@@ -1,13 +1,13 @@
 package eu.virtualparadox.managedpostgres.lifecycle.attach;
 
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
+import eu.virtualparadox.managedpostgres.lifecycle.process.PostgresProcessProbe;
+import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import eu.virtualparadox.managedpostgres.lifecycle.probe.PostgresProbeResult;
-import eu.virtualparadox.managedpostgres.lifecycle.process.PostgresProcessProbe;
-import eu.virtualparadox.managedpostgres.lifecycle.process.ProcessLookup;
 
 /**
  * Validates whether persisted metadata can be safely attached.
@@ -52,8 +52,7 @@ public final class PostgresAttacher {
             result = AttachResult.failed(processValidation.summary(), processValidation.startNewAllowed());
         } else if (!portProbe.test(checkedMetadata)) {
             result = AttachResult.failed(
-                    "Port is not accepting PostgreSQL connections",
-                    !processValidation.knownAlivePostgresProcess());
+                    "Port is not accepting PostgreSQL connections", !processValidation.knownAlivePostgresProcess());
         } else {
             final PostgresProbeResult probeResult = jdbcProbe.apply(checkedMetadata);
             if (probeResult.healthy()) {

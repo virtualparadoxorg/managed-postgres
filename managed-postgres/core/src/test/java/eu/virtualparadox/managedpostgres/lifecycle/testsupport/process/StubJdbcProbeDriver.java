@@ -1,5 +1,7 @@
 package eu.virtualparadox.managedpostgres.lifecycle.testsupport.process;
 
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.JdbcProbeProxyFactory;
+import eu.virtualparadox.managedpostgres.lifecycle.testsupport.JdbcProbeScenario;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -8,8 +10,6 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.JdbcProbeProxyFactory;
-import eu.virtualparadox.managedpostgres.lifecycle.testsupport.JdbcProbeScenario;
 
 public final class StubJdbcProbeDriver implements Driver, AutoCloseable {
 

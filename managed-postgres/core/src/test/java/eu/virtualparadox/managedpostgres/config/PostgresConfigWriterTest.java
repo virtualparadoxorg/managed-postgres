@@ -2,14 +2,13 @@ package eu.virtualparadox.managedpostgres.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
 import eu.virtualparadox.managedpostgres.config.writer.PgHbaConfigWriter;
 import eu.virtualparadox.managedpostgres.config.writer.PostgresConfigWriter;
+import org.junit.jupiter.api.Test;
 
 public final class PostgresConfigWriterTest {
 
-    PostgresConfigWriterTest() {
-    }
+    PostgresConfigWriterTest() {}
 
     @Test
     void postgresqlConfContainsLoopbackListenAddressByDefault() {

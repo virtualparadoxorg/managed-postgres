@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 @SuppressWarnings({
-        // This contract test intentionally keeps one method per public API expectation.
-        "PMD.TooManyMethods"
+    // This contract test intentionally keeps one method per public API expectation.
+    "PMD.TooManyMethods"
 })
 public final class ManagedPostgresBuilderTest {
 
@@ -67,17 +67,13 @@ public final class ManagedPostgresBuilderTest {
             ConfigDriftPolicy.class,
             Secret.class);
 
-    private static final List<String> FORBIDDEN_API_NAME_PARTS = List.of(
-            "Platform",
-            "Process",
-            "ProcessHandle",
-            "ProcessBuilder");
+    private static final List<String> FORBIDDEN_API_NAME_PARTS =
+            List.of("Platform", "Process", "ProcessHandle", "ProcessBuilder");
 
     @TempDir
     private Path temporaryDirectory;
 
-    ManagedPostgresBuilderTest() {
-    }
+    ManagedPostgresBuilderTest() {}
 
     @Test
     void localReturnsBuilder() {
@@ -91,28 +87,27 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void builderRejectsBlankName() {
-        assertThatThrownBy(() -> ManagedPostgres.builder().name("   "))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ManagedPostgres.builder().name("   ")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void builderRejectsBlankPostgreSqlVersion() {
-        assertThatThrownBy(() -> ManagedPostgres.builder().version("\t"))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ManagedPostgres.builder().version("\t")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void builderExposesPostgreSqlReuseAndStopPoliciesWithoutProcessConcepts() {
         assertThat(ManagedPostgres.builder()
-                .reuseExisting()
-                .stopPolicy(StopPolicy.KEEP_RUNNING)
-                .build()).isInstanceOf(ManagedPostgres.class);
+                        .reuseExisting()
+                        .stopPolicy(StopPolicy.KEEP_RUNNING)
+                        .build())
+                .isInstanceOf(ManagedPostgres.class);
         assertThat(ManagedPostgres.builder()
-                .upgradePolicy(UpgradePolicy.DISABLED)
-                .configDriftPolicy(ConfigDriftPolicy.IGNORE)
-                .cleanupPolicy(CleanupPolicy.safeDefaults().keepRuntimeVersions(3))
-                .build()
-                .toString())
+                        .upgradePolicy(UpgradePolicy.DISABLED)
+                        .configDriftPolicy(ConfigDriftPolicy.IGNORE)
+                        .cleanupPolicy(CleanupPolicy.safeDefaults().keepRuntimeVersions(3))
+                        .build()
+                        .toString())
                 .contains("upgradePolicy=DISABLED")
                 .contains("configDriftPolicy=IGNORE")
                 .contains("retainedRuntimeVersions=3");
@@ -121,9 +116,9 @@ public final class ManagedPostgresBuilderTest {
     @Test
     void builderStoresOptionalSlf4jLogBridgeConfiguration() {
         assertThat(ManagedPostgres.builder()
-                .logs(logs -> logs.toSlf4j().loggerName("managed.postgres.test"))
-                .build()
-                .toString())
+                        .logs(logs -> logs.toSlf4j().loggerName("managed.postgres.test"))
+                        .build()
+                        .toString())
                 .contains("bridgeToSlf4j=true")
                 .contains("loggerName=managed.postgres.test");
     }
@@ -131,8 +126,7 @@ public final class ManagedPostgresBuilderTest {
     @Test
     void builderStoresClusterBootstrapConfiguration() {
         try (ManagedPostgres postgres = ManagedPostgres.builder()
-                .cluster(cluster -> cluster
-                        .database("app")
+                .cluster(cluster -> cluster.database("app")
                         .owner("app_owner")
                         .password(Secret.of("app-password"))
                         .extension("pgcrypto"))
@@ -176,12 +170,8 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void connectionInfoToStringRedactsPassword() {
-        final PostgresConnectionInfo connectionInfo = new PostgresConnectionInfo(
-                "localhost",
-                5432,
-                "postgres",
-                "postgres",
-                Secret.of("actual-password"));
+        final PostgresConnectionInfo connectionInfo =
+                new PostgresConnectionInfo("localhost", 5432, "postgres", "postgres", Secret.of("actual-password"));
 
         assertThat(connectionInfo.toString())
                 .contains("localhost")
@@ -221,9 +211,8 @@ public final class ManagedPostgresBuilderTest {
         Files.createDirectories(stateDirectory);
         Files.writeString(stateDirectory.resolve("metadata.json"), "{\"schemaVersion\":1}");
 
-        try (ManagedPostgres postgres = ManagedPostgres.local()
-                .storage(Storage.projectLocal(root))
-                .build()) {
+        try (ManagedPostgres postgres =
+                ManagedPostgres.local().storage(Storage.projectLocal(root)).build()) {
 
             assertThat(postgres.status()).isEqualTo(PostgresStatus.FAILED);
             Files.delete(stateDirectory.resolve("metadata.json"));
@@ -232,8 +221,7 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void runtimeSourceRejectsInvalidPublicStates() {
-        assertThatThrownBy(() -> new RuntimeSource(" ", Optional.empty()))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new RuntimeSource(" ", Optional.empty())).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new RuntimeSource("other", Optional.empty()))
                 .isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> new RuntimeSource("existing", Optional.empty()))
@@ -261,7 +249,8 @@ public final class ManagedPostgresBuilderTest {
                 .flatMap(constructor -> constructorSignatureTypeNames(constructor).stream())
                 .toList();
 
-        return java.util.stream.Stream.concat(methodTypeNames.stream(), constructorTypeNames.stream()).toList();
+        return java.util.stream.Stream.concat(methodTypeNames.stream(), constructorTypeNames.stream())
+                .toList();
     }
 
     private static boolean isDeclaredPublicApiMethod(final Method method) {
@@ -271,8 +260,8 @@ public final class ManagedPostgresBuilderTest {
 
     private static List<String> methodSignatureTypeNames(final Method method) {
         return java.util.stream.Stream.concat(
-                java.util.stream.Stream.of(method.getReturnType().getName()),
-                List.of(method.getParameterTypes()).stream().map(Class::getName))
+                        java.util.stream.Stream.of(method.getReturnType().getName()),
+                        List.of(method.getParameterTypes()).stream().map(Class::getName))
                 .toList();
     }
 
@@ -295,13 +284,14 @@ public final class ManagedPostgresBuilderTest {
     }
 
     private static void invokeClusterCustomizerWithNull() throws ReflectiveOperationException {
-        ManagedPostgresBuilder.class.getMethod("cluster", UnaryOperator.class)
+        ManagedPostgresBuilder.class
+                .getMethod("cluster", UnaryOperator.class)
                 .invoke(ManagedPostgres.builder(), new Object[] {null});
     }
 
     private static void invokeLogsCustomizerWithNull() throws ReflectiveOperationException {
-        ManagedPostgresBuilder.class.getMethod("logs", UnaryOperator.class)
+        ManagedPostgresBuilder.class
+                .getMethod("logs", UnaryOperator.class)
                 .invoke(ManagedPostgres.builder(), new Object[] {null});
     }
-
 }

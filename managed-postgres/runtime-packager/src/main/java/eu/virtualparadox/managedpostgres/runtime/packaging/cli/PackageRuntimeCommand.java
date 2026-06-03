@@ -55,9 +55,7 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
     }
 
     PackageRuntimeCommand(
-            final PrintWriter output,
-            final PrintWriter error,
-            final PackageRuntimeCommandDependencies dependencies) {
+            final PrintWriter output, final PrintWriter error, final PackageRuntimeCommandDependencies dependencies) {
         this.output = Objects.requireNonNull(output, "output");
         this.error = Objects.requireNonNull(error, "error");
         this.dependencies = Objects.requireNonNull(dependencies, "dependencies");
@@ -75,9 +73,7 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
         return this;
     }
 
-    PackageRuntimeCommand withSourceBuildDirectories(
-            final Path configuredSourceCache,
-            final Path configuredWorkRoot) {
+    PackageRuntimeCommand withSourceBuildDirectories(final Path configuredSourceCache, final Path configuredWorkRoot) {
         this.sourceCache = configuredSourceCache;
         this.workRoot = configuredWorkRoot;
         return this;
@@ -93,17 +89,15 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
         final TargetPlatform targetPlatform = TargetPlatform.parse(target);
         final PostgresRelease release = dependencies.sourceCatalog().releaseFor(postgresVersion);
         final PlatformBuildDriver driver = PlatformBuildDriver.forTarget(targetPlatform);
-        final Path effectiveWorkRoot = workRoot == null
-                ? outputDirectory.resolve(".work")
-                : workRoot;
+        final Path effectiveWorkRoot = workRoot == null ? outputDirectory.resolve(".work") : workRoot;
         int exitCode = 0;
         if (rawInstallTree == null) {
-            final Path effectiveSourceCache = sourceCache == null
-                    ? effectiveWorkRoot.resolve("source-cache")
-                    : sourceCache;
+            final Path effectiveSourceCache =
+                    sourceCache == null ? effectiveWorkRoot.resolve("source-cache") : sourceCache;
             try {
-                final RuntimePackagingResult result = dependencies.runtimePackagingOrchestrator().packageRelease(
-                        new RuntimePackagingRequest(
+                final RuntimePackagingResult result = dependencies
+                        .runtimePackagingOrchestrator()
+                        .packageRelease(new RuntimePackagingRequest(
                                 release,
                                 targetPlatform,
                                 revision,
@@ -111,8 +105,8 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
                                 effectiveSourceCache,
                                 effectiveWorkRoot));
                 output.println(result.publishResult().bundle());
-                output.println("target=" + result.driver().targetPlatform().identifier()
-                        + ", phase=" + result.driver().rolloutPhase());
+                output.println("target=" + result.driver().targetPlatform().identifier() + ", phase="
+                        + result.driver().rolloutPhase());
                 exitCode = 0;
             } catch (UnsupportedOperationException exception) {
                 error.println(exception.getMessage());
@@ -127,10 +121,12 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
                     "pending",
                     Instant.now(),
                     release.sourceTarball().toString());
-            final Path normalized = dependencies.bundleNormalizer().normalize(
-                    rawInstallTree,
-                    effectiveWorkRoot.resolve("normalized").resolve(targetPlatform.identifier()),
-                    manifest);
+            final Path normalized = dependencies
+                    .bundleNormalizer()
+                    .normalize(
+                            rawInstallTree,
+                            effectiveWorkRoot.resolve("normalized").resolve(targetPlatform.identifier()),
+                            manifest);
             final PublishResult result = dependencies.bundlePublisher().publish(normalized, outputDirectory, manifest);
             output.println(result.bundle());
             output.println("target=" + driver.targetPlatform().identifier() + ", phase=" + driver.rolloutPhase());
@@ -140,9 +136,7 @@ public final class PackageRuntimeCommand implements Callable<Integer> {
     }
 
     private static String archiveFileName(
-            final String postgresVersion,
-            final TargetPlatform targetPlatform,
-            final String revision) {
+            final String postgresVersion, final TargetPlatform targetPlatform, final String revision) {
         return "managed-postgres-runtime-pg"
                 + postgresVersion
                 + "-"
