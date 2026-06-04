@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.spi;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import java.util.Objects;
 
 /**
  * Integration SPI for applying complete configuration value objects to a managed PostgreSQL builder.
@@ -18,10 +19,11 @@ public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
      *
      * @param builder a managed PostgreSQL builder produced by this library
      * @return the same builder, viewed as the configurer SPI
+     * @throws NullPointerException if the builder is {@code null}
      * @throws ClassCastException if the builder was not produced by this library
      */
     static ManagedPostgresConfigurer of(final ManagedPostgresBuilder builder) {
-        return (ManagedPostgresConfigurer) builder;
+        return (ManagedPostgresConfigurer) Objects.requireNonNull(builder, "builder");
     }
 
     /**
