@@ -47,4 +47,9 @@
         <Class name="eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform"/>
         <Bug pattern="IMPROPER_UNICODE"/>
     </Match>
+    <!-- ClusterSectionDslTest uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.ClusterSectionDslTest"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
 </FindBugsFilter>

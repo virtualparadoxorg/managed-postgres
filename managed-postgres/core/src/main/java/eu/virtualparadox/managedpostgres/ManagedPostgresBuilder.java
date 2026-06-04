@@ -127,6 +127,13 @@ public interface ManagedPostgresBuilder {
     public NetworkSection network();
 
     /**
+     * Enters the fluent section for the primary application database bootstrap.
+     *
+     * @return cluster bootstrap section
+     */
+    public ClusterSection cluster();
+
+    /**
      * Returns a builder with a customized primary application database bootstrap configuration.
      *
      * @param customizer cluster bootstrap customizer
