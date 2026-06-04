@@ -13,6 +13,7 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfigurati
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
@@ -26,7 +27,7 @@ import java.util.function.UnaryOperator;
     "PMD.CouplingBetweenObjects"
 })
 public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder
-        implements ClasspathRuntimeDsl, LogsSection {
+        implements ClasspathRuntimeDsl, LogsSection, ManagedPostgresConfigurer {
 
     private final ManagedPostgresMode mode;
 
@@ -83,6 +84,22 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
                 Objects.requireNonNull(checkedCustomizer.apply(configuration().clusterBootstrap()), "clusterBootstrap");
 
         return copy(configuration().withClusterBootstrap(clusterBootstrap));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder network(final Network network) {
+        return copy(configuration().withNetwork(Objects.requireNonNull(network, "network")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder cluster(final ClusterBootstrap cluster) {
+        return copy(configuration().withClusterBootstrap(Objects.requireNonNull(cluster, "cluster")));
     }
 
     /**
