@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.config.bootstrap.BootstrapExtension;
 import eu.virtualparadox.managedpostgres.internal.AbstractManagedPostgresBuilder;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,7 @@ final class ClusterSectionDslTest {
                 .optionalExtension("postgis");
 
         final ClusterBootstrap cluster = builder.configuration().clusterBootstrap();
-        assertThat(cluster.extensions()).hasSize(2);
+        assertThat(cluster.extensions())
+                .containsExactly(BootstrapExtension.required("pgcrypto"), BootstrapExtension.optional("postgis"));
     }
 }
