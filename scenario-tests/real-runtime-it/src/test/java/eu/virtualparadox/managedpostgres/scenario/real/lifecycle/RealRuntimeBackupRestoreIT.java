@@ -9,7 +9,6 @@ import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RestoreOptions;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.scenario.real.support.RealPostgresJdbc;
 import eu.virtualparadox.managedpostgres.scenario.real.support.RealPostgresRuntime;
@@ -73,7 +72,7 @@ final class RealRuntimeBackupRestoreIT {
         final ManagedPostgresBuilder builder = ManagedPostgres.temporary()
                 .name("real-runtime-backup-restore")
                 .version(runtime.postgresqlVersion())
-                .runtime(RuntimeSource.existing(runtime.runtimeDirectory()));
+                .withExistingRuntime(runtime.runtimeDirectory());
         final ManagedPostgresBuilder configured =
                 ManagedPostgresConfigurer.of(builder).storage(new Storage(storageRoot, true));
         final RunningPostgres postgres = configured

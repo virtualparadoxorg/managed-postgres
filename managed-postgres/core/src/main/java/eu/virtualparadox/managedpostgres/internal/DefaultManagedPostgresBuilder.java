@@ -17,6 +17,7 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfigurati
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
@@ -213,6 +214,23 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public DefaultManagedPostgresBuilder cluster(final ClusterBootstrap cluster) {
         return copy(configuration().withClusterBootstrap(Objects.requireNonNull(cluster, "cluster")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder runtime(final RuntimeSource runtimeSource) {
+        return copy(configuration().withRuntimeSource(Objects.requireNonNull(runtimeSource, "runtimeSource")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder configuration(final PostgresConfiguration postgresConfiguration) {
+        return copy(configuration()
+                .withPostgresConfiguration(Objects.requireNonNull(postgresConfiguration, "postgresConfiguration")));
     }
 
     /**

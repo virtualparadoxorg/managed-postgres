@@ -134,7 +134,7 @@ public final class StartPostgresWorkflowNetworkTest {
         final ManagedPostgresBuilder builder = ManagedPostgres.local()
                 .version("16.4")
                 .storageProjectLocal(storageRoot)
-                .runtime(RuntimeSource.existing(runtimeDirectory));
+                .withExistingRuntime(runtimeDirectory);
         return ManagedPostgresConfigurer.of(builder).network(network).build();
     }
 

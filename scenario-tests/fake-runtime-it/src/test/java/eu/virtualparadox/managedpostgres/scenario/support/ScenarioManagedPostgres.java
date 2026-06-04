@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.scenario.support;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.nio.file.Path;
 
@@ -27,11 +28,8 @@ public final class ScenarioManagedPostgres {
 
     public static ManagedPostgresBuilder localPostgres(
             final String name, final Path storageRoot, final RuntimeSource runtimeSource) {
-        return ManagedPostgres.local()
-                .name(name)
-                .version("16.4")
-                .runtime(runtimeSource)
-                .storageProjectLocal(storageRoot)
-                .credentials("postgres", TEST_PASSWORD);
+        final ManagedPostgresBuilder base =
+                ManagedPostgres.local().name(name).version("16.4").storageProjectLocal(storageRoot);
+        return ManagedPostgresConfigurer.of(base).runtime(runtimeSource).credentials("postgres", TEST_PASSWORD);
     }
 }

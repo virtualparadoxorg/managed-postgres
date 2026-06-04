@@ -10,7 +10,6 @@ import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
-import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.net.URI;
 import java.nio.file.Path;
@@ -82,14 +81,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      * {@inheritDoc}
      */
     @Override
-    public final ManagedPostgresBuilder runtime(final RuntimeSource runtimeSource) {
-        return copy(configuration.withRuntimeSource(runtimeSource));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public final DownloadedRuntimeDsl withDownloadedRuntime() {
         return new DownloadedRuntimeStep(this);
     }
@@ -121,15 +112,15 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
 
         private static final String GITHUB_RELEASE_SCHEME = "github-release";
 
-        private final ManagedPostgresBuilder builder;
+        private final AbstractManagedPostgresBuilder builder;
 
-        private DownloadedRuntimeStep(final ManagedPostgresBuilder builder) {
+        private DownloadedRuntimeStep(final AbstractManagedPostgresBuilder builder) {
             this.builder = Objects.requireNonNull(builder, "builder");
         }
 
         @Override
         public ManagedPostgresBuilder fromOfficialRepository() {
-            return builder.runtime(
+            return builder.runtimeSource(
                     RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
         }
 
@@ -137,7 +128,7 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
         public ManagedPostgresBuilder fromGitHubRelease(final String owner, final String repo) {
             final URI repository = URI.create(GITHUB_RELEASE_SCHEME + "://" + Objects.requireNonNull(owner, "owner")
                     + "/" + Objects.requireNonNull(repo, "repo"));
-            return builder.runtime(
+            return builder.runtimeSource(
                     RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(repository))));
         }
     }
@@ -181,14 +172,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     @Override
     public final ManagedPostgresBuilder trustLocalOnly() {
         return copy(configuration.withCredentials(Credentials.trustLocalOnly()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final ManagedPostgresBuilder configuration(final PostgresConfiguration postgresConfiguration) {
-        return copy(configuration.withPostgresConfiguration(postgresConfiguration));
     }
 
     /**

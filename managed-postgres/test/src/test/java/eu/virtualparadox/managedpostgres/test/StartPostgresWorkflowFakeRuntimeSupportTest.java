@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,7 +35,7 @@ final class StartPostgresWorkflowFakeRuntimeSupportTest {
         try (RunningPostgres postgres = ManagedPostgres.builder()
                 .name("app-db")
                 .version("16.4")
-                .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
+                .withExistingRuntime(runtime.runtimeDirectory())
                 .storageProjectLocal(storageRoot)
                 .credentials("postgres", "test-password")
                 .start()) {
