@@ -49,12 +49,12 @@
     </Match>
     <!-- ClusterSectionDslTest uses a literal password string to exercise the .password(String) DSL method; not production code. -->
     <Match>
-        <Class name="eu.virtualparadox.managedpostgres.ClusterSectionDslTest"/>
+        <Class name="eu.virtualparadox.managedpostgres.dsl.ClusterSectionDslTest"/>
         <Bug pattern="HARD_CODE_PASSWORD"/>
     </Match>
     <!-- ManagedPostgresBuilderTest uses literal password strings to exercise the .password(String) DSL method; not production code. -->
     <Match>
-        <Class name="eu.virtualparadox.managedpostgres.ManagedPostgresBuilderTest"/>
+        <Class name="eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilderTest"/>
         <Bug pattern="HARD_CODE_PASSWORD"/>
     </Match>
     <!-- FakeRuntimePreflightIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->

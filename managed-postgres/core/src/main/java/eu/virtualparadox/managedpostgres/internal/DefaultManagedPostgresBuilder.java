@@ -1,11 +1,6 @@
 package eu.virtualparadox.managedpostgres.internal;
 
-import eu.virtualparadox.managedpostgres.ClasspathRuntimeDsl;
-import eu.virtualparadox.managedpostgres.ClusterSection;
-import eu.virtualparadox.managedpostgres.ConfigurationSection;
-import eu.virtualparadox.managedpostgres.LogsSection;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.NetworkSection;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
@@ -18,6 +13,11 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.dsl.ClasspathRuntimeDsl;
+import eu.virtualparadox.managedpostgres.dsl.ClusterSection;
+import eu.virtualparadox.managedpostgres.dsl.ConfigurationSection;
+import eu.virtualparadox.managedpostgres.dsl.LogsSection;
+import eu.virtualparadox.managedpostgres.dsl.NetworkSection;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;

@@ -1,11 +1,11 @@
 package eu.virtualparadox.managedpostgres.spi;
 
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import java.util.Objects;
 
 /**

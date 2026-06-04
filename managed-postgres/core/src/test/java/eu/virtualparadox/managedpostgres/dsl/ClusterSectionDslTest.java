@@ -1,7 +1,8 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.bootstrap.BootstrapExtension;
 import eu.virtualparadox.managedpostgres.internal.AbstractManagedPostgresBuilder;

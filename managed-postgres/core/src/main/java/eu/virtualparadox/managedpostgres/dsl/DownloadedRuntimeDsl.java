@@ -1,4 +1,4 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 /**
  * Fluent step for configuring a downloaded PostgreSQL runtime source.

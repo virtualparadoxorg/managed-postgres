@@ -3,9 +3,9 @@ package eu.virtualparadox.managedpostgres.scenario;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;

@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres;
 
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.internal.ExternalManagedPostgres;
 
 /**

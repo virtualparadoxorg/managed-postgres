@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 
 final class ManagedPostgresSpringLifecycleMapper {
 

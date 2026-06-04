@@ -1,7 +1,5 @@
 package eu.virtualparadox.managedpostgres.internal;
 
-import eu.virtualparadox.managedpostgres.DownloadedRuntimeDsl;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
@@ -10,6 +8,8 @@ import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
+import eu.virtualparadox.managedpostgres.dsl.DownloadedRuntimeDsl;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.net.URI;
 import java.nio.file.Path;

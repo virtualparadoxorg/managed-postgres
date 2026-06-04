@@ -1,4 +1,4 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 /**
  * Fluent section for PostgreSQL server tuning.
