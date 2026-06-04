@@ -2,13 +2,13 @@ package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public final class ManagedPostgresSpringClusterMapperTest {
 
         ManagedPostgresSpringClusterMapper.configure(fixture.builder(), properties);
 
-        verify(fixture.builder()).credentials(Credentials.of("app_owner", secret));
+        verify(fixture.builder()).credentials("app_owner", secret);
         assertThat(fixture.clusterBootstrap().database()).isEqualTo("app");
         assertThat(fixture.clusterBootstrap().owner()).contains("app_owner");
         assertThat(fixture.clusterBootstrap().password()).contains(secret);
@@ -61,7 +61,7 @@ public final class ManagedPostgresSpringClusterMapperTest {
         private static ClusterFixture create() {
             final ManagedPostgresConfigurer builder = mock(ManagedPostgresConfigurer.class);
             final ClusterFixture fixture = new ClusterFixture(builder);
-            when(builder.credentials(any())).thenReturn(builder);
+            when(builder.credentials(anyString(), any(Secret.class))).thenReturn(builder);
             when(builder.cluster(any(ClusterBootstrap.class))).thenAnswer(invocation -> {
                 fixture.clusterBootstrap = invocation.getArgument(0);
 

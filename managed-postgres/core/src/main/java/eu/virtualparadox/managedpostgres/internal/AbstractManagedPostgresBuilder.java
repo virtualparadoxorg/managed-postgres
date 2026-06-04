@@ -11,6 +11,7 @@ import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
+import eu.virtualparadox.managedpostgres.security.Secret;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -145,8 +146,41 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      * {@inheritDoc}
      */
     @Override
-    public final ManagedPostgresBuilder credentials(final Credentials credentials) {
-        return copy(configuration.withCredentials(credentials));
+    public final ManagedPostgresBuilder credentials(final String username, final String password) {
+        return credentials(username, Secret.of(Objects.requireNonNull(password, "password")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder credentials(final String username, final Secret password) {
+        return copy(configuration.withCredentials(Credentials.of(
+                Objects.requireNonNull(username, "username"), Objects.requireNonNull(password, "password"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder generatedCredentials() {
+        return copy(configuration.withCredentials(Credentials.generated()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder generatedPersistentCredentials() {
+        return copy(configuration.withCredentials(Credentials.generatedPersistent()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder trustLocalOnly() {
+        return copy(configuration.withCredentials(Credentials.trustLocalOnly()));
     }
 
     /**

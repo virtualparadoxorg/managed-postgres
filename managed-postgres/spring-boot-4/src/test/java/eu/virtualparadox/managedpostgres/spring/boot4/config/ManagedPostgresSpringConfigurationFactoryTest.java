@@ -4,6 +4,7 @@ import static eu.virtualparadox.managedpostgres.spring.boot4.config.SpringEnviro
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
 import java.util.Map;
@@ -162,7 +164,7 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
         when(builder.storageProjectLocal(any(Path.class))).thenReturn(builder);
         when(builder.runtime(any())).thenReturn(builder);
         when(builder.configuration(any(PostgresConfiguration.class))).thenReturn(builder);
-        when(builder.credentials(any())).thenReturn(builder);
+        when(builder.credentials(anyString(), any(Secret.class))).thenReturn(builder);
         when(builder.network(any(Network.class))).thenReturn(builder);
         when(builder.cluster(any(ClusterBootstrap.class))).thenReturn(builder);
         when(builder.attachPolicy(any())).thenReturn(builder);

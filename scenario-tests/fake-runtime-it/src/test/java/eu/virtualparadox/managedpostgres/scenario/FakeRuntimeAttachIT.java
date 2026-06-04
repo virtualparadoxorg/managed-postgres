@@ -6,14 +6,12 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
-import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,6 +63,6 @@ final class FakeRuntimeAttachIT {
                 .version("16.4")
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storageProjectLocal(storageRoot)
-                .credentials(Credentials.of("postgres", Secret.of(TEST_PASSWORD)));
+                .credentials("postgres", TEST_PASSWORD);
     }
 }

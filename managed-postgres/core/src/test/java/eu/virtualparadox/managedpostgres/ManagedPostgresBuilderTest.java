@@ -175,7 +175,7 @@ public final class ManagedPostgresBuilderTest {
                 .database("app")
                 .owner("app")
                 .password(secret)
-                .credentials(Credentials.of("app", Secret.of(secret)))
+                .credentials("app", secret)
                 .build()) {
 
             final DoctorReport report = postgres.doctor();
