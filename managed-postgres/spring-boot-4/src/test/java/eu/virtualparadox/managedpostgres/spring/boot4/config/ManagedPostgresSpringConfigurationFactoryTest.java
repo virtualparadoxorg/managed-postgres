@@ -10,15 +10,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.RuntimeCache;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
+import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringConfigurationFactoryTest {
@@ -155,16 +156,16 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
                 .hasMessageContaining("configuration.preset");
     }
 
-    @SuppressWarnings("unchecked")
-    private static FactoryFixture createFixture(final ManagedPostgresBuilder builder, final ManagedPostgres postgres) {
+    private static FactoryFixture createFixture(
+            final ManagedPostgresConfigurer builder, final ManagedPostgres postgres) {
         when(builder.name(any())).thenReturn(builder);
         when(builder.version(any())).thenReturn(builder);
         when(builder.storage(any())).thenReturn(builder);
         when(builder.runtime(any())).thenReturn(builder);
         when(builder.configuration(any(PostgresConfiguration.class))).thenReturn(builder);
         when(builder.credentials(any())).thenReturn(builder);
-        when(builder.network(any(UnaryOperator.class))).thenReturn(builder);
-        when(builder.cluster(any(UnaryOperator.class))).thenReturn(builder);
+        when(builder.network(any(Network.class))).thenReturn(builder);
+        when(builder.cluster(any(ClusterBootstrap.class))).thenReturn(builder);
         when(builder.attachPolicy(any())).thenReturn(builder);
         when(builder.stopPolicy(any())).thenReturn(builder);
         when(builder.build()).thenReturn(postgres);
@@ -181,11 +182,11 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
 
     private record FactoryFixture(
             ManagedPostgresSpringConfigurationFactory factory,
-            ManagedPostgresBuilder builder,
+            ManagedPostgresConfigurer builder,
             ManagedPostgres postgres) {
 
         private static FactoryFixture create() {
-            return createFixture(mock(ManagedPostgresBuilder.class), mock(ManagedPostgres.class));
+            return createFixture(mock(ManagedPostgresConfigurer.class), mock(ManagedPostgres.class));
         }
     }
 }
