@@ -1,7 +1,6 @@
 package eu.virtualparadox.managedpostgres;
 
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
@@ -123,14 +122,6 @@ public interface ManagedPostgresBuilder {
      * @return classpath runtime configuration step
      */
     public ClasspathRuntimeDsl withClasspathRuntime(String resource, String checksum);
-
-    /**
-     * Returns a builder with the configured credentials.
-     *
-     * @param credentials credentials
-     * @return updated builder
-     */
-    public ManagedPostgresBuilder credentials(Credentials credentials);
 
     /**
      * Sets the application owner credentials.

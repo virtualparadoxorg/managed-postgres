@@ -6,12 +6,10 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
-import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
@@ -40,9 +38,8 @@ final class FakeRuntimeLifecycleIT {
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()));
         final ManagedPostgresBuilder configured =
                 ManagedPostgresConfigurer.of(builder).storage(new Storage(temporaryRoot, true));
-        final RunningPostgres postgres = configured
-                .credentials(Credentials.of("postgres", Secret.of("test-password")))
-                .start();
+        final RunningPostgres postgres =
+                configured.credentials("postgres", "test-password").start();
         final Path clusterRoot;
         try {
             clusterRoot = singleClusterRoot(temporaryRoot);

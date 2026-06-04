@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,7 +38,7 @@ final class StartPostgresWorkflowFakeRuntimeSupportTest {
                 .version("16.4")
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storageProjectLocal(storageRoot)
-                .credentials(Credentials.of("postgres", Secret.of("test-password")))
+                .credentials("postgres", "test-password")
                 .start()) {
             assertThat(postgres.connectionInfo().host()).isEqualTo("127.0.0.1");
         }

@@ -2,7 +2,6 @@ package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
-import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Optional;
@@ -15,14 +14,11 @@ final class ManagedPostgresSpringClusterMapper {
             final ManagedPostgresBuilder builder, final ManagedPostgresSpringProperties.ClusterProperties cluster) {
         ManagedPostgresBuilder configuredBuilder = builder;
         if (cluster.owner().isPresent()) {
-            configuredBuilder = configuredBuilder.credentials(credentials(cluster));
+            configuredBuilder = configuredBuilder.credentials(
+                    cluster.owner().orElseThrow(), cluster.password().orElseThrow());
         }
 
         return ManagedPostgresConfigurer.of(configuredBuilder).cluster(buildCluster(cluster));
-    }
-
-    private static Credentials credentials(final ManagedPostgresSpringProperties.ClusterProperties cluster) {
-        return Credentials.of(cluster.owner().orElseThrow(), cluster.password().orElseThrow());
     }
 
     private static ClusterBootstrap buildCluster(final ManagedPostgresSpringProperties.ClusterProperties cluster) {

@@ -146,14 +146,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      * {@inheritDoc}
      */
     @Override
-    public final ManagedPostgresBuilder credentials(final Credentials credentials) {
-        return copy(configuration.withCredentials(credentials));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public final ManagedPostgresBuilder credentials(final String username, final String password) {
         return credentials(username, Secret.of(Objects.requireNonNull(password, "password")));
     }
