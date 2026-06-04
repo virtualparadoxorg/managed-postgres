@@ -9,7 +9,6 @@ import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
-import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import java.net.URI;
@@ -185,17 +184,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     @Override
     public final ManagedPostgresBuilder cleanupPolicy(final CleanupPolicy cleanupPolicy) {
         return copy(configuration.withCleanupPolicy(cleanupPolicy));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final ManagedPostgresBuilder logs(final UnaryOperator<PostgresLogs> customizer) {
-        final UnaryOperator<PostgresLogs> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final PostgresLogs logs = Objects.requireNonNull(checkedCustomizer.apply(configuration.logs()), "logs");
-
-        return copy(configuration.withLogs(logs));
     }
 
     /**

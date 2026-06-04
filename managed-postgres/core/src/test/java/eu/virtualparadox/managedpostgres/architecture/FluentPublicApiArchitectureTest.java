@@ -21,7 +21,9 @@ final class FluentPublicApiArchitectureTest {
     void publicBuilderAndRuntimeDslMethodsAreFluent() {
         final JavaClasses classes = new ClassFileImporter().importPackages("eu.virtualparadox.managedpostgres");
         final DescribedPredicate<JavaClass> fluentApiTypes = JavaClass.Predicates.simpleName("ManagedPostgresBuilder")
-                .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"));
+                .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"))
+                .or(JavaClass.Predicates.simpleName("ClasspathRuntimeDsl"))
+                .or(JavaClass.Predicates.simpleName("LogsSection"));
 
         final ArchRule rule = methods()
                 .that()

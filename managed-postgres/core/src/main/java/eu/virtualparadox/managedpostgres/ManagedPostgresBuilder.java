@@ -7,7 +7,6 @@ import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
-import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
@@ -201,12 +200,11 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder cleanupPolicy(CleanupPolicy cleanupPolicy);
 
     /**
-     * Returns a builder with customized PostgreSQL process log handling.
+     * Enters the fluent section for PostgreSQL process log handling.
      *
-     * @param customizer log handling customizer
-     * @return updated builder
+     * @return log handling section
      */
-    public ManagedPostgresBuilder logs(UnaryOperator<PostgresLogs> customizer);
+    public LogsSection logs();
 
     /**
      * Builds a managed PostgreSQL instance.
