@@ -4,9 +4,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringLifecycleMapperTest {

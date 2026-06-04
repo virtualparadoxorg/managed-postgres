@@ -1,8 +1,12 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
+import eu.virtualparadox.managedpostgres.PostgresStatus;
+import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;

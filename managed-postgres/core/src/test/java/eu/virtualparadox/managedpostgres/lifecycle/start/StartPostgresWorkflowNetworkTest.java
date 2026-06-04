@@ -3,7 +3,6 @@ package eu.virtualparadox.managedpostgres.lifecycle.start;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
@@ -16,6 +15,7 @@ import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
 import eu.virtualparadox.managedpostgres.lifecycle.handle.StartedPostgresHandle;
 import eu.virtualparadox.managedpostgres.lifecycle.layout.PostgresLayout;

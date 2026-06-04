@@ -1,8 +1,8 @@
 package eu.virtualparadox.managedpostgres.scenario.support;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.nio.file.Path;

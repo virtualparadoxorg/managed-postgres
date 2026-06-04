@@ -1,4 +1,4 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 import java.nio.file.Path;
 

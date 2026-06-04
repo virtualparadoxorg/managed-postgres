@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

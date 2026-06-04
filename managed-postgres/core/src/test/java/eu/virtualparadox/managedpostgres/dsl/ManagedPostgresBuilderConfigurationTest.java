@@ -1,7 +1,8 @@
-package eu.virtualparadox.managedpostgres;
+package eu.virtualparadox.managedpostgres.dsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import org.junit.jupiter.api.Test;

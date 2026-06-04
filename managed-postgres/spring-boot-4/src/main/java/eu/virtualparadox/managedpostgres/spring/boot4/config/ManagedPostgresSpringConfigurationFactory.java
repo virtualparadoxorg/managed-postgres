@@ -1,9 +1,9 @@
 package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
-import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Objects;
 import java.util.function.Supplier;
