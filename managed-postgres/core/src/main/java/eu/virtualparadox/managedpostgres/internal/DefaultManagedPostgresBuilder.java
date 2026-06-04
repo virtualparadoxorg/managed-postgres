@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.internal;
 
 import eu.virtualparadox.managedpostgres.ClasspathRuntimeDsl;
 import eu.virtualparadox.managedpostgres.ClusterSection;
+import eu.virtualparadox.managedpostgres.ConfigurationSection;
 import eu.virtualparadox.managedpostgres.LogsSection;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.NetworkSection;
@@ -32,7 +33,12 @@ import java.util.Objects;
     "PMD.TooManyMethods"
 })
 public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder
-        implements ClasspathRuntimeDsl, ClusterSection, LogsSection, ManagedPostgresConfigurer, NetworkSection {
+        implements ClasspathRuntimeDsl,
+                ClusterSection,
+                ConfigurationSection,
+                LogsSection,
+                ManagedPostgresConfigurer,
+                NetworkSection {
 
     private final ManagedPostgresMode mode;
 
@@ -265,6 +271,54 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     public DefaultManagedPostgresBuilder loggerName(final String loggerName) {
         return copy(configuration()
                 .withLogs(configuration().logs().loggerName(Objects.requireNonNull(loggerName, "loggerName"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder serverConfiguration() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder maxConnections(final int value) {
+        return copy(configuration()
+                .withPostgresConfiguration(
+                        configuration().postgresConfiguration().maxConnections(value)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder sharedBuffers(final String value) {
+        return copy(configuration()
+                .withPostgresConfiguration(
+                        configuration().postgresConfiguration().sharedBuffers(Objects.requireNonNull(value, "value"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder tempBuffers(final String value) {
+        return copy(configuration()
+                .withPostgresConfiguration(
+                        configuration().postgresConfiguration().tempBuffers(Objects.requireNonNull(value, "value"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder statementTimeoutSeconds(final int value) {
+        return copy(configuration()
+                .withPostgresConfiguration(
+                        configuration().postgresConfiguration().statementTimeoutSeconds(value)));
     }
 
     /**

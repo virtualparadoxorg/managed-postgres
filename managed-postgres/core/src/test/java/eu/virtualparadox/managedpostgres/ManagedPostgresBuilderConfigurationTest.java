@@ -13,7 +13,9 @@ public final class ManagedPostgresBuilderConfigurationTest {
     void builderStoresPostgreSqlConfigurationAndResourcePreset() {
         try (ManagedPostgres postgres = ManagedPostgres.builder()
                 .configuration(Resources.small())
-                .configuration(configuration -> configuration.maxConnections(48).sharedBuffers("192MB"))
+                .serverConfiguration()
+                .maxConnections(48)
+                .sharedBuffers("192MB")
                 .build()) {
             assertThat(postgres.toString())
                     .contains("postgresConfiguration")
