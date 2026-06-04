@@ -149,6 +149,13 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder configuration(UnaryOperator<PostgresConfiguration> customizer);
 
     /**
+     * Enters the fluent section for PostgreSQL server tuning.
+     *
+     * @return server configuration section
+     */
+    public ConfigurationSection serverConfiguration();
+
+    /**
      * Returns a builder that may reuse an existing compatible managed PostgreSQL instance.
      *
      * @return updated builder

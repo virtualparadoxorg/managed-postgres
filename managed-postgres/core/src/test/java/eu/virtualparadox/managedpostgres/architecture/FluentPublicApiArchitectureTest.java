@@ -24,6 +24,7 @@ final class FluentPublicApiArchitectureTest {
                 .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"))
                 .or(JavaClass.Predicates.simpleName("ClasspathRuntimeDsl"))
                 .or(JavaClass.Predicates.simpleName("ClusterSection"))
+                .or(JavaClass.Predicates.simpleName("ConfigurationSection"))
                 .or(JavaClass.Predicates.simpleName("LogsSection"))
                 .or(JavaClass.Predicates.simpleName("NetworkSection"));
 
