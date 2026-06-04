@@ -30,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -128,10 +127,11 @@ public final class ManagedPostgresBuilderTest {
     @Test
     void builderStoresClusterBootstrapConfiguration() {
         try (ManagedPostgres postgres = ManagedPostgres.builder()
-                .cluster(cluster -> cluster.database("app")
-                        .owner("app_owner")
-                        .password(Secret.of("app-password"))
-                        .extension("pgcrypto"))
+                .cluster()
+                .database("app")
+                .owner("app_owner")
+                .password("app-password")
+                .extension("pgcrypto")
                 .build()) {
             assertThat(postgres.toString())
                     .contains("clusterBootstrap")
@@ -141,16 +141,6 @@ public final class ManagedPostgresBuilderTest {
                     .contains("REDACTED")
                     .doesNotContain("app-password");
         }
-    }
-
-    @Test
-    void builderRejectsInvalidClusterCustomizer() throws ReflectiveOperationException {
-        assertThatThrownBy(ManagedPostgresBuilderTest::invokeClusterCustomizerWithNull)
-                .hasCauseInstanceOf(NullPointerException.class)
-                .hasRootCauseMessage("customizer");
-        assertThatThrownBy(() -> ManagedPostgres.builder().cluster(cluster -> null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("clusterBootstrap");
     }
 
     @Test
@@ -181,7 +171,10 @@ public final class ManagedPostgresBuilderTest {
                 .version("16.4")
                 .storage(Storage.projectLocal(root))
                 .runtime(RuntimeSource.system())
-                .cluster(cluster -> cluster.database("app").owner("app").password(Secret.of(secret)))
+                .cluster()
+                .database("app")
+                .owner("app")
+                .password(secret)
                 .credentials(Credentials.of("app", Secret.of(secret)))
                 .build()) {
 
@@ -273,11 +266,5 @@ public final class ManagedPostgresBuilderTest {
                 .findFirst()
                 .map(DiagnosticSection::values)
                 .orElseThrow();
-    }
-
-    private static void invokeClusterCustomizerWithNull() throws ReflectiveOperationException {
-        ManagedPostgresBuilder.class
-                .getMethod("cluster", UnaryOperator.class)
-                .invoke(ManagedPostgres.builder(), new Object[] {null});
     }
 }

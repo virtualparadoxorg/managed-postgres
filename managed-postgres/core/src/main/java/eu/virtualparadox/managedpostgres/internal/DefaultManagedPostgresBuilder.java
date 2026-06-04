@@ -19,7 +19,6 @@ import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 /**
  * Default immutable managed PostgreSQL builder.
@@ -122,18 +121,6 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public DefaultManagedPostgresBuilder fallbackToRandom() {
         return copy(configuration().withNetwork(configuration().network().fallbackToRandom()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public DefaultManagedPostgresBuilder cluster(final UnaryOperator<ClusterBootstrap> customizer) {
-        final UnaryOperator<ClusterBootstrap> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final ClusterBootstrap clusterBootstrap =
-                Objects.requireNonNull(checkedCustomizer.apply(configuration().clusterBootstrap()), "clusterBootstrap");
-
-        return copy(configuration().withClusterBootstrap(clusterBootstrap));
     }
 
     /**

@@ -17,7 +17,10 @@ public final class ScenarioManagedPostgres {
 
     public static ManagedPostgresBuilder applicationCluster(final Path storageRoot, final FakePostgresRuntime runtime) {
         return localPostgres("app-db", storageRoot, runtime)
-                .cluster(cluster -> cluster.database("app").owner("app_owner").password(Secret.of("app-password")));
+                .cluster()
+                .database("app")
+                .owner("app_owner")
+                .password("app-password");
     }
 
     public static ManagedPostgresBuilder localPostgres(

@@ -52,4 +52,29 @@
         <Class name="eu.virtualparadox.managedpostgres.ClusterSectionDslTest"/>
         <Bug pattern="HARD_CODE_PASSWORD"/>
     </Match>
+    <!-- ManagedPostgresBuilderTest uses literal password strings to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.ManagedPostgresBuilderTest"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- FakeRuntimePreflightIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.FakeRuntimePreflightIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- ScenarioManagedPostgres uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- RealRuntimeLifecycleIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.real.lifecycle.RealRuntimeLifecycleIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- RealRuntimeBackupRestoreIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.real.lifecycle.RealRuntimeBackupRestoreIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
 </FindBugsFilter>
