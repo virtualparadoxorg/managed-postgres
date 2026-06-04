@@ -4,7 +4,6 @@ import eu.virtualparadox.managedpostgres.config.AttachPolicy;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
-import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
@@ -63,12 +62,27 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder version(String postgresqlVersion);
 
     /**
-     * Returns a builder with the configured storage.
+     * Stores the cluster under a project-local directory.
      *
-     * @param storage storage configuration
+     * @param path project-local storage directory
      * @return updated builder
      */
-    public ManagedPostgresBuilder storage(Storage storage);
+    public ManagedPostgresBuilder storageProjectLocal(String path);
+
+    /**
+     * Stores the cluster under a project-local directory.
+     *
+     * @param path project-local storage directory
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder storageProjectLocal(Path path);
+
+    /**
+     * Stores the cluster in a temporary directory removed when the instance is closed.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder temporaryStorage();
 
     /**
      * Returns a builder with the configured runtime source.

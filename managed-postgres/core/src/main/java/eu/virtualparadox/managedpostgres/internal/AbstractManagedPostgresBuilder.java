@@ -20,7 +20,9 @@ import java.util.Objects;
  */
 @SuppressWarnings({
     // The immutable builder intentionally fronts the complete public configuration contract in one place.
-    "PMD.CouplingBetweenObjects"
+    "PMD.CouplingBetweenObjects",
+    // The abstract builder mirrors the full interface contract; splitting it further adds no clarity.
+    "PMD.TooManyMethods"
 })
 public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresBuilder {
 
@@ -55,8 +57,24 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      * {@inheritDoc}
      */
     @Override
-    public final ManagedPostgresBuilder storage(final Storage storage) {
-        return copy(configuration.withStorage(storage));
+    public final ManagedPostgresBuilder storageProjectLocal(final String path) {
+        return copy(configuration.withStorage(Storage.projectLocal(Objects.requireNonNull(path, "path"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder storageProjectLocal(final Path path) {
+        return copy(configuration.withStorage(Storage.projectLocal(Objects.requireNonNull(path, "path"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder temporaryStorage() {
+        return copy(configuration.withStorage(Storage.temporary()));
     }
 
     /**

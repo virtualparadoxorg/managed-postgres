@@ -4,7 +4,6 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.nio.file.Path;
@@ -34,7 +33,7 @@ public final class ScenarioManagedPostgres {
                 .name(name)
                 .version("16.4")
                 .runtime(runtimeSource)
-                .storage(Storage.projectLocal(storageRoot))
+                .storageProjectLocal(storageRoot)
                 .credentials(Credentials.of("postgres", Secret.of(TEST_PASSWORD)));
     }
 }

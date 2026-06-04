@@ -11,6 +11,7 @@ import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.RuntimeCache;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
+import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
@@ -71,6 +72,14 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
     @Override
     public RunningPostgres start() {
         return build().start();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder storage(final Storage storage) {
+        return copy(configuration().withStorage(Objects.requireNonNull(storage, "storage")));
     }
 
     /**

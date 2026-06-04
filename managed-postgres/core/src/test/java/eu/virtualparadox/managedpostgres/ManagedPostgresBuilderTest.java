@@ -169,7 +169,7 @@ public final class ManagedPostgresBuilderTest {
         try (ManagedPostgres postgres = ManagedPostgres.local()
                 .name("app-db")
                 .version("16.4")
-                .storage(Storage.projectLocal(root))
+                .storageProjectLocal(root)
                 .runtime(RuntimeSource.system())
                 .cluster()
                 .database("app")
@@ -197,7 +197,7 @@ public final class ManagedPostgresBuilderTest {
         Files.writeString(stateDirectory.resolve("metadata.json"), "{\"schemaVersion\":1}");
 
         try (ManagedPostgres postgres =
-                ManagedPostgres.local().storage(Storage.projectLocal(root)).build()) {
+                ManagedPostgres.local().storageProjectLocal(root).build()) {
 
             assertThat(postgres.status()).isEqualTo(PostgresStatus.FAILED);
             Files.delete(stateDirectory.resolve("metadata.json"));

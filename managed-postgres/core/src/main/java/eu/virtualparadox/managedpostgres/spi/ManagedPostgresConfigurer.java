@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.spi;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import java.util.Objects;
 
@@ -25,6 +26,14 @@ public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
     static ManagedPostgresConfigurer of(final ManagedPostgresBuilder builder) {
         return (ManagedPostgresConfigurer) Objects.requireNonNull(builder, "builder");
     }
+
+    /**
+     * Applies a complete storage configuration.
+     *
+     * @param storage storage configuration
+     * @return the configurer, so value objects can be applied fluently
+     */
+    ManagedPostgresConfigurer storage(Storage storage);
 
     /**
      * Applies a complete network configuration.

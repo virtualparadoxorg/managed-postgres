@@ -13,7 +13,6 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.RuntimeCache;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
@@ -105,7 +104,7 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
 
         verify(fixture.builder()).name("app-db");
         verify(fixture.builder()).version("16.5");
-        verify(fixture.builder()).storage(Storage.projectLocal(Path.of(".local/app-db")));
+        verify(fixture.builder()).storageProjectLocal(Path.of(".local/app-db"));
     }
 
     @Test
@@ -160,7 +159,7 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
             final ManagedPostgresConfigurer builder, final ManagedPostgres postgres) {
         when(builder.name(any())).thenReturn(builder);
         when(builder.version(any())).thenReturn(builder);
-        when(builder.storage(any())).thenReturn(builder);
+        when(builder.storageProjectLocal(any(Path.class))).thenReturn(builder);
         when(builder.runtime(any())).thenReturn(builder);
         when(builder.configuration(any(PostgresConfiguration.class))).thenReturn(builder);
         when(builder.credentials(any())).thenReturn(builder);
