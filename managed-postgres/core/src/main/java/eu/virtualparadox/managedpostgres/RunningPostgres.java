@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres;
 
 import java.nio.file.Path;
+import javax.sql.DataSource;
 
 /**
  * Handle for a running PostgreSQL instance.
@@ -13,6 +14,26 @@ public interface RunningPostgres extends AutoCloseable {
      * @return connection details
      */
     public PostgresConnectionInfo connectionInfo();
+
+    /**
+     * Returns the PostgreSQL JDBC URL for this running instance.
+     *
+     * @return the JDBC URL
+     */
+    default String jdbcUrl() {
+        return connectionInfo().jdbcUrl();
+    }
+
+    /**
+     * Returns a {@link DataSource} for this running instance.
+     *
+     * <p>The PostgreSQL JDBC driver must be on the runtime classpath.
+     *
+     * @return a data source backed by this instance's connection info
+     */
+    default DataSource dataSource() {
+        return connectionInfo().dataSource();
+    }
 
     /**
      * Returns the current lifecycle status.

@@ -1,7 +1,9 @@
 package eu.virtualparadox.managedpostgres;
 
+import eu.virtualparadox.managedpostgres.internal.ConnectionInfoDataSource;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.util.Objects;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -38,6 +40,37 @@ public record PostgresConnectionInfo(String host, int port, String database, Str
             throw new IllegalArgumentException("username must not be blank");
         }
         Objects.requireNonNull(password, "password");
+    }
+
+    /**
+     * Returns the PostgreSQL JDBC URL for this connection (host, port and database).
+     *
+     * @return the {@code jdbc:postgresql://host:port/database} URL
+     */
+    public String jdbcUrl() {
+        return "jdbc:postgresql://%s:%d/%s".formatted(hostForUrl(host), port, database);
+    }
+
+    /**
+     * Returns a {@link DataSource} backed by {@link java.sql.DriverManager} for this connection.
+     *
+     * <p>The PostgreSQL JDBC driver must be on the runtime classpath; no driver is bundled.
+     *
+     * @return a data source that opens connections to this PostgreSQL instance
+     */
+    public DataSource dataSource() {
+        return new ConnectionInfoDataSource(this);
+    }
+
+    private static String hostForUrl(final String host) {
+        final String formattedHost;
+        if (host.contains(":") && !host.startsWith("[")) {
+            formattedHost = "[" + host + "]";
+        } else {
+            formattedHost = host;
+        }
+
+        return formattedHost;
     }
 
     /**

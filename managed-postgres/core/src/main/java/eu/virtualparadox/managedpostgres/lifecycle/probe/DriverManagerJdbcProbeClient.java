@@ -36,7 +36,7 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
     public JdbcProbeSnapshot probe(final PostgresConnectionInfo connectionInfo) {
         final PostgresConnectionInfo checkedConnectionInfo = Objects.requireNonNull(connectionInfo, "connectionInfo");
         try (Connection connection = DriverManager.getConnection(
-                jdbcUrl(checkedConnectionInfo), connectionProperties(checkedConnectionInfo))) {
+                checkedConnectionInfo.jdbcUrl(), connectionProperties(checkedConnectionInfo))) {
             return new JdbcProbeSnapshot(Path.of(dataDirectory(connection)), serverVersion(connection));
         } catch (final SQLException exception) {
             throw jdbcProbeFailure(checkedConnectionInfo, exception);
@@ -83,22 +83,6 @@ public final class DriverManagerJdbcProbeClient implements JdbcProbeClient {
         properties.setProperty("socketTimeout", Integer.toString(QUERY_TIMEOUT_SECONDS));
 
         return properties;
-    }
-
-    private static String jdbcUrl(final PostgresConnectionInfo connectionInfo) {
-        return "jdbc:postgresql://%s:%d/%s"
-                .formatted(hostForUrl(connectionInfo.host()), connectionInfo.port(), connectionInfo.database());
-    }
-
-    private static String hostForUrl(final String host) {
-        final String formattedHost;
-        if (host.contains(":") && !host.startsWith("[")) {
-            formattedHost = "[" + host + "]";
-        } else {
-            formattedHost = host;
-        }
-
-        return formattedHost;
     }
 
     private static PostgresAttachException jdbcProbeFailure(

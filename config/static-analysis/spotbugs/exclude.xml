@@ -77,4 +77,9 @@
         <Class name="eu.virtualparadox.managedpostgres.scenario.real.lifecycle.RealRuntimeBackupRestoreIT"/>
         <Bug pattern="HARD_CODE_PASSWORD"/>
     </Match>
+    <!-- ConnectionInfoDataSourceTest asserts getConnection() throws against an unreachable DB; the call never returns a Connection to close. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.internal.ConnectionInfoDataSourceTest"/>
+        <Bug pattern="ODR_OPEN_DATABASE_RESOURCE"/>
+    </Match>
 </FindBugsFilter>
