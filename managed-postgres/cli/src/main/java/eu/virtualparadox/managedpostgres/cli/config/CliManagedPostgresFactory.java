@@ -1,7 +1,9 @@
 package eu.virtualparadox.managedpostgres.cli.config;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.Storage;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Objects;
 
 /**
@@ -24,13 +26,15 @@ public final class CliManagedPostgresFactory {
         final CliManagedPostgresConfiguration checkedConfiguration =
                 Objects.requireNonNull(configuration, "configuration");
 
-        return ManagedPostgres.local()
+        final ManagedPostgresBuilder builder = ManagedPostgres.local()
                 .name(checkedConfiguration.name())
                 .version(checkedConfiguration.postgresqlVersion())
                 .storage(Storage.projectLocal(checkedConfiguration.storagePath()))
                 .runtime(checkedConfiguration.runtimeSource())
-                .configuration(checkedConfiguration.postgresConfiguration())
-                .network(ignored -> checkedConfiguration.network())
+                .configuration(checkedConfiguration.postgresConfiguration());
+
+        return ManagedPostgresConfigurer.of(builder)
+                .network(checkedConfiguration.network())
                 .attachPolicy(checkedConfiguration.attachPolicy())
                 .stopPolicy(checkedConfiguration.stopPolicy())
                 .build();
