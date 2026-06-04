@@ -41,3 +41,6 @@ build/
 
 ### Tool caches ###
 .allure/
+
+# Stray empty npm lockfile (no package.json in this Java repo)
+package-lock.json
