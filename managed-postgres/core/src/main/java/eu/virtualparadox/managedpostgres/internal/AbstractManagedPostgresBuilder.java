@@ -10,7 +10,6 @@ import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
-import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.net.URI;
 import java.nio.file.Path;
@@ -173,14 +172,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     @Override
     public final ManagedPostgresBuilder trustLocalOnly() {
         return copy(configuration.withCredentials(Credentials.trustLocalOnly()));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final ManagedPostgresBuilder configuration(final PostgresConfiguration postgresConfiguration) {
-        return copy(configuration.withPostgresConfiguration(postgresConfiguration));
     }
 
     /**

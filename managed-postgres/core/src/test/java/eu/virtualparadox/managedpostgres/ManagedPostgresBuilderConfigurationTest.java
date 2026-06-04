@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresBuilderConfigurationTest {
@@ -11,7 +12,7 @@ public final class ManagedPostgresBuilderConfigurationTest {
 
     @Test
     void builderStoresPostgreSqlConfigurationAndResourcePreset() {
-        try (ManagedPostgres postgres = ManagedPostgres.builder()
+        try (ManagedPostgres postgres = ManagedPostgresConfigurer.of(ManagedPostgres.builder())
                 .configuration(Resources.small())
                 .serverConfiguration()
                 .maxConnections(48)

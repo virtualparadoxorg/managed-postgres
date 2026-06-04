@@ -6,7 +6,6 @@ import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
-import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
@@ -166,14 +165,6 @@ public interface ManagedPostgresBuilder {
      * @return cluster bootstrap section
      */
     public ClusterSection cluster();
-
-    /**
-     * Returns a builder with the configured PostgreSQL server settings.
-     *
-     * @param configuration PostgreSQL server settings
-     * @return updated builder
-     */
-    public ManagedPostgresBuilder configuration(PostgresConfiguration configuration);
 
     /**
      * Enters the fluent section for PostgreSQL server tuning.

@@ -63,7 +63,8 @@ public final class ManagedPostgresSpringConfigurationFactory {
         if (checkedProperties.isEmpty()) {
             configuredBuilder = checkedBuilder;
         } else {
-            configuredBuilder = checkedBuilder.configuration(postgresConfiguration(checkedProperties));
+            configuredBuilder = ManagedPostgresConfigurer.of(checkedBuilder)
+                    .configuration(postgresConfiguration(checkedProperties));
         }
 
         return configuredBuilder;
