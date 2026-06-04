@@ -54,16 +54,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     }
 
     /**
-     * Applies a complete storage configuration (satisfies the SPI contract).
-     *
-     * @param storage storage configuration
-     * @return updated builder
-     */
-    public final ManagedPostgresBuilder storage(final Storage storage) {
-        return copy(configuration.withStorage(storage));
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override

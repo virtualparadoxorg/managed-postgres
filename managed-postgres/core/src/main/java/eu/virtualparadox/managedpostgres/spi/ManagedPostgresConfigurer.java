@@ -31,9 +31,9 @@ public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
      * Applies a complete storage configuration.
      *
      * @param storage storage configuration
-     * @return updated builder
+     * @return the configurer, so value objects can be applied fluently
      */
-    ManagedPostgresBuilder storage(Storage storage);
+    ManagedPostgresConfigurer storage(Storage storage);
 
     /**
      * Applies a complete network configuration.

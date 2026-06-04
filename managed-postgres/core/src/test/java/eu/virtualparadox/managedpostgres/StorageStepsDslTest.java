@@ -25,5 +25,7 @@ final class StorageStepsDslTest {
                 ManagedPostgres.create().version("18.4").temporaryStorage();
 
         assertThat(builder.configuration().storage().temporaryStorage()).isTrue();
+        assertThat(builder.configuration().storage().path())
+                .isEqualTo(Path.of(System.getProperty("java.io.tmpdir"), "managed-postgres"));
     }
 }
