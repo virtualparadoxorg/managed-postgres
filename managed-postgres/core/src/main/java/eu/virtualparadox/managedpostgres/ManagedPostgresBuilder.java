@@ -10,7 +10,6 @@ import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
-import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
 import java.nio.file.Path;
@@ -121,12 +120,11 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder credentials(Credentials credentials);
 
     /**
-     * Returns a builder with customized localhost network and port selection.
+     * Enters the fluent section for loopback-only PostgreSQL network configuration.
      *
-     * @param customizer network configuration customizer
-     * @return updated builder
+     * @return network configuration section
      */
-    public ManagedPostgresBuilder network(UnaryOperator<Network> customizer);
+    public NetworkSection network();
 
     /**
      * Returns a builder with a customized primary application database bootstrap configuration.

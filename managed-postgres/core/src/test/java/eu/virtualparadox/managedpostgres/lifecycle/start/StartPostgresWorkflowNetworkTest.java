@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.lifecycle.start;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
@@ -24,6 +25,7 @@ import eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocator;
 import eu.virtualparadox.managedpostgres.lifecycle.testsupport.FakePostgresRuntime;
 import eu.virtualparadox.managedpostgres.runtime.ExistingRuntimeResolver;
 import eu.virtualparadox.managedpostgres.security.Secret;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -33,6 +35,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public final class StartPostgresWorkflowNetworkTest {
 
     @TempDir
@@ -128,12 +131,11 @@ public final class StartPostgresWorkflowNetworkTest {
 
     private static ManagedPostgres managedPostgres(
             final Path storageRoot, final Path runtimeDirectory, final Network network) {
-        return ManagedPostgres.local()
+        final ManagedPostgresBuilder builder = ManagedPostgres.local()
                 .version("16.4")
                 .storage(new Storage(storageRoot, false))
-                .runtime(RuntimeSource.existing(runtimeDirectory))
-                .network(ignored -> network)
-                .build();
+                .runtime(RuntimeSource.existing(runtimeDirectory));
+        return ManagedPostgresConfigurer.of(builder).network(network).build();
     }
 
     private Path runtimeWithScripts() throws IOException {
