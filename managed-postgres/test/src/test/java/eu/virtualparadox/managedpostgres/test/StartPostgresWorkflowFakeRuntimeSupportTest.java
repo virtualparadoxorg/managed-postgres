@@ -32,7 +32,7 @@ final class StartPostgresWorkflowFakeRuntimeSupportTest {
         final FakePostgresRuntime runtime = FakePostgresRuntime.create(temporaryDirectory.resolve("runtime"));
         final Path storageRoot = temporaryDirectory.resolve("cluster");
 
-        try (RunningPostgres postgres = ManagedPostgres.builder()
+        try (RunningPostgres postgres = ManagedPostgres.create()
                 .name("app-db")
                 .version("16.4")
                 .withExistingRuntime(runtime.runtimeDirectory())

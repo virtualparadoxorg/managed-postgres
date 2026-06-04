@@ -10,7 +10,7 @@ public final class ManagedPostgresNetworkBuilderTest {
 
     @Test
     void builderStoresNetworkConfiguration() {
-        try (ManagedPostgres postgres = ManagedPostgres.builder()
+        try (ManagedPostgres postgres = ManagedPostgres.create()
                 .network()
                 .host("127.0.0.1")
                 .preferredPort(15432)

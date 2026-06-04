@@ -12,7 +12,7 @@ public final class ManagedPostgresBuilderConfigurationTest {
 
     @Test
     void builderStoresPostgreSqlConfigurationAndResourcePreset() {
-        try (ManagedPostgres postgres = ManagedPostgresConfigurer.of(ManagedPostgres.builder())
+        try (ManagedPostgres postgres = ManagedPostgresConfigurer.of(ManagedPostgres.create())
                 .configuration(Resources.small())
                 .serverConfiguration()
                 .maxConnections(48)
