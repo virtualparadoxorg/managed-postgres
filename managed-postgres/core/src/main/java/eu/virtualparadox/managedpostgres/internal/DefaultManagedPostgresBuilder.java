@@ -219,6 +219,14 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      * {@inheritDoc}
      */
     @Override
+    public DefaultManagedPostgresBuilder runtime(final RuntimeSource runtimeSource) {
+        return copy(configuration().withRuntimeSource(Objects.requireNonNull(runtimeSource, "runtimeSource")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DefaultManagedPostgresBuilder withClasspathRuntime(final String resource, final String checksum) {
         final String checkedChecksum = Objects.requireNonNull(checksum, "checksum");
         return copy(configuration()

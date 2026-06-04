@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresException;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
@@ -83,7 +82,7 @@ final class FakeRuntimeCrashRecoveryIT {
         return ManagedPostgres.local()
                 .name("app-db")
                 .version("16.4")
-                .runtime(RuntimeSource.existing(runtimeDirectory))
+                .withExistingRuntime(runtimeDirectory)
                 .storageProjectLocal(storageRoot)
                 .credentials("postgres", TEST_PASSWORD)
                 .build();

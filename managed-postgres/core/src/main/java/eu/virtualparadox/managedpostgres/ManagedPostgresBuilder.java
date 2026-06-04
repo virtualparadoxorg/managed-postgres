@@ -1,7 +1,6 @@
 package eu.virtualparadox.managedpostgres;
 
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
@@ -83,14 +82,6 @@ public interface ManagedPostgresBuilder {
      * @return updated builder
      */
     public ManagedPostgresBuilder temporaryStorage();
-
-    /**
-     * Returns a builder with the configured runtime source.
-     *
-     * @param runtimeSource runtime source
-     * @return updated builder
-     */
-    public ManagedPostgresBuilder runtime(RuntimeSource runtimeSource);
 
     /**
      * Starts the fluent DSL for a downloaded runtime source.

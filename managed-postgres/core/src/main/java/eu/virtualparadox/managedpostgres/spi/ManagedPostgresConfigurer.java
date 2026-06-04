@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.spi;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
+import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import java.util.Objects;
@@ -50,4 +51,12 @@ public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
      * @return the configurer, so value objects can be applied fluently
      */
     ManagedPostgresConfigurer cluster(ClusterBootstrap cluster);
+
+    /**
+     * Applies a complete runtime source.
+     *
+     * @param runtimeSource runtime source
+     * @return the configurer, so value objects can be applied fluently
+     */
+    ManagedPostgresConfigurer runtime(RuntimeSource runtimeSource);
 }

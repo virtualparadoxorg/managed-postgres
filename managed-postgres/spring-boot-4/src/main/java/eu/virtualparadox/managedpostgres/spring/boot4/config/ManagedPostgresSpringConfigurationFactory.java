@@ -4,6 +4,7 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -38,10 +39,11 @@ public final class ManagedPostgresSpringConfigurationFactory {
                     "managed-postgres.enabled must be true before creating PostgreSQL");
         }
 
-        ManagedPostgresBuilder builder = Objects.requireNonNull(builderSupplier.get(), "builder")
+        final ManagedPostgresBuilder base = Objects.requireNonNull(builderSupplier.get(), "builder")
                 .name(checkedProperties.name())
                 .version(checkedProperties.postgresqlVersion())
-                .storageProjectLocal(checkedProperties.storage().path())
+                .storageProjectLocal(checkedProperties.storage().path());
+        ManagedPostgresBuilder builder = ManagedPostgresConfigurer.of(base)
                 .runtime(ManagedPostgresSpringRuntimeMapper.runtimeSource(checkedProperties.runtime()));
         builder = ManagedPostgresSpringNetworkMapper.configure(builder, checkedProperties.network());
         builder = configure(builder, checkedProperties.configuration());

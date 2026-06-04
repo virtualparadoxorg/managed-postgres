@@ -82,14 +82,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      * {@inheritDoc}
      */
     @Override
-    public final ManagedPostgresBuilder runtime(final RuntimeSource runtimeSource) {
-        return copy(configuration.withRuntimeSource(runtimeSource));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public final DownloadedRuntimeDsl withDownloadedRuntime() {
         return new DownloadedRuntimeStep(this);
     }
@@ -121,15 +113,15 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
 
         private static final String GITHUB_RELEASE_SCHEME = "github-release";
 
-        private final ManagedPostgresBuilder builder;
+        private final AbstractManagedPostgresBuilder builder;
 
-        private DownloadedRuntimeStep(final ManagedPostgresBuilder builder) {
+        private DownloadedRuntimeStep(final AbstractManagedPostgresBuilder builder) {
             this.builder = Objects.requireNonNull(builder, "builder");
         }
 
         @Override
         public ManagedPostgresBuilder fromOfficialRepository() {
-            return builder.runtime(
+            return builder.runtimeSource(
                     RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
         }
 
@@ -137,7 +129,7 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
         public ManagedPostgresBuilder fromGitHubRelease(final String owner, final String repo) {
             final URI repository = URI.create(GITHUB_RELEASE_SCHEME + "://" + Objects.requireNonNull(owner, "owner")
                     + "/" + Objects.requireNonNull(repo, "repo"));
-            return builder.runtime(
+            return builder.runtimeSource(
                     RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.custom(repository))));
         }
     }

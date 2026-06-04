@@ -170,7 +170,7 @@ public final class ManagedPostgresBuilderTest {
                 .name("app-db")
                 .version("16.4")
                 .storageProjectLocal(root)
-                .runtime(RuntimeSource.system())
+                .withSystemRuntime()
                 .cluster()
                 .database("app")
                 .owner("app")

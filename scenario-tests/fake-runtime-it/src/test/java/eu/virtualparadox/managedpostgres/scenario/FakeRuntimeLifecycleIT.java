@@ -6,7 +6,6 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
-import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
@@ -35,7 +34,7 @@ final class FakeRuntimeLifecycleIT {
         final ManagedPostgresBuilder builder = ManagedPostgres.temporary()
                 .name("temp-db")
                 .version("16.4")
-                .runtime(RuntimeSource.existing(runtime.runtimeDirectory()));
+                .withExistingRuntime(runtime.runtimeDirectory());
         final ManagedPostgresBuilder configured =
                 ManagedPostgresConfigurer.of(builder).storage(new Storage(temporaryRoot, true));
         final RunningPostgres postgres =
