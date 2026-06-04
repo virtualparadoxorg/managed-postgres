@@ -10,6 +10,7 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 
 /**
@@ -130,6 +131,45 @@ public interface ManagedPostgresBuilder {
      * @return updated builder
      */
     public ManagedPostgresBuilder credentials(Credentials credentials);
+
+    /**
+     * Sets the application owner credentials.
+     *
+     * @param username application owner username
+     * @param password application owner password
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder credentials(String username, String password);
+
+    /**
+     * Sets the application owner credentials.
+     *
+     * @param username application owner username
+     * @param password application owner password
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder credentials(String username, Secret password);
+
+    /**
+     * Uses generated, non-persistent credentials.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder generatedCredentials();
+
+    /**
+     * Uses generated credentials persisted across restarts.
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder generatedPersistentCredentials();
+
+    /**
+     * Uses local-trust-only authentication (no password).
+     *
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder trustLocalOnly();
 
     /**
      * Enters the fluent section for loopback-only PostgreSQL network configuration.
