@@ -25,7 +25,7 @@ public final class PackageSizeArchitectureTest {
     PackageSizeArchitectureTest() {}
 
     @Test
-    void sourcePackagesContainAtMostTenJavaFiles() throws IOException {
+    void sourcePackagesDoNotExceedMaximumJavaFilesPerPackage() throws IOException {
         final Path repositoryRoot = repositoryRoot();
         final Map<Path, Long> packageSizes = packageSizes(repositoryRoot);
         final List<String> violations = violations(repositoryRoot, packageSizes);

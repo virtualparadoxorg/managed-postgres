@@ -70,18 +70,6 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      * {@inheritDoc}
      */
     @Override
-    public DefaultManagedPostgresBuilder network(final UnaryOperator<Network> customizer) {
-        final UnaryOperator<Network> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final Network network =
-                Objects.requireNonNull(checkedCustomizer.apply(configuration().network()), "network");
-
-        return copy(configuration().withNetwork(network));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public DefaultManagedPostgresBuilder network() {
         return this;
     }
