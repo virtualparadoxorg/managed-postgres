@@ -21,15 +21,6 @@ public interface ManagedPostgresBuilder {
      *
      * @return persistent local builder
      */
-    public static ManagedPostgresBuilder builder() {
-        return new DefaultManagedPostgresBuilder(ManagedPostgresMode.PERSISTENT_LOCAL);
-    }
-
-    /**
-     * Creates a persistent local PostgreSQL builder.
-     *
-     * @return persistent local builder
-     */
     public static ManagedPostgresBuilder local() {
         return new DefaultManagedPostgresBuilder(ManagedPostgresMode.PERSISTENT_LOCAL);
     }

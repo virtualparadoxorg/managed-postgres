@@ -86,22 +86,22 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void builderRejectsBlankName() {
-        assertThatThrownBy(() -> ManagedPostgres.builder().name("   ")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ManagedPostgres.create().name("   ")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void builderRejectsBlankPostgreSqlVersion() {
-        assertThatThrownBy(() -> ManagedPostgres.builder().version("\t")).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> ManagedPostgres.create().version("\t")).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void builderExposesPostgreSqlReuseAndStopPoliciesWithoutProcessConcepts() {
-        assertThat(ManagedPostgres.builder()
+        assertThat(ManagedPostgres.create()
                         .reuseExisting()
                         .stopPolicy(StopPolicy.KEEP_RUNNING)
                         .build())
                 .isInstanceOf(ManagedPostgres.class);
-        assertThat(ManagedPostgres.builder()
+        assertThat(ManagedPostgres.create()
                         .upgradePolicy(UpgradePolicy.DISABLED)
                         .configDriftPolicy(ConfigDriftPolicy.IGNORE)
                         .cleanupPolicy(CleanupPolicy.safeDefaults().keepRuntimeVersions(3))
@@ -114,7 +114,7 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void builderStoresOptionalSlf4jLogBridgeConfiguration() {
-        assertThat(ManagedPostgres.builder()
+        assertThat(ManagedPostgres.create()
                         .logs()
                         .toSlf4j()
                         .loggerName("managed.postgres.test")
@@ -126,7 +126,7 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void builderStoresClusterBootstrapConfiguration() {
-        try (ManagedPostgres postgres = ManagedPostgres.builder()
+        try (ManagedPostgres postgres = ManagedPostgres.create()
                 .cluster()
                 .database("app")
                 .owner("app_owner")
@@ -145,7 +145,7 @@ public final class ManagedPostgresBuilderTest {
 
     @Test
     void reuseExistingKeepsAttachedInstanceRunningByDefault() {
-        assertThat(ManagedPostgres.builder().reuseExisting().build().toString())
+        assertThat(ManagedPostgres.create().reuseExisting().build().toString())
                 .contains("attachPolicy=ATTACH_IF_COMPATIBLE")
                 .contains("stopPolicy=KEEP_RUNNING");
     }

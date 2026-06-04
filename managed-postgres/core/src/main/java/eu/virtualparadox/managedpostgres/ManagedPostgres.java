@@ -56,16 +56,7 @@ public interface ManagedPostgres extends AutoCloseable {
      * @return managed PostgreSQL builder
      */
     public static ManagedPostgresBuilder create() {
-        return ManagedPostgresBuilder.builder();
-    }
-
-    /**
-     * Creates a persistent local PostgreSQL builder.
-     *
-     * @return persistent local builder
-     */
-    public static ManagedPostgresBuilder builder() {
-        return ManagedPostgresBuilder.builder();
+        return ManagedPostgresBuilder.local();
     }
 
     /**
