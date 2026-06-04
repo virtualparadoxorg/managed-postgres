@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.internal;
 import eu.virtualparadox.managedpostgres.ClasspathRuntimeDsl;
 import eu.virtualparadox.managedpostgres.LogsSection;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.NetworkSection;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.ClasspathRuntime;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
@@ -24,10 +25,13 @@ import java.util.function.UnaryOperator;
 @SuppressWarnings({
     // The immutable builder intentionally fronts the complete public configuration contract in one place,
     // including the runtime sub-DSLs (downloaded/classpath), so it touches many configuration types.
-    "PMD.CouplingBetweenObjects"
+    "PMD.CouplingBetweenObjects",
+    // Each fluent section (logs, network, …) adds a handful of delegating methods; the method count is
+    // an intentional consequence of surfacing the full builder contract from a single class.
+    "PMD.TooManyMethods"
 })
 public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder
-        implements ClasspathRuntimeDsl, LogsSection, ManagedPostgresConfigurer {
+        implements ClasspathRuntimeDsl, LogsSection, ManagedPostgresConfigurer, NetworkSection {
 
     private final ManagedPostgresMode mode;
 
@@ -72,6 +76,62 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
                 Objects.requireNonNull(checkedCustomizer.apply(configuration().network()), "network");
 
         return copy(configuration().withNetwork(network));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder network() {
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder host(final String host) {
+        return copy(configuration().withNetwork(configuration().network().host(Objects.requireNonNull(host, "host"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder port(final int port) {
+        return copy(configuration().withNetwork(configuration().network().port(port)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder randomPort() {
+        return copy(configuration().withNetwork(configuration().network().randomPort()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder stableRandomPort() {
+        return copy(configuration().withNetwork(configuration().network().stableRandomPort()));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder preferredPort(final int port) {
+        return copy(configuration().withNetwork(configuration().network().preferredPort(port)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder fallbackToRandom() {
+        return copy(configuration().withNetwork(configuration().network().fallbackToRandom()));
     }
 
     /**

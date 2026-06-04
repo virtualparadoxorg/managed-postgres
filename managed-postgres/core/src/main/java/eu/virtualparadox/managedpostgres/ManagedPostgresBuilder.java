@@ -121,6 +121,13 @@ public interface ManagedPostgresBuilder {
     public ManagedPostgresBuilder credentials(Credentials credentials);
 
     /**
+     * Enters the fluent section for loopback-only PostgreSQL network configuration.
+     *
+     * @return network configuration section
+     */
+    public NetworkSection network();
+
+    /**
      * Returns a builder with customized localhost network and port selection.
      *
      * @param customizer network configuration customizer
