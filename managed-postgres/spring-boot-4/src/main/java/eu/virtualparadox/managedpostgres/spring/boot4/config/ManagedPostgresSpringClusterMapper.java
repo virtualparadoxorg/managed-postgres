@@ -4,8 +4,8 @@ import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.security.Secret;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
 
 final class ManagedPostgresSpringClusterMapper {
 
@@ -18,27 +18,22 @@ final class ManagedPostgresSpringClusterMapper {
             configuredBuilder = configuredBuilder.credentials(credentials(cluster));
         }
 
-        return configuredBuilder.cluster(clusterCustomizer(cluster));
+        return ManagedPostgresConfigurer.of(configuredBuilder).cluster(buildCluster(cluster));
     }
 
     private static Credentials credentials(final ManagedPostgresSpringProperties.ClusterProperties cluster) {
         return Credentials.of(cluster.owner().orElseThrow(), cluster.password().orElseThrow());
     }
 
-    private static UnaryOperator<ClusterBootstrap> clusterCustomizer(
-            final ManagedPostgresSpringProperties.ClusterProperties cluster) {
-        return currentCluster -> {
-            ClusterBootstrap configuredCluster = currentCluster.database(cluster.database());
-            final Optional<String> owner = cluster.owner();
-            if (owner.isPresent()) {
-                configuredCluster = ownerCluster(
-                        configuredCluster,
-                        owner.orElseThrow(),
-                        cluster.password().orElseThrow());
-            }
+    private static ClusterBootstrap buildCluster(final ManagedPostgresSpringProperties.ClusterProperties cluster) {
+        ClusterBootstrap configuredCluster = ClusterBootstrap.defaultCluster().database(cluster.database());
+        final Optional<String> owner = cluster.owner();
+        if (owner.isPresent()) {
+            configuredCluster = ownerCluster(
+                    configuredCluster, owner.orElseThrow(), cluster.password().orElseThrow());
+        }
 
-            return configuredCluster;
-        };
+        return configuredCluster;
     }
 
     private static ClusterBootstrap ownerCluster(

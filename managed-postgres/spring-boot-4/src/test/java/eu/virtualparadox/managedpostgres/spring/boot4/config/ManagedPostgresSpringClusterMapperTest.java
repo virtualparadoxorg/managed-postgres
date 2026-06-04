@@ -10,8 +10,8 @@ import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.security.Secret;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Optional;
-import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.Test;
 
 public final class ManagedPostgresSpringClusterMapperTest {
@@ -50,22 +50,20 @@ public final class ManagedPostgresSpringClusterMapperTest {
 
     private static final class ClusterFixture {
 
-        private final ManagedPostgresBuilder builder;
+        private final ManagedPostgresConfigurer builder;
         private ClusterBootstrap clusterBootstrap;
 
-        private ClusterFixture(final ManagedPostgresBuilder builder) {
+        private ClusterFixture(final ManagedPostgresConfigurer builder) {
             this.builder = builder;
             this.clusterBootstrap = ClusterBootstrap.defaultCluster();
         }
 
-        @SuppressWarnings("unchecked")
         private static ClusterFixture create() {
-            final ManagedPostgresBuilder builder = mock(ManagedPostgresBuilder.class);
+            final ManagedPostgresConfigurer builder = mock(ManagedPostgresConfigurer.class);
             final ClusterFixture fixture = new ClusterFixture(builder);
             when(builder.credentials(any())).thenReturn(builder);
-            when(builder.cluster(any(UnaryOperator.class))).thenAnswer(invocation -> {
-                final UnaryOperator<ClusterBootstrap> customizer = invocation.getArgument(0);
-                fixture.clusterBootstrap = customizer.apply(ClusterBootstrap.defaultCluster());
+            when(builder.cluster(any(ClusterBootstrap.class))).thenAnswer(invocation -> {
+                fixture.clusterBootstrap = invocation.getArgument(0);
 
                 return builder;
             });

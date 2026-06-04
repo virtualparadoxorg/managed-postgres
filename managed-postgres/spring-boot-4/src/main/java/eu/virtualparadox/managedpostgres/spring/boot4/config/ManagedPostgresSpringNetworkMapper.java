@@ -2,6 +2,7 @@ package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.util.Objects;
 
 /**
@@ -29,7 +30,8 @@ public final class ManagedPostgresSpringNetworkMapper {
         final ManagedPostgresSpringProperties.NetworkProperties checkedProperties =
                 Objects.requireNonNull(properties, "properties");
 
-        return checkedBuilder.network(network -> configureNetwork(network, checkedProperties));
+        return ManagedPostgresConfigurer.of(checkedBuilder)
+                .network(configureNetwork(Network.localhostOnly(), checkedProperties));
     }
 
     private static Network configureNetwork(
