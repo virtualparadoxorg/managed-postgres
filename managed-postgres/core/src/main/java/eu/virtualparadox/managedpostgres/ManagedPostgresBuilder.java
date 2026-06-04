@@ -12,7 +12,6 @@ import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
 import java.nio.file.Path;
-import java.util.function.UnaryOperator;
 
 /**
  * Immutable builder for managed PostgreSQL instances.
@@ -139,14 +138,6 @@ public interface ManagedPostgresBuilder {
      * @return updated builder
      */
     public ManagedPostgresBuilder configuration(PostgresConfiguration configuration);
-
-    /**
-     * Returns a builder with customized PostgreSQL server settings.
-     *
-     * @param customizer PostgreSQL server settings customizer
-     * @return updated builder
-     */
-    public ManagedPostgresBuilder configuration(UnaryOperator<PostgresConfiguration> customizer);
 
     /**
      * Enters the fluent section for PostgreSQL server tuning.

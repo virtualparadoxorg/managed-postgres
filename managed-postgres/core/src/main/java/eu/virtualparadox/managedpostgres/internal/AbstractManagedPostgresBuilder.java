@@ -14,7 +14,6 @@ import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 /**
  * Coordinates abstract managed postgres builder behavior for managed PostgreSQL internals.
@@ -137,18 +136,6 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
      */
     @Override
     public final ManagedPostgresBuilder configuration(final PostgresConfiguration postgresConfiguration) {
-        return copy(configuration.withPostgresConfiguration(postgresConfiguration));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public final ManagedPostgresBuilder configuration(final UnaryOperator<PostgresConfiguration> customizer) {
-        final UnaryOperator<PostgresConfiguration> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final PostgresConfiguration postgresConfiguration = Objects.requireNonNull(
-                checkedCustomizer.apply(configuration.postgresConfiguration()), "postgresConfiguration");
-
         return copy(configuration.withPostgresConfiguration(postgresConfiguration));
     }
 
