@@ -25,15 +25,14 @@ public final class CliManagedPostgresFactory {
         final CliManagedPostgresConfiguration checkedConfiguration =
                 Objects.requireNonNull(configuration, "configuration");
 
-        final ManagedPostgresBuilder base = ManagedPostgres.local()
+        ManagedPostgresBuilder builder = ManagedPostgres.local()
                 .name(checkedConfiguration.name())
                 .version(checkedConfiguration.postgresqlVersion())
                 .storageProjectLocal(checkedConfiguration.storagePath());
-        return ManagedPostgresConfigurer.of(base)
-                .runtime(checkedConfiguration.runtimeSource())
-                .configuration(checkedConfiguration.postgresConfiguration())
-                .network(checkedConfiguration.network())
-                .attachPolicy(checkedConfiguration.attachPolicy())
+        builder = ManagedPostgresConfigurer.of(builder).runtime(checkedConfiguration.runtimeSource());
+        builder = ManagedPostgresConfigurer.of(builder).configuration(checkedConfiguration.postgresConfiguration());
+        builder = ManagedPostgresConfigurer.of(builder).network(checkedConfiguration.network());
+        return builder.attachPolicy(checkedConfiguration.attachPolicy())
                 .stopPolicy(checkedConfiguration.stopPolicy())
                 .build();
     }
