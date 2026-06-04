@@ -1,7 +1,6 @@
 package eu.virtualparadox.managedpostgres;
 
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
-import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
@@ -127,12 +126,11 @@ public interface ManagedPostgresBuilder {
     public NetworkSection network();
 
     /**
-     * Returns a builder with a customized primary application database bootstrap configuration.
+     * Enters the fluent section for the primary application database bootstrap.
      *
-     * @param customizer cluster bootstrap customizer
-     * @return updated builder
+     * @return cluster bootstrap section
      */
-    public ManagedPostgresBuilder cluster(UnaryOperator<ClusterBootstrap> customizer);
+    public ClusterSection cluster();
 
     /**
      * Returns a builder with the configured PostgreSQL server settings.

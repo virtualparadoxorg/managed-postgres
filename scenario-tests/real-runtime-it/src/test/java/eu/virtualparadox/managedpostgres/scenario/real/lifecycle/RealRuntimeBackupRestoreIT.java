@@ -76,11 +76,12 @@ final class RealRuntimeBackupRestoreIT {
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storage(new Storage(storageRoot, true))
                 .credentials(Credentials.of("postgres", Secret.of(ADMIN_PASSWORD)))
-                .cluster(cluster -> cluster.database("app")
-                        .owner("app_owner")
-                        .password(Secret.of(APPLICATION_PASSWORD))
-                        .extension(PLAIN_LANGUAGE_EXTENSION)
-                        .optionalExtension(CRYPTO_EXTENSION))
+                .cluster()
+                .database("app")
+                .owner("app_owner")
+                .password(APPLICATION_PASSWORD)
+                .extension(PLAIN_LANGUAGE_EXTENSION)
+                .optionalExtension(CRYPTO_EXTENSION)
                 .start();
         try {
             final PostgresConnectionInfo connectionInfo = postgres.connectionInfo();

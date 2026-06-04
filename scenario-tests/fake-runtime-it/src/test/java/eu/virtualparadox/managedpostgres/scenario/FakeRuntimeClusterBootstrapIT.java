@@ -27,7 +27,8 @@ final class FakeRuntimeClusterBootstrapIT {
         final Path storageRoot = temporaryDirectory.resolve("cluster");
 
         try (var postgres = ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
-                .cluster(cluster -> cluster.extension("pgcrypto"))
+                .cluster()
+                .extension("pgcrypto")
                 .start()) {
             assertThat(postgres.connectionInfo().database()).isEqualTo("app");
             assertThat(postgres.connectionInfo().username()).isEqualTo("app_owner");

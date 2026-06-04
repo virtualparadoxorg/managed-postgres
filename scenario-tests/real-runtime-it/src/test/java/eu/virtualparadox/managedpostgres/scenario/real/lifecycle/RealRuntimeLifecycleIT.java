@@ -51,8 +51,10 @@ final class RealRuntimeLifecycleIT {
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
                 .storage(new Storage(storageRoot, true))
                 .credentials(Credentials.of("postgres", Secret.of(ADMIN_PASSWORD)))
-                .cluster(
-                        cluster -> cluster.database("app").owner("app_owner").password(Secret.of(APPLICATION_PASSWORD)))
+                .cluster()
+                .database("app")
+                .owner("app_owner")
+                .password(APPLICATION_PASSWORD)
                 .start();
         try {
             final PostgresConnectionInfo connectionInfo = postgres.connectionInfo();

@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.internal;
 
 import eu.virtualparadox.managedpostgres.ClasspathRuntimeDsl;
+import eu.virtualparadox.managedpostgres.ClusterSection;
 import eu.virtualparadox.managedpostgres.LogsSection;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.NetworkSection;
@@ -14,10 +15,10 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfigurati
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
+import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.UnaryOperator;
 
 /**
  * Default immutable managed PostgreSQL builder.
@@ -31,7 +32,7 @@ import java.util.function.UnaryOperator;
     "PMD.TooManyMethods"
 })
 public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgresBuilder
-        implements ClasspathRuntimeDsl, LogsSection, ManagedPostgresConfigurer, NetworkSection {
+        implements ClasspathRuntimeDsl, ClusterSection, LogsSection, ManagedPostgresConfigurer, NetworkSection {
 
     private final ManagedPostgresMode mode;
 
@@ -126,12 +127,61 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      * {@inheritDoc}
      */
     @Override
-    public DefaultManagedPostgresBuilder cluster(final UnaryOperator<ClusterBootstrap> customizer) {
-        final UnaryOperator<ClusterBootstrap> checkedCustomizer = Objects.requireNonNull(customizer, "customizer");
-        final ClusterBootstrap clusterBootstrap =
-                Objects.requireNonNull(checkedCustomizer.apply(configuration().clusterBootstrap()), "clusterBootstrap");
+    public DefaultManagedPostgresBuilder cluster() {
+        return this;
+    }
 
-        return copy(configuration().withClusterBootstrap(clusterBootstrap));
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder database(final String database) {
+        return copy(configuration()
+                .withClusterBootstrap(
+                        configuration().clusterBootstrap().database(Objects.requireNonNull(database, "database"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder owner(final String owner) {
+        return copy(configuration()
+                .withClusterBootstrap(
+                        configuration().clusterBootstrap().owner(Objects.requireNonNull(owner, "owner"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder password(final String password) {
+        return copy(configuration()
+                .withClusterBootstrap(configuration()
+                        .clusterBootstrap()
+                        .password(Secret.of(Objects.requireNonNull(password, "password")))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder extension(final String extensionName) {
+        return copy(configuration()
+                .withClusterBootstrap(configuration()
+                        .clusterBootstrap()
+                        .extension(Objects.requireNonNull(extensionName, "extensionName"))));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder optionalExtension(final String extensionName) {
+        return copy(configuration()
+                .withClusterBootstrap(configuration()
+                        .clusterBootstrap()
+                        .optionalExtension(Objects.requireNonNull(extensionName, "extensionName"))));
     }
 
     /**

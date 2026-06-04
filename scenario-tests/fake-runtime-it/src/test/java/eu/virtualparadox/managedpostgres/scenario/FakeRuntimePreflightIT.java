@@ -11,7 +11,6 @@ import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioShell;
-import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.test.FakePostgresRuntime;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -77,9 +76,10 @@ final class FakeRuntimePreflightIT {
         final var originalBootstrapCalls = Files.readAllLines(bootstrapLog);
 
         assertThatThrownBy(() -> ScenarioManagedPostgres.applicationCluster(storageRoot, runtime)
-                        .cluster(cluster -> cluster.database("app_v2")
-                                .owner("app_owner_v2")
-                                .password(Secret.of("new-app-password")))
+                        .cluster()
+                        .database("app_v2")
+                        .owner("app_owner_v2")
+                        .password("new-app-password")
                         .start())
                 .isInstanceOf(PostgresUpgradeException.class)
                 .satisfies(throwable -> assertThat(((PostgresUpgradeException) throwable)

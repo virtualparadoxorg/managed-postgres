@@ -23,6 +23,7 @@ final class FluentPublicApiArchitectureTest {
         final DescribedPredicate<JavaClass> fluentApiTypes = JavaClass.Predicates.simpleName("ManagedPostgresBuilder")
                 .or(JavaClass.Predicates.simpleName("DownloadedRuntimeDsl"))
                 .or(JavaClass.Predicates.simpleName("ClasspathRuntimeDsl"))
+                .or(JavaClass.Predicates.simpleName("ClusterSection"))
                 .or(JavaClass.Predicates.simpleName("LogsSection"))
                 .or(JavaClass.Predicates.simpleName("NetworkSection"));
 
