@@ -8,7 +8,6 @@ import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
-import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.scenario.support.LoopbackTcpServer;
 import eu.virtualparadox.managedpostgres.scenario.support.ScenarioJdbcDriver;
@@ -65,7 +64,7 @@ final class FakeRuntimeAttachIT {
                 .name("app-db")
                 .version("16.4")
                 .runtime(RuntimeSource.existing(runtime.runtimeDirectory()))
-                .storage(Storage.projectLocal(storageRoot))
+                .storageProjectLocal(storageRoot)
                 .credentials(Credentials.of("postgres", Secret.of(TEST_PASSWORD)));
     }
 }

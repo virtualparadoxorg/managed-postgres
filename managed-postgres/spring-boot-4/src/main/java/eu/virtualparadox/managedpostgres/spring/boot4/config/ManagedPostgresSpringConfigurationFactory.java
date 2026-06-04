@@ -2,7 +2,6 @@ package eu.virtualparadox.managedpostgres.spring.boot4.config;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.ManagedPostgresBuilder;
-import eu.virtualparadox.managedpostgres.config.Storage;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
 import java.util.Objects;
@@ -42,7 +41,7 @@ public final class ManagedPostgresSpringConfigurationFactory {
         ManagedPostgresBuilder builder = Objects.requireNonNull(builderSupplier.get(), "builder")
                 .name(checkedProperties.name())
                 .version(checkedProperties.postgresqlVersion())
-                .storage(Storage.projectLocal(checkedProperties.storage().path()))
+                .storageProjectLocal(checkedProperties.storage().path())
                 .runtime(ManagedPostgresSpringRuntimeMapper.runtimeSource(checkedProperties.runtime()));
         builder = ManagedPostgresSpringNetworkMapper.configure(builder, checkedProperties.network());
         builder = configure(builder, checkedProperties.configuration());

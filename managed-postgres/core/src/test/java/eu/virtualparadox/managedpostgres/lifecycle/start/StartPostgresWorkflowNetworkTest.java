@@ -133,7 +133,7 @@ public final class StartPostgresWorkflowNetworkTest {
             final Path storageRoot, final Path runtimeDirectory, final Network network) {
         final ManagedPostgresBuilder builder = ManagedPostgres.local()
                 .version("16.4")
-                .storage(new Storage(storageRoot, false))
+                .storageProjectLocal(storageRoot)
                 .runtime(RuntimeSource.existing(runtimeDirectory));
         return ManagedPostgresConfigurer.of(builder).network(network).build();
     }
