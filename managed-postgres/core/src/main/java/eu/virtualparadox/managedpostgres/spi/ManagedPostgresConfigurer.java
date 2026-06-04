@@ -14,6 +14,10 @@ import java.util.Objects;
  * <p><strong>Not for end users.</strong> The public {@link ManagedPostgresBuilder} is a fluent DSL;
  * this SPI exists only for integrations (Spring Boot, CLI) that assemble a complete value object from
  * external configuration and need to apply it programmatically.
+ *
+ * <p>Fluency is deliberately a property of the public DSL alone. This SPI is plumbing: each apply method
+ * returns the plain {@link ManagedPostgresBuilder}, so applying another value object means re-entering the
+ * SPI via {@link #of(ManagedPostgresBuilder)} rather than chaining configurer calls.
  */
 public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
 
@@ -33,39 +37,39 @@ public interface ManagedPostgresConfigurer extends ManagedPostgresBuilder {
      * Applies a complete storage configuration.
      *
      * @param storage storage configuration
-     * @return the configurer, so value objects can be applied fluently
+     * @return the updated builder
      */
-    ManagedPostgresConfigurer storage(Storage storage);
+    ManagedPostgresBuilder storage(Storage storage);
 
     /**
      * Applies a complete network configuration.
      *
      * @param network network configuration
-     * @return the configurer, so value objects can be applied fluently
+     * @return the updated builder
      */
-    ManagedPostgresConfigurer network(Network network);
+    ManagedPostgresBuilder network(Network network);
 
     /**
      * Applies a complete primary application database bootstrap configuration.
      *
      * @param cluster cluster bootstrap configuration
-     * @return the configurer, so value objects can be applied fluently
+     * @return the updated builder
      */
-    ManagedPostgresConfigurer cluster(ClusterBootstrap cluster);
+    ManagedPostgresBuilder cluster(ClusterBootstrap cluster);
 
     /**
      * Applies a complete runtime source.
      *
      * @param runtimeSource runtime source
-     * @return the configurer, so value objects can be applied fluently
+     * @return the updated builder
      */
-    ManagedPostgresConfigurer runtime(RuntimeSource runtimeSource);
+    ManagedPostgresBuilder runtime(RuntimeSource runtimeSource);
 
     /**
      * Applies a complete PostgreSQL server configuration.
      *
      * @param configuration PostgreSQL server settings
-     * @return the configurer, so value objects can be applied fluently
+     * @return the updated builder
      */
-    ManagedPostgresConfigurer configuration(PostgresConfiguration configuration);
+    ManagedPostgresBuilder configuration(PostgresConfiguration configuration);
 }
