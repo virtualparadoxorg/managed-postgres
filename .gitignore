@@ -44,3 +44,6 @@ build/
 
 # Stray empty npm lockfile (no package.json in this Java repo)
 package-lock.json
+
+# branding kit drop (do not commit the raw zip)
+/PostgreSQL.zip

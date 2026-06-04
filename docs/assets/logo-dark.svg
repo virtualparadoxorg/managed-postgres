@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 150" width="620" height="150" role="img" aria-label="managed-postgres">
+  <g transform="translate(8,20) scale(0.82)">
+      <path d="M50 90 L82 102 L50 114 L18 102 Z" fill="#1e293b"></path>
+      <path d="M18 102 L50 114 L50 128 L18 116 Z" fill="#0f172a"></path>
+      <path d="M82 102 L50 114 L50 128 L82 116 Z" fill="#020617"></path>
+      <path d="M50 66 L82 78 L50 90 L18 78 Z" fill="#64748b"></path>
+      <path d="M18 78 L50 90 L50 104 L18 92 Z" fill="#475569"></path>
+      <path d="M82 78 L50 90 L50 104 L82 92 Z" fill="#334155"></path>
+      <path d="M50 42 L82 54 L50 66 L18 54 Z" fill="#f1f5f9"></path>
+      <path d="M18 54 L50 66 L50 80 L18 68 Z" fill="#cbd5e1"></path>
+      <path d="M82 54 L50 66 L50 80 L82 68 Z" fill="#94a3b8"></path>
+      <path d="M50 18 L82 30 L50 42 L18 30 Z" fill="#fca5a5"></path>
+      <path d="M18 30 L50 42 L50 56 L18 44 Z" fill="#ef4444"></path>
+      <path d="M82 30 L50 42 L50 56 L82 44 Z" fill="#b91c1c"></path>
+  </g>
+  <text x="120" y="82" font-family="&#39;Space Grotesk&#39;,&#39;Segoe UI&#39;,system-ui,-apple-system,sans-serif" font-size="46" font-weight="600" letter-spacing="-2" fill="#fafaf7">managed-postgres</text>
+  <text x="122" y="110" font-family="&#39;JetBrains Mono&#39;,&#39;SFMono-Regular&#39;,ui-monospace,monospace" font-size="13" letter-spacing="3" fill="#fca5a5">A FLUENT DSL FOR POSTGRES OPS</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 134" width="100" height="134" role="img" aria-label="managed-postgres mark">
+    <path d="M50 90 L82 102 L50 114 L18 102 Z" fill="#0f172a"></path>
+    <path d="M18 102 L50 114 L50 128 L18 116 Z" fill="#020617"></path>
+    <path d="M82 102 L50 114 L50 128 L82 116 Z" fill="#000000"></path>
+    <path d="M50 66 L82 78 L50 90 L18 78 Z" fill="#475569"></path>
+    <path d="M18 78 L50 90 L50 104 L18 92 Z" fill="#334155"></path>
+    <path d="M82 78 L50 90 L50 104 L82 92 Z" fill="#1e293b"></path>
+    <path d="M50 42 L82 54 L50 66 L18 54 Z" fill="#e2e8f0"></path>
+    <path d="M18 54 L50 66 L50 80 L18 68 Z" fill="#94a3b8"></path>
+    <path d="M82 54 L50 66 L50 80 L82 68 Z" fill="#64748b"></path>
+    <path d="M50 18 L82 30 L50 42 L18 30 Z" fill="#fca5a5"></path>
+    <path d="M18 30 L50 42 L50 56 L18 44 Z" fill="#ef4444"></path>
+    <path d="M82 30 L50 42 L50 56 L82 44 Z" fill="#b91c1c"></path>
+</svg>
