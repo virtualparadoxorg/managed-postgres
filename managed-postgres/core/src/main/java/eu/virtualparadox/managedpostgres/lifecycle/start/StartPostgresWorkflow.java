@@ -225,8 +225,10 @@ public final class StartPostgresWorkflow {
                             effectiveConfiguration.logs(),
                             layout.stateDirectory().resolve(POSTGRES_LOG),
                             effectiveConfiguration.credentials(),
-                            effectiveConfiguration.clusterBootstrap()),
-                    effectiveConfiguration.logs());
+                            effectiveConfiguration.clusterBootstrap(),
+                            observers.log()),
+                    effectiveConfiguration.logs(),
+                    observers.log());
         } else {
             new PostgresStartPreflight().verifyBeforeStart(effectiveConfiguration, layout, metadataStore.read());
             PostmasterPidSafety.failIfLivePostmaster(layout);
@@ -236,7 +238,8 @@ public final class StartPostgresWorkflow {
                         effectiveConfiguration.logs(),
                         layout.stateDirectory().resolve(POSTGRES_LOG),
                         effectiveConfiguration.credentials(),
-                        effectiveConfiguration.clusterBootstrap());
+                        effectiveConfiguration.clusterBootstrap(),
+                        observers.log());
                 boolean logBridgeTransferred = false;
                 try {
                     final Map<String, String> settings =
@@ -295,7 +298,8 @@ public final class StartPostgresWorkflow {
                                                     resolvedRuntime.installDuration(),
                                                     readinessOutcome.failedHealthcheckCount()))),
                             logBridge,
-                            effectiveConfiguration.logs());
+                            effectiveConfiguration.logs(),
+                            observers.log());
                     logBridgeTransferred = true;
                 } finally {
                     if (!logBridgeTransferred) {

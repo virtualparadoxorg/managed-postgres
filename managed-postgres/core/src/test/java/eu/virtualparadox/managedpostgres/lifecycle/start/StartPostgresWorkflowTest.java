@@ -44,6 +44,9 @@ import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
 import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLevel;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLine;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
 import eu.virtualparadox.managedpostgres.observe.StartupPhase;
 import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.ExistingRuntimeResolver;
@@ -64,6 +67,7 @@ import org.junit.jupiter.api.io.TempDir;
 @SuppressWarnings({
     // These tests intentionally exercise the full lifecycle path with fake runtime scripts.
     "PMD.CouplingBetweenObjects",
+    "PMD.CyclomaticComplexity",
     "PMD.TooManyMethods"
 })
 public final class StartPostgresWorkflowTest {
@@ -116,6 +120,56 @@ public final class StartPostgresWorkflowTest {
         assertThat(listener.events())
                 .extracting(StartupProgress::phase)
                 .doesNotContain(StartupPhase.DOWNLOADING, StartupPhase.VERIFYING, StartupPhase.EXTRACTING);
+    }
+
+    @Test
+    void listenerReceivesStructuredServerLogLineWhenConfiguredAndSlf4jBridgeStaysOff() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script("pg_ctl", loggingPgCtlScript())));
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final RecordingLogListener listener = new RecordingLogListener();
+
+        final StartPostgresWorkflow.Configuration configuration =
+                configuration(new Storage(storageRoot, false), runtimeDirectory);
+        assertThat(configuration.logs().bridgeToSlf4j()).isFalse();
+        try (RunningPostgres handle = workflow()
+                .start(configuration, ManagedPostgresObservers.defaults().withLog(listener))) {
+            assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
+
+            awaitAtLeastOneLogLine(listener);
+        }
+
+        assertThat(listener.lines()).isNotEmpty();
+        final PostgresLogLine line = listener.lines().get(0);
+        assertThat(line.level()).isEqualTo(PostgresLogLevel.LOG);
+        assertThat(line.message()).contains("database system is ready to accept connections");
+    }
+
+    private String loggingPgCtlScript() {
+        return "log_file=''\n"
+                + "previous=''\n"
+                + "last=''\n"
+                + "for argument in \"$@\"; do\n"
+                + "  if [ \"$previous\" = '-l' ]; then\n"
+                + "    log_file=\"$argument\"\n"
+                + "  fi\n"
+                + "  previous=\"$argument\"\n"
+                + "  last=\"$argument\"\n"
+                + "done\n"
+                + "printf '%s %s\\n' pg_ctl \"$last\" >> " + shellQuote(callsPath()) + "\n"
+                + "if [ -n \"$log_file\" ]; then\n"
+                + "  printf '%s\\n' "
+                + "'2026-06-05 10:00:00.000 UTC [1234] LOG:  database system is ready to accept connections' "
+                + ">> \"$log_file\"\n"
+                + "fi\n"
+                + "exit 0\n";
+    }
+
+    private static void awaitAtLeastOneLogLine(final RecordingLogListener listener) {
+        final long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+        while (listener.lines().isEmpty() && System.nanoTime() < deadline) {
+            java.util.concurrent.locks.LockSupport.parkNanos(
+                    Duration.ofMillis(25).toNanos());
+        }
     }
 
     @Test
@@ -706,6 +760,20 @@ public final class StartPostgresWorkflowTest {
 
         private List<StartupProgress> events() {
             return List.copyOf(events);
+        }
+    }
+
+    private static final class RecordingLogListener implements PostgresLogListener {
+
+        private final List<PostgresLogLine> lines = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+        @Override
+        public void onLogLine(final PostgresLogLine line) {
+            lines.add(line);
+        }
+
+        private List<PostgresLogLine> lines() {
+            return List.copyOf(lines);
         }
     }
 }

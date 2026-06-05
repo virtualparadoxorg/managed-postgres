@@ -97,7 +97,17 @@ final class ObserveTypesTest {
         final PostgresLogListener none = PostgresLogListener.none();
 
         assertThat(none).isSameAs(PostgresLogListener.none());
+        assertThat(none.isActive()).isFalse();
         none.onLogLine(new PostgresLogLine(PostgresLogLevel.LOG, PostgresLogSource.SERVER, "line"));
+    }
+
+    @Test
+    void customLogListenerIsActiveByDefault() {
+        final PostgresLogListener listener = line -> {
+            // Intentionally ignores the line; only the default activity flag matters here.
+        };
+
+        assertThat(listener.isActive()).isTrue();
     }
 
     @Test

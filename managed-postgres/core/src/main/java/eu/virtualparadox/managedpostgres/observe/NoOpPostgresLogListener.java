@@ -14,4 +14,9 @@ final class NoOpPostgresLogListener implements PostgresLogListener {
     public void onLogLine(final PostgresLogLine line) {
         // Intentionally ignores all log lines.
     }
+
+    @Override
+    public boolean isActive() {
+        return false;
+    }
 }

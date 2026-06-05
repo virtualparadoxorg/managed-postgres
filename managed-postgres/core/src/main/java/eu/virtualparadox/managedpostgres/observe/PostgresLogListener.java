@@ -16,6 +16,16 @@ public interface PostgresLogListener {
     void onLogLine(PostgresLogLine line);
 
     /**
+     * Indicates whether this listener should receive log lines. The {@link #none() no-op listener} returns
+     * {@code false}; every other listener is considered active.
+     *
+     * @return {@code true} when log lines should be delivered to this listener
+     */
+    default boolean isActive() {
+        return true;
+    }
+
+    /**
      * Returns a listener that ignores all log lines.
      *
      * @return no-op log listener
