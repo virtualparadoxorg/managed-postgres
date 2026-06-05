@@ -63,6 +63,8 @@
         <module>managed-postgres/spring-boot-common</module>
         <module>managed-postgres/spring-boot-4</module>
         <module>managed-postgres/spring-boot-4-starter</module>
+        <module>managed-postgres/spring-boot-3</module>
+        <module>managed-postgres/spring-boot-3-starter</module>
         <module>managed-postgres/test</module>
         <module>scenario-tests/fake-runtime-it</module>
         <module>scenario-tests/real-runtime-it</module>
