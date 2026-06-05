@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.RuntimeCache;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
@@ -35,6 +36,17 @@ public final class ManagedPostgresSpringConfigurationFactoryTest {
         assertThatThrownBy(() -> factory.create(properties))
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("enabled");
+    }
+
+    @Test
+    void defaultRuntimeMapsToOfficialDownloadedRuntimeSource() {
+        final FactoryFixture fixture = FactoryFixture.create();
+        final ManagedPostgresSpringProperties properties = properties(Map.of());
+
+        fixture.factory().create(properties);
+
+        verify(fixture.builder())
+                .runtime(RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
     }
 
     @Test

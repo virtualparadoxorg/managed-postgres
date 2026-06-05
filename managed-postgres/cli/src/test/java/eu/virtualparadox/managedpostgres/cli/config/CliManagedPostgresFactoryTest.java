@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.cli.command.CliCommonOptions;
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
@@ -49,10 +50,11 @@ final class CliManagedPostgresFactoryTest {
     }
 
     @Test
-    void omittedRuntimeMapsToSystemRuntimeSource() {
+    void omittedRuntimeMapsToOfficialDownloadedRuntimeSource() {
         final RuntimeSource runtimeSource = new CliRuntimeSourceFactory().create(Optional.empty(), Optional.empty());
 
-        assertThat(runtimeSource).isEqualTo(RuntimeSource.system());
+        assertThat(runtimeSource)
+                .isEqualTo(RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
     }
 
     @Test

@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class CliRuntimeSourceFactory {
 
-    private static final String SYSTEM = "system";
     private static final String EXISTING = "existing";
     private static final String DOWNLOADED = "downloaded";
     private static final String CLASSPATH = "classpath";
@@ -70,7 +69,7 @@ public final class CliRuntimeSourceFactory {
         } else if (checkedOptions.resource().isPresent()) {
             effectiveSource = CLASSPATH;
         } else {
-            effectiveSource = SYSTEM;
+            effectiveSource = DOWNLOADED;
         }
 
         return effectiveSource;

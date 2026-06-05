@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.cli.config.CliManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.cli.config.CliYamlConfigurationLoader;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
@@ -27,9 +28,10 @@ final class CliCommonOptionsTest {
                 new CliCommonOptions().toConfiguration(new CliYamlConfigurationLoader());
 
         assertThat(configuration.name()).isEqualTo("default");
-        assertThat(configuration.postgresqlVersion()).isEqualTo("16.4");
+        assertThat(configuration.postgresqlVersion()).isEqualTo("18.4");
         assertThat(configuration.storagePath()).isEqualTo(Path.of(".local/postgres"));
-        assertThat(configuration.runtimeSource()).isEqualTo(RuntimeSource.system());
+        assertThat(configuration.runtimeSource())
+                .isEqualTo(RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())));
     }
 
     @Test

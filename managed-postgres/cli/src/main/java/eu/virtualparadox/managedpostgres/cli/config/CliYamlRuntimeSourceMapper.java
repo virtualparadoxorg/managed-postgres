@@ -48,16 +48,28 @@ final class CliYamlRuntimeSourceMapper {
     private static RuntimeSource downloadedRuntime(final CliYamlRuntimeSourceProperties properties) {
         CliYamlRuntimeSourceFieldValidator.requireNoExistingPath(properties.path());
         CliYamlRuntimeSourceFieldValidator.requireNoClasspathResource(properties.resource());
-        final String runtimeChecksum = requiredText(
-                properties.checksum(), "runtime.source=downloaded requires runtime.checksum", "runtime.checksum");
-        final Optional<RuntimeSignature> runtimeSignature = runtimeSignature(properties);
+        final RuntimeSource downloaded;
+        if (isDefaultOfficialDownload(properties)) {
+            downloaded = RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official()));
+        } else {
+            final String runtimeChecksum = requiredText(
+                    properties.checksum(), "runtime.source=downloaded requires runtime.checksum", "runtime.checksum");
+            final Optional<RuntimeSignature> runtimeSignature = runtimeSignature(properties);
+            downloaded = RuntimeSource.downloaded(runtime -> configureDownloadedRuntime(
+                    runtime,
+                    runtimeRepository(properties.repository()),
+                    runtimeChecksum,
+                    runtimeSignature,
+                    properties.cache()));
+        }
 
-        return RuntimeSource.downloaded(runtime -> configureDownloadedRuntime(
-                runtime,
-                runtimeRepository(properties.repository()),
-                runtimeChecksum,
-                runtimeSignature,
-                properties.cache()));
+        return downloaded;
+    }
+
+    private static boolean isDefaultOfficialDownload(final CliYamlRuntimeSourceProperties properties) {
+        return properties.source().isEmpty()
+                && properties.repository().isEmpty()
+                && properties.checksum().isEmpty();
     }
 
     private static RuntimeSource classpathRuntime(final CliYamlRuntimeSourceProperties properties) {

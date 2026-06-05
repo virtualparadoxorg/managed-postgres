@@ -14,7 +14,7 @@ record ManagedPostgresSpringRuntimeSourceProperties(
         Optional<String> signatureValue,
         Optional<Path> cache) {
 
-    private static final String DEFAULT_RUNTIME_SOURCE = "system";
+    private static final String DEFAULT_RUNTIME_SOURCE = "downloaded";
     private static final String EXISTING_RUNTIME_SOURCE = "existing";
 
     ManagedPostgresSpringRuntimeSourceProperties {
@@ -45,10 +45,10 @@ record ManagedPostgresSpringRuntimeSourceProperties(
         }
     }
 
-    void requireRuntimeRepositoryPresent() {
-        if (repository.isEmpty()) {
+    void requireDownloadedChecksumWhenRepositoryPresent() {
+        if (repository.isPresent() && checksum.isEmpty()) {
             throw new ManagedPostgresSpringException(
-                    "managed-postgres.runtime.source=downloaded requires runtime.repository");
+                    "managed-postgres.runtime.source=downloaded requires runtime.checksum");
         }
     }
 

@@ -66,7 +66,7 @@ public record ManagedPostgresSpringProperties(
     private static final String LIFECYCLE_REUSE_EXISTING = PREFIX + "lifecycle.reuse-existing";
     private static final String LIFECYCLE_KEEP_RUNNING = PREFIX + "lifecycle.keep-running";
     private static final String DEFAULT_NAME = "default";
-    private static final String DEFAULT_VERSION = "16.4";
+    private static final String DEFAULT_VERSION = "18.4";
     private static final Path DEFAULT_STORAGE_PATH = Path.of(".local/postgres");
     private static final String DEFAULT_NETWORK_HOST = "127.0.0.1";
     private static final String DEFAULT_NETWORK_PORT_SELECTION = "stable-random";

@@ -44,7 +44,7 @@ final class ManagedPostgresSpringRuntimeSourceValidator {
     private static void validateDownloadedRuntime(final ManagedPostgresSpringRuntimeSourceProperties properties) {
         properties.requireRuntimePathAbsent();
         properties.requireClasspathResourceAbsent();
-        properties.requireRuntimeChecksumPresent(DOWNLOADED);
+        properties.requireDownloadedChecksumWhenRepositoryPresent();
         properties.requireRuntimeSignaturePairIfPresent();
     }
 }
