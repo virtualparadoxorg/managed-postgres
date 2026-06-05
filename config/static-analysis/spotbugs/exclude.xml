@@ -88,4 +88,10 @@
         <Method name="onProgress"/>
         <Bug pattern="CRLF_INJECTION_LOGS"/>
     </Match>
+    <!-- Main is the CLI process entry point; calling System.exit with the documented exit code is correct here. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.cli.Main"/>
+        <Method name="main"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
 </FindBugsFilter>

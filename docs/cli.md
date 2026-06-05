@@ -348,17 +348,42 @@ The CLI returns documented process exit codes:
 **Pre-release.** Artifacts are **not yet on Maven Central** — the `1.0.0` coordinates are
 placeholders until the first release. Build from source for now.
 
-The `managed-postgres-cli` module is published as a plain library jar exposing the
-`ManagedPostgresCli` entry point (root picocli command); it does not currently bundle an executable
-fat-jar or a launcher script. To run it today, build from source and invoke `ManagedPostgresCli`
-with picocli and `managed-postgres-core` on the classpath. From the repository root:
+The `managed-postgres-cli` module produces **two** jars:
+
+- `managed-postgres-cli-<version>.jar` — the plain library jar exposing the `ManagedPostgresCli`
+  entry point (root picocli command), for embedders.
+- `managed-postgres-cli-<version>-cli.jar` — a **runnable executable jar** (built by the
+  maven-shade-plugin) with a `Main-Class` manifest and all runtime dependencies bundled, including
+  the PostgreSQL JDBC driver used by the `status`/`doctor` probe.
+
+Build the runnable jar from the repository root:
 
 ```bash
-./mvnw -pl managed-postgres/cli -am verify
+./mvnw -pl managed-postgres/cli -am package
 ```
 
-This builds the CLI and its dependencies. The CLI version reported by `--version` comes from the
-jar's `Implementation-Version` (falling back to `development` when built without release metadata).
+Then run it directly with `java -jar`:
+
+```bash
+java -jar managed-postgres/cli/target/managed-postgres-cli-1.0-SNAPSHOT-cli.jar --help
+java -jar managed-postgres/cli/target/managed-postgres-cli-1.0-SNAPSHOT-cli.jar status --format json
+```
+
+(Substitute the actual built version; the development build is `1.0-SNAPSHOT`.)
+
+### Launcher script
+
+A small POSIX launcher is shipped at `managed-postgres/cli/src/main/scripts/managed-postgres`. It
+resolves the runnable jar relative to itself (or from `MANAGED_POSTGRES_CLI_JAR`) and execs
+`java -jar`, so you can invoke the CLI by name:
+
+```bash
+managed-postgres/cli/src/main/scripts/managed-postgres --help
+managed-postgres/cli/src/main/scripts/managed-postgres start --config ./managed-postgres.yml
+```
+
+The CLI version reported by `--version` comes from the jar's `Implementation-Version` (falling back
+to `development` when built without release metadata).
 
 ## See also
 
