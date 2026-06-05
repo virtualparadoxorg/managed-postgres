@@ -15,6 +15,7 @@ public final class ConfiguredManagedPostgres implements ManagedPostgres {
 
     private final ManagedPostgresConfiguration configuration;
     private final ManagedPostgresService service;
+    private final ManagedPostgresObservers observers;
 
     /**
      * Creates a ConfiguredManagedPostgres instance.
@@ -22,7 +23,18 @@ public final class ConfiguredManagedPostgres implements ManagedPostgres {
      * @param configuration configuration value
      */
     public ConfiguredManagedPostgres(final ManagedPostgresConfiguration configuration) {
-        this(configuration, new ManagedPostgresService());
+        this(configuration, new ManagedPostgresService(), ManagedPostgresObservers.defaults());
+    }
+
+    /**
+     * Creates a ConfiguredManagedPostgres instance.
+     *
+     * @param configuration configuration value
+     * @param observers startup observers value
+     */
+    public ConfiguredManagedPostgres(
+            final ManagedPostgresConfiguration configuration, final ManagedPostgresObservers observers) {
+        this(configuration, new ManagedPostgresService(), observers);
     }
 
     /**
@@ -33,8 +45,23 @@ public final class ConfiguredManagedPostgres implements ManagedPostgres {
      */
     public ConfiguredManagedPostgres(
             final ManagedPostgresConfiguration configuration, final ManagedPostgresService service) {
+        this(configuration, service, ManagedPostgresObservers.defaults());
+    }
+
+    /**
+     * Creates a ConfiguredManagedPostgres instance.
+     *
+     * @param configuration configuration value
+     * @param service service value
+     * @param observers startup observers value
+     */
+    public ConfiguredManagedPostgres(
+            final ManagedPostgresConfiguration configuration,
+            final ManagedPostgresService service,
+            final ManagedPostgresObservers observers) {
         this.configuration = Objects.requireNonNull(configuration, "configuration");
         this.service = Objects.requireNonNull(service, "service");
+        this.observers = Objects.requireNonNull(observers, "observers");
     }
 
     /**
@@ -42,7 +69,7 @@ public final class ConfiguredManagedPostgres implements ManagedPostgres {
      */
     @Override
     public RunningPostgres start() {
-        return service.start(configuration);
+        return service.start(configuration, observers);
     }
 
     /**

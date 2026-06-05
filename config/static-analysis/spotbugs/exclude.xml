@@ -82,4 +82,10 @@
         <Class name="eu.virtualparadox.managedpostgres.internal.ConnectionInfoDataSourceTest"/>
         <Bug pattern="ODR_OPEN_DATABASE_RESOURCE"/>
     </Match>
+    <!-- Slf4jManagedPostgresProgressListener logs library-internal progress messages and already strips CR/LF before logging. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.observe.Slf4jManagedPostgresProgressListener"/>
+        <Method name="onProgress"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
 </FindBugsFilter>

@@ -19,6 +19,7 @@ import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.internal.ManagedPostgresObservers;
 import eu.virtualparadox.managedpostgres.internal.runtime.ResolvedRuntime;
 import eu.virtualparadox.managedpostgres.internal.runtime.TelemetryRuntimeResolver;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachJdbcProbeRequest;
@@ -42,6 +43,9 @@ import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.StartupPhase;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.ExistingRuntimeResolver;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeResolver;
 import eu.virtualparadox.managedpostgres.security.Secret;
@@ -51,6 +55,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -85,6 +90,22 @@ public final class StartPostgresWorkflowTest {
         }
         assertThat(Files.isRegularFile(storageRoot.resolve("state").resolve("metadata.json")))
                 .isTrue();
+    }
+
+    @Test
+    void successfulStartEmitsReadyProgressEvent() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of());
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        try (RunningPostgres handle = workflow()
+                .start(
+                        configuration(new Storage(storageRoot, false), runtimeDirectory),
+                        ManagedPostgresObservers.defaults().withProgress(listener))) {
+            assertThat(handle).isInstanceOf(StartedPostgresHandle.class);
+        }
+
+        assertThat(listener.events()).extracting(StartupProgress::phase).containsExactly(StartupPhase.READY);
     }
 
     @Test
@@ -614,6 +635,20 @@ public final class StartPostgresWorkflowTest {
         @Override
         public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
             return new ResolvedRuntime(runtimeDirectory, installDuration);
+        }
+    }
+
+    private static final class RecordingProgressListener implements ManagedPostgresProgressListener {
+
+        private final List<StartupProgress> events = new ArrayList<>();
+
+        @Override
+        public void onProgress(final StartupProgress progress) {
+            events.add(progress);
+        }
+
+        private List<StartupProgress> events() {
+            return List.copyOf(events);
         }
     }
 }

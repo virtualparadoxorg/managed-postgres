@@ -3,6 +3,7 @@ package eu.virtualparadox.managedpostgres.lifecycle;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
+import eu.virtualparadox.managedpostgres.internal.ManagedPostgresObservers;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.CleanupManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.cleanup.DestroyManagedPostgresWorkflow;
 import eu.virtualparadox.managedpostgres.lifecycle.doctor.DoctorService;
@@ -86,7 +87,19 @@ public final class ManagedPostgresService {
      * @return running PostgreSQL handle
      */
     public RunningPostgres start(final ManagedPostgresConfiguration configuration) {
-        return start(new StartPostgresWorkflow.Configuration(configuration));
+        return start(configuration, ManagedPostgresObservers.defaults());
+    }
+
+    /**
+     * Starts a managed PostgreSQL instance with the supplied startup observers.
+     *
+     * @param configuration managed PostgreSQL configuration
+     * @param observers startup observers
+     * @return running PostgreSQL handle
+     */
+    public RunningPostgres start(
+            final ManagedPostgresConfiguration configuration, final ManagedPostgresObservers observers) {
+        return start(new StartPostgresWorkflow.Configuration(configuration), observers);
     }
 
     /**
@@ -96,7 +109,19 @@ public final class ManagedPostgresService {
      * @return running PostgreSQL handle
      */
     public RunningPostgres start(final StartPostgresWorkflow.Configuration configuration) {
-        return startWorkflow.start(configuration);
+        return start(configuration, ManagedPostgresObservers.defaults());
+    }
+
+    /**
+     * Starts a managed PostgreSQL instance with the supplied startup observers.
+     *
+     * @param configuration startup configuration
+     * @param observers startup observers
+     * @return running PostgreSQL handle
+     */
+    public RunningPostgres start(
+            final StartPostgresWorkflow.Configuration configuration, final ManagedPostgresObservers observers) {
+        return startWorkflow.start(configuration, observers);
     }
 
     /**

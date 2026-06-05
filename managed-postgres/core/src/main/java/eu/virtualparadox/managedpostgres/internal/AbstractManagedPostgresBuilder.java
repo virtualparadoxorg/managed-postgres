@@ -10,6 +10,7 @@ import eu.virtualparadox.managedpostgres.config.cleanup.CleanupPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfiguration;
 import eu.virtualparadox.managedpostgres.dsl.DownloadedRuntimeDsl;
 import eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.net.URI;
 import java.nio.file.Path;
@@ -27,14 +28,18 @@ import java.util.Objects;
 public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresBuilder {
 
     private final ManagedPostgresConfiguration configuration;
+    private final ManagedPostgresObservers observers;
 
     /**
      * Creates a AbstractManagedPostgresBuilder instance.
      *
      * @param configuration configuration value
+     * @param observers startup observers value
      */
-    public AbstractManagedPostgresBuilder(final ManagedPostgresConfiguration configuration) {
+    public AbstractManagedPostgresBuilder(
+            final ManagedPostgresConfiguration configuration, final ManagedPostgresObservers observers) {
         this.configuration = Objects.requireNonNull(configuration, "configuration");
+        this.observers = Objects.requireNonNull(observers, "observers");
     }
 
     /**
@@ -209,6 +214,14 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public final ManagedPostgresBuilder onProgress(final ManagedPostgresProgressListener listener) {
+        return copyObservers(observers.withProgress(Objects.requireNonNull(listener, "listener")));
+    }
+
+    /**
      * Returns the configuration result.
      *
      * @return configuration result
@@ -218,10 +231,27 @@ public abstract class AbstractManagedPostgresBuilder implements ManagedPostgresB
     }
 
     /**
+     * Returns the startup observers.
+     *
+     * @return startup observers
+     */
+    public final ManagedPostgresObservers observers() {
+        return observers;
+    }
+
+    /**
      * Returns the copy result.
      *
      * @param updatedConfiguration updated configuration value
      * @return copy result
      */
     public abstract ManagedPostgresBuilder copy(ManagedPostgresConfiguration updatedConfiguration);
+
+    /**
+     * Rebuilds the concrete builder with new observers but the same configuration.
+     *
+     * @param updatedObservers updated observers value
+     * @return copy result
+     */
+    public abstract ManagedPostgresBuilder copyObservers(ManagedPostgresObservers updatedObservers);
 }

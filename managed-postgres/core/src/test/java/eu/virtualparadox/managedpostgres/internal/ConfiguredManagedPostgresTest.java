@@ -16,6 +16,7 @@ import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresConfigurati
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.lifecycle.ManagedPostgresService;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
@@ -72,6 +73,18 @@ public final class ConfiguredManagedPostgresTest {
         }
 
         verify(service).destroyCluster(configuration);
+    }
+
+    @Test
+    void startPassesConfiguredObserversToLifecycleService() {
+        final ManagedPostgresConfiguration configuration = configuration();
+        final ManagedPostgresService service = mock(ManagedPostgresService.class);
+        final ManagedPostgresObservers observers =
+                ManagedPostgresObservers.defaults().withProgress(ManagedPostgresProgressListener.none());
+
+        new ConfiguredManagedPostgres(configuration, service, observers).start();
+
+        verify(service).start(configuration, observers);
     }
 
     private static ManagedPostgresConfiguration configuration() {
