@@ -37,15 +37,21 @@ final class HttpRuntimeArtifactFetcher {
     static void copy(final URI uri, final Path target, final BytesTransferredListener progress) throws IOException {
         final BytesTransferredListener checkedProgress = Objects.requireNonNull(progress, "progress");
         final HttpResponse<InputStream> response = send(request(uri));
-        validateHttpResponse(response.statusCode());
         final long total = contentLength(response);
-        try (InputStream inputStream = response.body();
-                OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(
-                        target,
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.WRITE,
-                        StandardOpenOption.TRUNCATE_EXISTING))) {
-            stream(inputStream, outputStream, total, checkedProgress);
+        // Open the body stream in try-with-resources BEFORE validating the status so that a non-2xx
+        // response closes the body (and its connection) on the way out instead of leaking it.
+        try (InputStream inputStream = response.body()) {
+            validateHttpResponse(response.statusCode());
+            copyBody(inputStream, target, total, checkedProgress);
+        }
+    }
+
+    private static void copyBody(
+            final InputStream inputStream, final Path target, final long total, final BytesTransferredListener progress)
+            throws IOException {
+        try (OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(
+                target, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING))) {
+            stream(inputStream, outputStream, total, progress);
         }
     }
 

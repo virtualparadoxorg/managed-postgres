@@ -59,6 +59,27 @@ public final class TailingPostgresLogBridgeTest {
     }
 
     @Test
+    void throwingSinkOnFirstLineDoesNotKillTailThread() throws IOException {
+        final Path logFile = emptyLogFile("postgres.log");
+        final List<String> recordedLines = new CopyOnWriteArrayList<>();
+        final java.util.concurrent.atomic.AtomicBoolean firstLine = new java.util.concurrent.atomic.AtomicBoolean(true);
+
+        try (TailingPostgresLogBridge bridge =
+                new TailingPostgresLogBridge(logFile, "managed.postgres.test", List.of(), (loggerName, line) -> {
+                    if (firstLine.getAndSet(false)) {
+                        throw new IllegalStateException("sink boom on first line");
+                    }
+                    recordedLines.add(loggerName + ":" + line);
+                })) {
+            assertThat(bridge).isNotNull();
+            appendLine(logFile, "first line\n");
+            appendLine(logFile, "second line\n");
+
+            awaitLines(recordedLines, List.of("managed.postgres.test:second line"));
+        }
+    }
+
+    @Test
     void bridgeWaitsForMissingFileAndForwardsOnceFileAppears() throws IOException {
         final Path logFile = temporaryDirectory.resolve("postgres.log");
         final List<String> recordedLines = new CopyOnWriteArrayList<>();

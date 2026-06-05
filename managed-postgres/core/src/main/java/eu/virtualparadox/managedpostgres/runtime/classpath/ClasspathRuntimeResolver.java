@@ -5,6 +5,7 @@ import eu.virtualparadox.managedpostgres.internal.runtime.CachedRuntimeResolver;
 import eu.virtualparadox.managedpostgres.internal.runtime.ResolvedRuntime;
 import eu.virtualparadox.managedpostgres.internal.runtime.TelemetryRuntimeResolver;
 import eu.virtualparadox.managedpostgres.internal.runtime.signature.RuntimeSignatureVerifier;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeResolver;
 import eu.virtualparadox.managedpostgres.runtime.download.RuntimeCacheCleaner;
 import eu.virtualparadox.managedpostgres.runtime.download.cleanup.RuntimeCacheRetention;
@@ -39,6 +40,8 @@ public final class ClasspathRuntimeResolver implements RuntimeResolver, Telemetr
                 new RuntimeSignatureVerifier());
     }
 
+    // CPD-OFF - thin cache-orchestrator boilerplate (constructor + resolve delegations) intentionally
+    // mirrors DownloadedRuntimeResolver; the resolvers differ only in their publisher collaborator.
     private ClasspathRuntimeResolver(
             final RuntimeCacheCleaner cleaner,
             final RuntimeCacheRetention retention,
@@ -80,6 +83,26 @@ public final class ClasspathRuntimeResolver implements RuntimeResolver, Telemetr
      */
     @Override
     public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
+        return resolveWithTelemetry(runtimeSource, postgresqlVersion, ManagedPostgresProgressListener.none());
+    }
+
+    // CPD-ON
+
+    /**
+     * Resolves a classpath runtime source and returns internal install telemetry, emitting verification
+     * and extraction progress on a cache miss.
+     *
+     * @param runtimeSource classpath runtime source
+     * @param postgresqlVersion requested PostgreSQL version
+     * @param progress startup progress listener
+     * @return resolved local PostgreSQL runtime directory plus install timing
+     */
+    @Override
+    public ResolvedRuntime resolveWithTelemetry(
+            final RuntimeSource runtimeSource,
+            final String postgresqlVersion,
+            final ManagedPostgresProgressListener progress) {
+        final ManagedPostgresProgressListener checkedProgress = Objects.requireNonNull(progress, "progress");
         final ClasspathRuntimeResolutionContext context =
                 ClasspathRuntimeResolutionContext.create(runtimeSource, postgresqlVersion);
         return cacheResolver.resolveWithTelemetry(
@@ -87,7 +110,7 @@ public final class ClasspathRuntimeResolver implements RuntimeResolver, Telemetr
                 context.finalRuntime(),
                 context.signature(),
                 context.runtimeCache(),
-                () -> publisher.publish(context));
+                () -> publisher.publish(context, checkedProgress));
     }
 
     private static ClassLoader resolverClassLoader() {

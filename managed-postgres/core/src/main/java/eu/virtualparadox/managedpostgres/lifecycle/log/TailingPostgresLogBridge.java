@@ -13,12 +13,20 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tails the managed PostgreSQL log file and forwards new lines to a sink.
  */
+@SuppressWarnings({
+    // The sink wraps untrusted user code (e.g. a PostgresLogListener); catching RuntimeException is
+    // intentional so a throwing sink cannot kill the daemon tail thread or stop subsequent lines.
+    "PMD.AvoidCatchingGenericException"
+})
 public final class TailingPostgresLogBridge implements AutoCloseable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TailingPostgresLogBridge.class);
     private static final Duration POLL_INTERVAL = Duration.ofMillis(100);
     private static final String REDACTED = "<redacted>";
     private static final int COPY_BUFFER_BYTES = 4_096;
@@ -128,9 +136,17 @@ public final class TailingPostgresLogBridge implements AutoCloseable {
         final String[] lines = normalizedText.split("\n", -1);
         final int lastIndex = lines.length - 1;
         for (int index = 0; index < lastIndex; index++) {
-            sink.log(loggerName, redact(lines[index]));
+            dispatch(redact(lines[index]));
         }
         partialLine = lines[lastIndex];
+    }
+
+    private void dispatch(final String redactedLine) {
+        try {
+            sink.log(loggerName, redactedLine);
+        } catch (final RuntimeException exception) {
+            LOGGER.warn("managed PostgreSQL log sink threw while forwarding a line; continuing", exception);
+        }
     }
 
     private String redact(final String line) {

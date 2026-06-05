@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.runtime.download;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
@@ -59,6 +60,45 @@ final class HttpRuntimeArtifactFetcherTest {
         assertThat(Files.size(target)).isEqualTo(body.length);
         assertThat(listener.totals()).containsOnly(0L);
         assertThat(listener.dones().get(listener.dones().size() - 1)).isEqualTo((long) body.length);
+    }
+
+    @Test
+    void nonSuccessfulResponseThrowsAndDoesNotLeakBodyStream() throws IOException {
+        final byte[] body = bytes(10_000);
+        final HttpTestServer server = notFoundServer(body);
+        final Path target = temporaryDirectory.resolve("artifact.bin");
+        final RecordingBytesListener listener = new RecordingBytesListener();
+
+        try (server) {
+            server.start();
+            assertThatThrownBy(() -> HttpRuntimeArtifactFetcher.copy(server.uri(), target, listener))
+                    .isInstanceOf(IOException.class)
+                    .hasMessageContaining("HTTP 404");
+        }
+
+        // Failure path was exercised: nothing copied and no progress emitted for a non-2xx response.
+        assertThat(target).doesNotExist();
+        assertThat(listener.dones()).isEmpty();
+    }
+
+    private static HttpTestServer notFoundServer(final byte[] body) throws IOException {
+        final HttpServer server;
+        final URI uri;
+        try (AllocatedPort allocatedPort = new PortAllocator().allocateRandom()) {
+            uri = URI.create("http://" + allocatedPort.host() + ":" + allocatedPort.port() + "/postgres.zip");
+            server =
+                    HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), allocatedPort.port()), 0);
+            server.createContext("/postgres.zip", exchange -> respondNotFound(exchange, body));
+        }
+
+        return new HttpTestServer(server, uri);
+    }
+
+    private static void respondNotFound(final HttpExchange exchange, final byte[] body) throws IOException {
+        exchange.sendResponseHeaders(404, body.length);
+        try (OutputStream outputStream = exchange.getResponseBody()) {
+            outputStream.write(body);
+        }
     }
 
     private static byte[] bytes(final int length) {

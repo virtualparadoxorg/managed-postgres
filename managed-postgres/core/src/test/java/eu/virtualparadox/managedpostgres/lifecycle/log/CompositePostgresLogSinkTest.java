@@ -23,4 +23,18 @@ public final class CompositePostgresLogSinkTest {
         assertThat(first).containsExactly("managed.postgres.test:a line");
         assertThat(second).containsExactly("managed.postgres.test:a line");
     }
+
+    @Test
+    void throwingDelegateDoesNotStarveOtherDelegates() {
+        final List<String> survivor = new ArrayList<>();
+        final PostgresLogSink composite = new CompositePostgresLogSink(List.of(
+                (loggerName, line) -> {
+                    throw new IllegalStateException("delegate boom");
+                },
+                (loggerName, line) -> survivor.add(loggerName + ":" + line)));
+
+        composite.log("managed.postgres.test", "a line");
+
+        assertThat(survivor).containsExactly("managed.postgres.test:a line");
+    }
 }
