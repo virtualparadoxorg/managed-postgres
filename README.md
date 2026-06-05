@@ -8,7 +8,7 @@
 No Docker. No install. No root. No `initdb` rituals.
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](#compatibility)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4-6DB33F.svg)](#spring-boot--one-line-and-your-app-has-a-database)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3%20%26%204-6DB33F.svg)](#spring-boot--one-line-and-your-app-has-a-database)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20–%2018-336791.svg)](#compatibility)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--release-yellow.svg)](#status)
@@ -92,6 +92,8 @@ managed-postgres:
 
 Boot your app. There is a PostgreSQL behind your `DataSource`, `JdbcTemplate`, JPA — whatever you use.
 No `docker-compose.yml`, no Testcontainers, no local install.
+
+On **Spring Boot 3**? Use `managed-postgres-spring-boot-3-starter` instead — same properties, same behaviour.
 
 ---
 
@@ -198,7 +200,7 @@ managed-postgres  start | stop | status | backup | restore | upgrade | doctor
 | | |
 |---|---|
 | **Java** | 21+ |
-| **Spring Boot** | 4 |
+| **Spring Boot** | 3 and 4 (separate starters) |
 | **PostgreSQL** | 16, 17, 18 (default runtime: 18.4) |
 | **OS / arch** | macOS x86-64 · macOS arm64 · Linux x86-64 (glibc/musl) · Linux arm64 (glibc/musl) · Windows x86-64 |
 

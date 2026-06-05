@@ -14,6 +14,8 @@ Maven:
 </dependency>
 ```
 
+**On Spring Boot 3?** Use `managed-postgres-spring-boot-3-starter` instead of the Boot 4 artifact above — the properties, auto-configuration and behaviour are identical (both starters share the same `managed-postgres-spring-boot-common` engine). Note the Java 21 baseline still applies, since `managed-postgres-core` targets Java 21.
+
 You must also provide a runtime source. One simple option is an existing local PostgreSQL installation:
 
 ```yaml
