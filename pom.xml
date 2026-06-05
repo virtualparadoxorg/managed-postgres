@@ -60,6 +60,7 @@
         <module>managed-postgres/runtime-packager</module>
         <module>managed-postgres/core</module>
         <module>managed-postgres/cli</module>
+        <module>managed-postgres/spring-boot-common</module>
         <module>managed-postgres/spring-boot-4</module>
         <module>managed-postgres/spring-boot-4-starter</module>
         <module>managed-postgres/test</module>
@@ -108,6 +109,7 @@
         <picocli.version>4.7.7</picocli.version>
         <postgresql.jdbc.version>42.7.11</postgresql.jdbc.version>
         <snakeyaml.engine.version>3.0.1</snakeyaml.engine.version>
+        <spring.boot3.version>3.5.0</spring.boot3.version>
         <spring.boot4.version>4.0.6</spring.boot4.version>
         <lombok.version>1.18.46</lombok.version>
         <slf4j.version>2.0.18</slf4j.version>
@@ -158,6 +160,17 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>managed-postgres-test</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>managed-postgres-spring-boot-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>managed-postgres-spring-boot-common</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>

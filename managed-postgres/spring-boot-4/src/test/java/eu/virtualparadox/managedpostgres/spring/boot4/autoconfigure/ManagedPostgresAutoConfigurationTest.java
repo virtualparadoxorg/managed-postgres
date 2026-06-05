@@ -10,7 +10,7 @@ import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.security.Secret;
-import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapContextTestSupport;
+import eu.virtualparadox.managedpostgres.spring.common.bootstrap.ManagedPostgresBootstrapContextTestSupport;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;

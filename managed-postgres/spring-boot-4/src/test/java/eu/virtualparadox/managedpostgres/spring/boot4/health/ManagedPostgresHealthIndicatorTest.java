@@ -10,7 +10,7 @@ import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spring.boot4.autoconfigure.ManagedPostgresAutoConfiguration;
-import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapContextTestSupport;
+import eu.virtualparadox.managedpostgres.spring.common.bootstrap.ManagedPostgresBootstrapContextTestSupport;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;

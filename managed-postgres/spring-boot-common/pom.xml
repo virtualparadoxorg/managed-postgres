@@ -11,11 +11,11 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>managed-postgres-spring-boot-4</artifactId>
+    <artifactId>managed-postgres-spring-boot-common</artifactId>
     <packaging>jar</packaging>
 
-    <name>Managed Postgres Spring Boot 4</name>
-    <description>Spring Boot 4 integration for managed PostgreSQL lifecycle operations.</description>
+    <name>Managed Postgres Spring Boot Common</name>
+    <description>Version-agnostic Spring Boot integration shared by the managed PostgreSQL starters.</description>
 
     <properties>
         <japicmp.skip>false</japicmp.skip>
@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot4.version}</version>
+                <version>${spring.boot3.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -39,21 +39,14 @@
             <artifactId>managed-postgres-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>managed-postgres-spring-boot-common</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-health</artifactId>
-            <optional>true</optional>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -66,19 +59,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>managed-postgres-spring-boot-common</artifactId>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -107,4 +89,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-test-jar</id>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
