@@ -46,6 +46,26 @@ public final class ManagedPostgresCli implements Callable<Integer> {
     }
 
     /**
+     * Runs the command line against the supplied writers and returns a documented exit code.
+     *
+     * <p>This is the testable core of the {@link Main} entry point: it constructs the adapter,
+     * executes the arguments, flushes both writers, and returns the exit code without terminating
+     * the JVM.
+     *
+     * @param args command line arguments
+     * @param output standard command output
+     * @param errorOutput error command output
+     * @return command exit code
+     */
+    static int run(final String[] args, final PrintWriter output, final PrintWriter errorOutput) {
+        final int exitCode = new ManagedPostgresCli(output, errorOutput).execute(args);
+        output.flush();
+        errorOutput.flush();
+
+        return exitCode;
+    }
+
+    /**
      * Executes the command line and returns a documented exit code.
      *
      * @param arguments command line arguments

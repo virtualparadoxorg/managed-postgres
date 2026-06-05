@@ -121,6 +121,7 @@
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.resources.plugin.version>3.4.0</maven.resources.plugin.version>
         <maven.jar.plugin.version>3.5.0</maven.jar.plugin.version>
+        <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
         <maven.install.plugin.version>3.1.4</maven.install.plugin.version>
         <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
         <maven.site.plugin.version>3.12.1</maven.site.plugin.version>
@@ -733,6 +734,8 @@
                                 <exclude>eu/virtualparadox/managedpostgres/config/ManagedPostgresMode*</exclude>
                                 <exclude>eu/virtualparadox/managedpostgres/config/StopPolicy*</exclude>
                                 <exclude>eu/virtualparadox/managedpostgres/config/UpgradePolicy*</exclude>
+                                <!-- CLI process entry point; the one-line main wraps System.exit and cannot be unit-tested. -->
+                                <exclude>eu/virtualparadox/managedpostgres/cli/Main*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -775,6 +778,8 @@
                                 <exclude>eu/virtualparadox/managedpostgres/config/ManagedPostgresMode*</exclude>
                                 <exclude>eu/virtualparadox/managedpostgres/config/StopPolicy*</exclude>
                                 <exclude>eu/virtualparadox/managedpostgres/config/UpgradePolicy*</exclude>
+                                <!-- CLI process entry point; the one-line main wraps System.exit and cannot be unit-tested. -->
+                                <exclude>eu/virtualparadox/managedpostgres/cli/Main*</exclude>
                             </excludes>
                             <rules>
                                 <rule>

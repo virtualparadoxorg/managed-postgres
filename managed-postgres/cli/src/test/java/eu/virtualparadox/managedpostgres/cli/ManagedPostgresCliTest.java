@@ -81,6 +81,37 @@ final class ManagedPostgresCliTest {
         assertThat(run.errorOutput()).isEmpty();
     }
 
+    @Test
+    void runHelpReturnsSuccessFlushesAndPrintsUsage() {
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
+
+        final int exitCode;
+        try (PrintWriter outputWriter = writer(output);
+                PrintWriter errorWriter = writer(errorOutput)) {
+            exitCode = ManagedPostgresCli.run(new String[] {"--help"}, outputWriter, errorWriter);
+        }
+
+        assertThat(exitCode).isEqualTo(CliExitCode.OK.code());
+        assertThat(text(output)).contains("Usage: managed-postgres");
+        assertThat(text(errorOutput)).isEmpty();
+    }
+
+    @Test
+    void runUnknownCommandReturnsConfigurationError() {
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
+
+        final int exitCode;
+        try (PrintWriter outputWriter = writer(output);
+                PrintWriter errorWriter = writer(errorOutput)) {
+            exitCode = ManagedPostgresCli.run(new String[] {"missing-command"}, outputWriter, errorWriter);
+        }
+
+        assertThat(exitCode).isEqualTo(CliExitCode.CONFIGURATION_ERROR.code());
+        assertThat(text(errorOutput)).contains("Unmatched argument");
+    }
+
     private static CliRun run(final String... arguments) {
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         final ByteArrayOutputStream errorOutput = new ByteArrayOutputStream();
