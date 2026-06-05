@@ -93,7 +93,7 @@ public final class StartPostgresWorkflowTest {
     }
 
     @Test
-    void successfulStartEmitsReadyProgressEvent() throws IOException {
+    void successfulCreateStartEmitsFullPhaseSequenceWithoutDownloadEvents() throws IOException {
         final Path runtimeDirectory = runtimeWithScripts(List.of());
         final Path storageRoot = temporaryDirectory.resolve("local-postgres");
         final RecordingProgressListener listener = new RecordingProgressListener();
@@ -105,7 +105,80 @@ public final class StartPostgresWorkflowTest {
             assertThat(handle).isInstanceOf(StartedPostgresHandle.class);
         }
 
-        assertThat(listener.events()).extracting(StartupProgress::phase).containsExactly(StartupPhase.READY);
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(
+                        StartupPhase.RESOLVING_RUNTIME,
+                        StartupPhase.INITDB,
+                        StartupPhase.STARTING,
+                        StartupPhase.WAITING_FOR_READY,
+                        StartupPhase.READY);
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .doesNotContain(StartupPhase.DOWNLOADING, StartupPhase.VERIFYING, StartupPhase.EXTRACTING);
+    }
+
+    @Test
+    void existingInitializedDataDirectoryStartDoesNotEmitInitdbPhase() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of());
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final Path dataDirectory = storageRoot.resolve("data");
+        Files.createDirectories(dataDirectory);
+        Files.writeString(dataDirectory.resolve("PG_VERSION"), "16%n".formatted(), StandardCharsets.UTF_8);
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        workflow()
+                .start(
+                        configuration(new Storage(storageRoot, false), runtimeDirectory),
+                        ManagedPostgresObservers.defaults().withProgress(listener));
+
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(
+                        StartupPhase.RESOLVING_RUNTIME,
+                        StartupPhase.STARTING,
+                        StartupPhase.WAITING_FOR_READY,
+                        StartupPhase.READY);
+    }
+
+    @Test
+    void attachPathEmitsResolvingThenAttachingThenReadyWithoutStartingPhases() throws IOException {
+        final AttachScenario scenario = attachScenarioWithPid(0L);
+        final StartPostgresWorkflow workflow = workflow(
+                ProcessLookup.fixed(Optional.empty()),
+                metadata -> true,
+                metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        try (RunningPostgres handle = workflow.start(
+                attachConfiguration(scenario.storage(), scenario.runtimeDirectory()),
+                ManagedPostgresObservers.defaults().withProgress(listener))) {
+            assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
+        }
+
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(StartupPhase.RESOLVING_RUNTIME, StartupPhase.ATTACHING, StartupPhase.READY);
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .doesNotContain(StartupPhase.INITDB, StartupPhase.STARTING, StartupPhase.WAITING_FOR_READY);
+    }
+
+    private static StartPostgresWorkflow.Configuration attachConfiguration(
+            final Storage storage, final Path runtimeDirectory) {
+        return new StartPostgresWorkflow.Configuration(
+                "app-db",
+                "16.4",
+                storage,
+                RuntimeSource.existing(runtimeDirectory),
+                Credentials.generatedPersistent(),
+                Network.localhostOnly(),
+                ClusterBootstrap.defaultCluster(),
+                AttachPolicy.ATTACH_IF_COMPATIBLE,
+                StopPolicy.KEEP_RUNNING,
+                UpgradePolicy.MINOR_ONLY,
+                ConfigDriftPolicy.FAIL,
+                CleanupPolicy.safeDefaults());
     }
 
     @Test
@@ -249,30 +322,14 @@ public final class StartPostgresWorkflowTest {
 
     @Test
     void compatibleMetadataIsAttachedWithoutStartingNewProcess() throws IOException {
-        final Path runtimeDirectory = runtimeWithScripts(List.of());
-        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
-        final Storage storage = new Storage(storageRoot, false);
-        final PostgresLayout layout = PostgresLayout.plan(storage, new FileSystemOperationJournal());
-        layout.createDirectories(new FileSystemOperationJournal());
-        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal()).write(metadata(layout, 0L));
+        final AttachScenario scenario = attachScenarioWithPid(0L);
         final StartPostgresWorkflow workflow = workflow(
                 ProcessLookup.fixed(Optional.empty()),
                 metadata -> true,
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
-        try (RunningPostgres handle = workflow.start(new StartPostgresWorkflow.Configuration(
-                "app-db",
-                "16.4",
-                storage,
-                RuntimeSource.existing(runtimeDirectory),
-                Credentials.generatedPersistent(),
-                Network.localhostOnly(),
-                ClusterBootstrap.defaultCluster(),
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.KEEP_RUNNING,
-                UpgradePolicy.MINOR_ONLY,
-                ConfigDriftPolicy.FAIL,
-                CleanupPolicy.safeDefaults()))) {
+        try (RunningPostgres handle =
+                workflow.start(attachConfiguration(scenario.storage(), scenario.runtimeDirectory()))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(handle.connectionInfo().port()).isEqualTo(15432);
         }

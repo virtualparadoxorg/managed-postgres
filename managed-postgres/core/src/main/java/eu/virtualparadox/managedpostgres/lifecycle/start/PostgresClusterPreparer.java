@@ -83,6 +83,16 @@ public final class PostgresClusterPreparer {
         }
     }
 
+    /**
+     * Returns whether the configured data directory requires a fresh {@code initdb} cluster.
+     *
+     * @param layout PostgreSQL layout
+     * @return {@code true} when {@code initdb} will run during preparation
+     */
+    public boolean requiresInitialization(final PostgresLayout layout) {
+        return requiresInitialization(Objects.requireNonNull(layout, "layout").dataDirectory());
+    }
+
     private void initializeDataDirectoryIfNeeded(
             final Path runtimeDirectory, final PostgresLayout layout, final Credentials credentials) {
         if (requiresInitialization(layout.dataDirectory())) {

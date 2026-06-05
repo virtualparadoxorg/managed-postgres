@@ -206,7 +206,7 @@ public final class StartPostgresWorkflow {
             final Configuration configuration, final PostgresLayout layout, final ManagedPostgresObservers observers) {
         recoverFileSystemOperations(layout);
         final ResolvedRuntime resolvedRuntime =
-                resolveRuntime(configuration.runtimeSource(), configuration.postgresqlVersion());
+                resolveRuntime(configuration.runtimeSource(), configuration.postgresqlVersion(), observers);
         final Path runtimeDirectory = resolvedRuntime.runtimeDirectory();
         final MetadataStore metadataStore = new MetadataStore(layout.metadataPath(), fileSystem);
         final Configuration effectiveConfiguration = loadPersistentCredentials(configuration, layout);
@@ -215,6 +215,10 @@ public final class StartPostgresWorkflow {
         final RunningPostgres handle;
         boolean processStarted = false;
         if (attachedHandle.isPresent()) {
+            observers
+                    .progress()
+                    .onProgress(new StartupProgress(
+                            StartupPhase.ATTACHING, 0, 0, "Attaching to running PostgreSQL instance"));
             handle = logBridgeSupport.wrap(
                     attachedHandle.orElseThrow(),
                     logBridgeSupport.start(
@@ -243,10 +247,24 @@ public final class StartPostgresWorkflow {
                     final PostgresConnectionInfo connectionInfo =
                             PostgresStartArtifacts.connectionInfo(effectiveConfiguration, allocatedPort);
 
-                    new PostgresClusterPreparer(fileSystem, commandRunner, startupTimeout)
-                            .prepare(runtimeDirectory, layout, effectiveConfiguration.credentials(), settings);
+                    final PostgresClusterPreparer clusterPreparer =
+                            new PostgresClusterPreparer(fileSystem, commandRunner, startupTimeout);
+                    if (clusterPreparer.requiresInitialization(layout)) {
+                        observers
+                                .progress()
+                                .onProgress(new StartupProgress(
+                                        StartupPhase.INITDB, 0, 0, "Initializing PostgreSQL data directory"));
+                    }
+                    clusterPreparer.prepare(runtimeDirectory, layout, effectiveConfiguration.credentials(), settings);
+                    observers
+                            .progress()
+                            .onProgress(new StartupProgress(StartupPhase.STARTING, 0, 0, "Starting PostgreSQL server"));
                     startProcess(runtimeDirectory, layout, effectiveConfiguration.cleanupPolicy());
                     processStarted = true;
+                    observers
+                            .progress()
+                            .onProgress(new StartupProgress(
+                                    StartupPhase.WAITING_FOR_READY, 0, 0, "Waiting for PostgreSQL readiness"));
                     final PostgresReadinessWaiter.ReadinessOutcome readinessOutcome = new PostgresReadinessWaiter(
                                     commandRunner, startupTimeout)
                             .await(runtimeDirectory, connectionInfo, layout);
@@ -361,11 +379,18 @@ public final class StartPostgresWorkflow {
         }
     }
 
-    private ResolvedRuntime resolveRuntime(final RuntimeSource runtimeSource, final String postgresqlVersion) {
+    private ResolvedRuntime resolveRuntime(
+            final RuntimeSource runtimeSource,
+            final String postgresqlVersion,
+            final ManagedPostgresObservers observers) {
+        observers
+                .progress()
+                .onProgress(new StartupProgress(StartupPhase.RESOLVING_RUNTIME, 0, 0, "Resolving PostgreSQL runtime"));
         try {
             final ResolvedRuntime resolvedRuntime;
             if (runtimeResolver instanceof TelemetryRuntimeResolver telemetryRuntimeResolver) {
-                resolvedRuntime = telemetryRuntimeResolver.resolveWithTelemetry(runtimeSource, postgresqlVersion);
+                resolvedRuntime = telemetryRuntimeResolver.resolveWithTelemetry(
+                        runtimeSource, postgresqlVersion, observers.progress());
             } else {
                 resolvedRuntime =
                         new ResolvedRuntime(runtimeResolver.resolve(runtimeSource, postgresqlVersion), Duration.ZERO);
