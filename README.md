@@ -163,6 +163,26 @@ instead of paying startup again.
 
 ---
 
+## Watch it start
+
+The first start downloads and verifies the runtime, so it takes a moment. By default every phase is
+logged via SLF4J — `Downloading… 40%`, `initdb…`, `Ready in 7.3s`. Want to own it yourself — a progress
+bar, MDC, your own pipeline? Pass listeners (plain objects, no lambdas required):
+
+```java
+ManagedPostgres.create()
+    .version("18.4")
+    .onProgress(new MyProgressBar())        // ManagedPostgresProgressListener
+    .logs().toListener(new MyLogSink())     // PostgresLogListener — structured lines; SLF4J bridge off
+    .start();
+```
+
+Progress phases: `RESOLVING_RUNTIME → DOWNLOADING` (with %) `→ VERIFYING → EXTRACTING → INITDB →
+STARTING → WAITING_FOR_READY → READY` — or `ATTACHING` when it reconnects to a live instance. Log lines
+arrive structured (`PostgresLogLine{ level, source, message }`), already secret-redacted.
+
+---
+
 ## CLI
 
 A standalone CLI (`managed-postgres-cli`) wraps the same engine:
