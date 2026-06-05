@@ -1,4 +1,4 @@
-package eu.virtualparadox.managedpostgres.spring.boot4.metrics;
+package eu.virtualparadox.managedpostgres.spring.common.metrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -10,8 +10,8 @@ import eu.virtualparadox.managedpostgres.PostgresStatus;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spring.boot4.autoconfigure.ManagedPostgresAutoConfiguration;
-import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapContextTestSupport;
-import eu.virtualparadox.managedpostgres.spring.boot4.bootstrap.ManagedPostgresBootstrapMetrics;
+import eu.virtualparadox.managedpostgres.spring.common.bootstrap.ManagedPostgresBootstrapContextTestSupport;
+import eu.virtualparadox.managedpostgres.spring.common.bootstrap.ManagedPostgresBootstrapMetrics;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.time.Duration;
