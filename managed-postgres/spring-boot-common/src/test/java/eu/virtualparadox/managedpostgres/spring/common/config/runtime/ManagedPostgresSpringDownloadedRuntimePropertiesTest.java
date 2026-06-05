@@ -20,6 +20,16 @@ public final class ManagedPostgresSpringDownloadedRuntimePropertiesTest {
     ManagedPostgresSpringDownloadedRuntimePropertiesTest() {}
 
     @Test
+    void downloadedRuntimeSourceWithoutRepositoryOrChecksumIsAcceptedAsOfficialDefault() {
+        final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(
+                environment(Map.of("managed-postgres.runtime.source", "downloaded")));
+
+        assertThat(properties.runtime().source()).isEqualTo("downloaded");
+        assertThat(properties.runtime().repository()).isEmpty();
+        assertThat(properties.runtime().checksum()).isEmpty();
+    }
+
+    @Test
     void downloadedRuntimeSourceReadsRepositoryChecksumAndCache() {
         final ManagedPostgresSpringProperties properties = ManagedPostgresSpringProperties.from(environment(Map.of(
                 "managed-postgres.runtime.source",

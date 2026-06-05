@@ -22,9 +22,9 @@ public final class ManagedPostgresSpringPropertiesTest {
 
         assertThat(properties.enabled()).isFalse();
         assertThat(properties.name()).isEqualTo("default");
-        assertThat(properties.postgresqlVersion()).isEqualTo("16.4");
+        assertThat(properties.postgresqlVersion()).isEqualTo("18.4");
         assertThat(properties.storage().path()).isEqualTo(Path.of(".local/postgres"));
-        assertThat(properties.runtime().source()).isEqualTo("system");
+        assertThat(properties.runtime().source()).isEqualTo("downloaded");
         assertThat(properties.runtime().path()).isEmpty();
         assertThat(properties.runtime().repository()).isEmpty();
         assertThat(properties.network().host()).isEqualTo("127.0.0.1");

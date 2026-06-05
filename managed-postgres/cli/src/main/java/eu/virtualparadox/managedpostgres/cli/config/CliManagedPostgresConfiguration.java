@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.cli.config;
 
 import eu.virtualparadox.managedpostgres.config.AttachPolicy;
+import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.config.StopPolicy;
 import eu.virtualparadox.managedpostgres.config.network.Network;
@@ -32,7 +33,7 @@ public record CliManagedPostgresConfiguration(
         PostgresConfiguration postgresConfiguration) {
 
     private static final String DEFAULT_NAME = "default";
-    private static final String DEFAULT_VERSION = "16.4";
+    private static final String DEFAULT_VERSION = "18.4";
     private static final Path DEFAULT_STORAGE_PATH = Path.of(".local/postgres");
 
     /**
@@ -96,7 +97,7 @@ public record CliManagedPostgresConfiguration(
                 DEFAULT_NAME,
                 DEFAULT_VERSION,
                 DEFAULT_STORAGE_PATH,
-                RuntimeSource.system(),
+                RuntimeSource.downloaded(runtime -> runtime.repository(RuntimeRepository.official())),
                 Network.localhostOnly().stableRandomPort(),
                 AttachPolicy.CREATE_NEW,
                 StopPolicy.STOP_ON_CLOSE,

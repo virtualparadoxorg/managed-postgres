@@ -41,10 +41,25 @@ final class ManagedPostgresSpringRuntimeMapper {
 
     private static RuntimeSource downloadedRuntimeSource(
             final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
-        final String checksum = downloadedRuntimeChecksum(runtime.checksum());
+        final RuntimeSource downloaded;
+        if (isDefaultOfficialDownload(runtime)) {
+            downloaded = RuntimeSource.downloaded(
+                    downloadedRuntime -> downloadedRuntime.repository(RuntimeRepository.official()));
+        } else {
+            final String checksum = downloadedRuntimeChecksum(runtime.checksum());
+            downloaded = RuntimeSource.downloaded(downloadedRuntime -> configureDownloadedRuntime(
+                    downloadedRuntime, runtime, downloadedRuntimeRepository(runtime.repository()), checksum));
+        }
 
-        return RuntimeSource.downloaded(downloadedRuntime -> configureDownloadedRuntime(
-                downloadedRuntime, runtime, downloadedRuntimeRepository(runtime.repository()), checksum));
+        return downloaded;
+    }
+
+    private static boolean isDefaultOfficialDownload(final ManagedPostgresSpringProperties.RuntimeProperties runtime) {
+        return runtime.repository().isEmpty()
+                && runtime.checksum().isEmpty()
+                && runtime.signaturePublicKey().isEmpty()
+                && runtime.signatureValue().isEmpty()
+                && runtime.cache().isEmpty();
     }
 
     private static ClasspathRuntime configureClasspathRuntime(
