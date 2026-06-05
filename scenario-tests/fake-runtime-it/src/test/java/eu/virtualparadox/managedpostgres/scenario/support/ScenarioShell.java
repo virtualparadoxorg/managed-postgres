@@ -18,6 +18,35 @@ public final class ScenarioShell {
                         + "exit 0\n");
     }
 
+    /**
+     * Returns a fake {@code pg_ctl} that records its last argument like {@link #recordingPgCtl(Path)} and, when invoked
+     * with a {@code -l} server logfile (the {@code start} action), appends a single PostgreSQL {@code LOG:} line to that
+     * logfile so the structured log bridge has a real line to tail.
+     *
+     * @param callLog file the last argument of every invocation is appended to
+     * @return logging fake {@code pg_ctl} script
+     */
+    public static FakePostgresScript loggingPgCtl(final Path callLog) {
+        return FakePostgresScript.named("pg_ctl")
+                .withBody("log_file=''\n"
+                        + "previous=''\n"
+                        + "action=''\n"
+                        + "for argument in \"$@\"; do\n"
+                        + "  if [ \"$previous\" = '-l' ]; then\n"
+                        + "    log_file=\"$argument\"\n"
+                        + "  fi\n"
+                        + "  previous=\"$argument\"\n"
+                        + "  action=\"$argument\"\n"
+                        + "done\n"
+                        + "printf '%s\\n' \"$action\" >> " + quote(callLog) + "\n"
+                        + "if [ -n \"$log_file\" ]; then\n"
+                        + "  printf '%s\\n' "
+                        + "'2026-06-05 10:00:00.000 UTC [1234] LOG:  database system is ready to accept connections' "
+                        + ">> \"$log_file\"\n"
+                        + "fi\n"
+                        + "exit 0\n");
+    }
+
     public static FakePostgresScript recordingBootstrapPsql(final Path callLog) {
         return FakePostgresScript.named("psql")
                 .withBody("printf '%s %s\\n' psql \"$*\" >> " + quote(callLog) + "\n"
