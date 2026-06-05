@@ -6,6 +6,7 @@ import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.runtime.Checksum;
 import eu.virtualparadox.managedpostgres.runtime.ChecksumVerifier;
+import eu.virtualparadox.managedpostgres.runtime.download.progress.BytesTransferredListener;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -49,15 +50,26 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
     @Override
     public Path download(final RuntimeRepository repository, final Path target, final Checksum checksum)
             throws IOException {
+        return download(repository, target, checksum, BytesTransferredListener.NONE);
+    }
+
+    @Override
+    public Path download(
+            final RuntimeRepository repository,
+            final Path target,
+            final Checksum checksum,
+            final BytesTransferredListener progress)
+            throws IOException {
         final RuntimeRepository checkedRepository = Objects.requireNonNull(repository, "repository");
         final Path checkedTarget =
                 Objects.requireNonNull(target, "target").toAbsolutePath().normalize();
         final Checksum checkedChecksum = Objects.requireNonNull(checksum, "checksum");
+        final BytesTransferredListener checkedProgress = Objects.requireNonNull(progress, "progress");
 
         try {
             Files.createDirectories(parentDirectory(checkedTarget));
             Files.deleteIfExists(checkedTarget);
-            copyArtifact(checkedRepository, checkedTarget);
+            copyArtifact(checkedRepository, checkedTarget, checkedProgress);
             return checksumVerifier.verify(checkedTarget, checkedChecksum);
         } catch (final IOException exception) {
             throw downloadFailure(
@@ -65,12 +77,14 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
         }
     }
 
-    private static void copyArtifact(final RuntimeRepository repository, final Path target) throws IOException {
+    private static void copyArtifact(
+            final RuntimeRepository repository, final Path target, final BytesTransferredListener progress)
+            throws IOException {
         final URI uri = repository.uri();
         if (FILE_SCHEME.equals(uri.getScheme())) {
             copyFileArtifact(uri, target);
         } else if (isHttpScheme(uri)) {
-            copyHttpArtifact(uri, target);
+            copyHttpArtifact(uri, target, progress);
         } else {
             throw downloadFailure("unsupported runtime repository URI scheme", repository, target);
         }
@@ -81,8 +95,9 @@ public final class FileRuntimeArtifactDownloader implements RuntimeArtifactDownl
         Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
     }
 
-    private static void copyHttpArtifact(final URI uri, final Path target) throws IOException {
-        HttpRuntimeArtifactFetcher.copy(uri, target);
+    private static void copyHttpArtifact(final URI uri, final Path target, final BytesTransferredListener progress)
+            throws IOException {
+        HttpRuntimeArtifactFetcher.copy(uri, target, progress);
     }
 
     private static Path sourcePath(final URI uri) {

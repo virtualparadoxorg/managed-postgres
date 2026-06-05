@@ -19,6 +19,7 @@ import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
 import eu.virtualparadox.managedpostgres.exception.PostgresAttachException;
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
+import eu.virtualparadox.managedpostgres.internal.ManagedPostgresObservers;
 import eu.virtualparadox.managedpostgres.internal.runtime.ResolvedRuntime;
 import eu.virtualparadox.managedpostgres.internal.runtime.TelemetryRuntimeResolver;
 import eu.virtualparadox.managedpostgres.lifecycle.attach.AttachJdbcProbeRequest;
@@ -42,6 +43,12 @@ import eu.virtualparadox.managedpostgres.lifecycle.testsupport.start.Script;
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLevel;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLine;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
+import eu.virtualparadox.managedpostgres.observe.StartupPhase;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.ExistingRuntimeResolver;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeResolver;
 import eu.virtualparadox.managedpostgres.security.Secret;
@@ -51,6 +58,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -59,6 +67,7 @@ import org.junit.jupiter.api.io.TempDir;
 @SuppressWarnings({
     // These tests intentionally exercise the full lifecycle path with fake runtime scripts.
     "PMD.CouplingBetweenObjects",
+    "PMD.CyclomaticComplexity",
     "PMD.TooManyMethods"
 })
 public final class StartPostgresWorkflowTest {
@@ -85,6 +94,145 @@ public final class StartPostgresWorkflowTest {
         }
         assertThat(Files.isRegularFile(storageRoot.resolve("state").resolve("metadata.json")))
                 .isTrue();
+    }
+
+    @Test
+    void successfulCreateStartEmitsFullPhaseSequenceWithoutDownloadEvents() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of());
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        try (RunningPostgres handle = workflow()
+                .start(
+                        configuration(new Storage(storageRoot, false), runtimeDirectory),
+                        ManagedPostgresObservers.defaults().withProgress(listener))) {
+            assertThat(handle).isInstanceOf(StartedPostgresHandle.class);
+        }
+
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(
+                        StartupPhase.RESOLVING_RUNTIME,
+                        StartupPhase.INITDB,
+                        StartupPhase.STARTING,
+                        StartupPhase.WAITING_FOR_READY,
+                        StartupPhase.READY);
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .doesNotContain(StartupPhase.DOWNLOADING, StartupPhase.VERIFYING, StartupPhase.EXTRACTING);
+    }
+
+    @Test
+    void listenerReceivesStructuredServerLogLineWhenConfiguredAndSlf4jBridgeStaysOff() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of(new Script("pg_ctl", loggingPgCtlScript())));
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final RecordingLogListener listener = new RecordingLogListener();
+
+        final StartPostgresWorkflow.Configuration configuration =
+                configuration(new Storage(storageRoot, false), runtimeDirectory);
+        assertThat(configuration.logs().bridgeToSlf4j()).isFalse();
+        try (RunningPostgres handle = workflow()
+                .start(configuration, ManagedPostgresObservers.defaults().withLog(listener))) {
+            assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
+
+            awaitAtLeastOneLogLine(listener);
+        }
+
+        assertThat(listener.lines()).isNotEmpty();
+        final PostgresLogLine line = listener.lines().get(0);
+        assertThat(line.level()).isEqualTo(PostgresLogLevel.LOG);
+        assertThat(line.message()).contains("database system is ready to accept connections");
+    }
+
+    private String loggingPgCtlScript() {
+        return "log_file=''\n"
+                + "previous=''\n"
+                + "last=''\n"
+                + "for argument in \"$@\"; do\n"
+                + "  if [ \"$previous\" = '-l' ]; then\n"
+                + "    log_file=\"$argument\"\n"
+                + "  fi\n"
+                + "  previous=\"$argument\"\n"
+                + "  last=\"$argument\"\n"
+                + "done\n"
+                + "printf '%s %s\\n' pg_ctl \"$last\" >> " + shellQuote(callsPath()) + "\n"
+                + "if [ -n \"$log_file\" ]; then\n"
+                + "  printf '%s\\n' "
+                + "'2026-06-05 10:00:00.000 UTC [1234] LOG:  database system is ready to accept connections' "
+                + ">> \"$log_file\"\n"
+                + "fi\n"
+                + "exit 0\n";
+    }
+
+    private static void awaitAtLeastOneLogLine(final RecordingLogListener listener) {
+        final long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+        while (listener.lines().isEmpty() && System.nanoTime() < deadline) {
+            java.util.concurrent.locks.LockSupport.parkNanos(
+                    Duration.ofMillis(25).toNanos());
+        }
+    }
+
+    @Test
+    void existingInitializedDataDirectoryStartDoesNotEmitInitdbPhase() throws IOException {
+        final Path runtimeDirectory = runtimeWithScripts(List.of());
+        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
+        final Path dataDirectory = storageRoot.resolve("data");
+        Files.createDirectories(dataDirectory);
+        Files.writeString(dataDirectory.resolve("PG_VERSION"), "16%n".formatted(), StandardCharsets.UTF_8);
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        workflow()
+                .start(
+                        configuration(new Storage(storageRoot, false), runtimeDirectory),
+                        ManagedPostgresObservers.defaults().withProgress(listener));
+
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(
+                        StartupPhase.RESOLVING_RUNTIME,
+                        StartupPhase.STARTING,
+                        StartupPhase.WAITING_FOR_READY,
+                        StartupPhase.READY);
+    }
+
+    @Test
+    void attachPathEmitsResolvingThenAttachingThenReadyWithoutStartingPhases() throws IOException {
+        final AttachScenario scenario = attachScenarioWithPid(0L);
+        final StartPostgresWorkflow workflow = workflow(
+                ProcessLookup.fixed(Optional.empty()),
+                metadata -> true,
+                metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        try (RunningPostgres handle = workflow.start(
+                attachConfiguration(scenario.storage(), scenario.runtimeDirectory()),
+                ManagedPostgresObservers.defaults().withProgress(listener))) {
+            assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
+        }
+
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .containsExactly(StartupPhase.RESOLVING_RUNTIME, StartupPhase.ATTACHING, StartupPhase.READY);
+        assertThat(listener.events())
+                .extracting(StartupProgress::phase)
+                .doesNotContain(StartupPhase.INITDB, StartupPhase.STARTING, StartupPhase.WAITING_FOR_READY);
+    }
+
+    private static StartPostgresWorkflow.Configuration attachConfiguration(
+            final Storage storage, final Path runtimeDirectory) {
+        return new StartPostgresWorkflow.Configuration(
+                "app-db",
+                "16.4",
+                storage,
+                RuntimeSource.existing(runtimeDirectory),
+                Credentials.generatedPersistent(),
+                Network.localhostOnly(),
+                ClusterBootstrap.defaultCluster(),
+                AttachPolicy.ATTACH_IF_COMPATIBLE,
+                StopPolicy.KEEP_RUNNING,
+                UpgradePolicy.MINOR_ONLY,
+                ConfigDriftPolicy.FAIL,
+                CleanupPolicy.safeDefaults());
     }
 
     @Test
@@ -228,30 +376,14 @@ public final class StartPostgresWorkflowTest {
 
     @Test
     void compatibleMetadataIsAttachedWithoutStartingNewProcess() throws IOException {
-        final Path runtimeDirectory = runtimeWithScripts(List.of());
-        final Path storageRoot = temporaryDirectory.resolve("local-postgres");
-        final Storage storage = new Storage(storageRoot, false);
-        final PostgresLayout layout = PostgresLayout.plan(storage, new FileSystemOperationJournal());
-        layout.createDirectories(new FileSystemOperationJournal());
-        new MetadataStore(layout.metadataPath(), new FileSystemOperationJournal()).write(metadata(layout, 0L));
+        final AttachScenario scenario = attachScenarioWithPid(0L);
         final StartPostgresWorkflow workflow = workflow(
                 ProcessLookup.fixed(Optional.empty()),
                 metadata -> true,
                 metadata -> PostgresProbeResult.healthy("JDBC probe confirms PostgreSQL identity"));
 
-        try (RunningPostgres handle = workflow.start(new StartPostgresWorkflow.Configuration(
-                "app-db",
-                "16.4",
-                storage,
-                RuntimeSource.existing(runtimeDirectory),
-                Credentials.generatedPersistent(),
-                Network.localhostOnly(),
-                ClusterBootstrap.defaultCluster(),
-                AttachPolicy.ATTACH_IF_COMPATIBLE,
-                StopPolicy.KEEP_RUNNING,
-                UpgradePolicy.MINOR_ONLY,
-                ConfigDriftPolicy.FAIL,
-                CleanupPolicy.safeDefaults()))) {
+        try (RunningPostgres handle =
+                workflow.start(attachConfiguration(scenario.storage(), scenario.runtimeDirectory()))) {
             assertThat(handle.status()).isEqualTo(PostgresStatus.RUNNING);
             assertThat(handle.connectionInfo().port()).isEqualTo(15432);
         }
@@ -614,6 +746,34 @@ public final class StartPostgresWorkflowTest {
         @Override
         public ResolvedRuntime resolveWithTelemetry(final RuntimeSource runtimeSource, final String postgresqlVersion) {
             return new ResolvedRuntime(runtimeDirectory, installDuration);
+        }
+    }
+
+    private static final class RecordingProgressListener implements ManagedPostgresProgressListener {
+
+        private final List<StartupProgress> events = new ArrayList<>();
+
+        @Override
+        public void onProgress(final StartupProgress progress) {
+            events.add(progress);
+        }
+
+        private List<StartupProgress> events() {
+            return List.copyOf(events);
+        }
+    }
+
+    private static final class RecordingLogListener implements PostgresLogListener {
+
+        private final List<PostgresLogLine> lines = new java.util.concurrent.CopyOnWriteArrayList<>();
+
+        @Override
+        public void onLogLine(final PostgresLogLine line) {
+            lines.add(line);
+        }
+
+        private List<PostgresLogLine> lines() {
+            return List.copyOf(lines);
         }
     }
 }

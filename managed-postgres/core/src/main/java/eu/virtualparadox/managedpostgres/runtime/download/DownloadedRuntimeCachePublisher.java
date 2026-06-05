@@ -5,8 +5,12 @@ import eu.virtualparadox.managedpostgres.config.runtime.RuntimeSignature;
 import eu.virtualparadox.managedpostgres.filesystem.DirectoryPublisher;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedPathOwnership;
 import eu.virtualparadox.managedpostgres.internal.runtime.signature.RuntimeSignatureVerifier;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.StartupPhase;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeValidator;
 import eu.virtualparadox.managedpostgres.runtime.archive.RuntimeArchiveExtractor;
+import eu.virtualparadox.managedpostgres.runtime.download.progress.DownloadProgressReporter;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -50,16 +54,37 @@ public final class DownloadedRuntimeCachePublisher {
      * @return publish result
      */
     public Path publish(final DownloadedRuntimeResolutionContext context) {
+        return publish(context, ManagedPostgresProgressListener.none());
+    }
+
+    /**
+     * Publishes a downloaded runtime on a cache miss, emitting download, verification and extraction
+     * progress to the supplied listener.
+     *
+     * @param context downloaded runtime resolution context
+     * @param progress startup progress listener
+     * @return resolved local PostgreSQL runtime directory
+     */
+    public Path publish(
+            final DownloadedRuntimeResolutionContext context, final ManagedPostgresProgressListener progress) {
         final DownloadedRuntimeResolutionContext checkedContext = Objects.requireNonNull(context, "context");
+        final ManagedPostgresProgressListener checkedProgress = Objects.requireNonNull(progress, "progress");
         final Path download = checkedContext.download();
         final Path staging = checkedContext.staging();
 
         try {
             failIfStagingExists(checkedContext, staging);
-            final Path artifact =
-                    downloader.download(repositoryForCacheMiss(checkedContext), download, checkedContext.checksum());
+            final Path artifact = downloader.download(
+                    repositoryForCacheMiss(checkedContext),
+                    download,
+                    checkedContext.checksum(),
+                    new DownloadProgressReporter(checkedProgress));
+            checkedProgress.onProgress(
+                    new StartupProgress(StartupPhase.VERIFYING, 0, 0, "Verifying PostgreSQL runtime archive"));
             checkedContext.signature().ifPresent(signature -> verifySignature(artifact, signature));
             ownership.writeMarker(staging, "install-runtime");
+            checkedProgress.onProgress(
+                    new StartupProgress(StartupPhase.EXTRACTING, 0, 0, "Extracting PostgreSQL runtime archive"));
             extractor.extract(artifact, staging);
             checkedContext
                     .signature()

@@ -18,6 +18,7 @@ import eu.virtualparadox.managedpostgres.dsl.ClusterSection;
 import eu.virtualparadox.managedpostgres.dsl.ConfigurationSection;
 import eu.virtualparadox.managedpostgres.dsl.LogsSection;
 import eu.virtualparadox.managedpostgres.dsl.NetworkSection;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
 import java.nio.file.Path;
@@ -50,12 +51,14 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      * @param mode managed PostgreSQL mode
      */
     public DefaultManagedPostgresBuilder(final ManagedPostgresMode mode) {
-        this(mode, DefaultManagedPostgresConfigurations.forMode(mode));
+        this(mode, DefaultManagedPostgresConfigurations.forMode(mode), ManagedPostgresObservers.defaults());
     }
 
     private DefaultManagedPostgresBuilder(
-            final ManagedPostgresMode mode, final ManagedPostgresConfiguration configuration) {
-        super(configuration);
+            final ManagedPostgresMode mode,
+            final ManagedPostgresConfiguration configuration,
+            final ManagedPostgresObservers observers) {
+        super(configuration, observers);
         this.mode = Objects.requireNonNull(mode, "mode");
     }
 
@@ -64,7 +67,7 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      */
     @Override
     public ManagedPostgres build() {
-        return new ConfiguredManagedPostgres(configuration());
+        return new ConfiguredManagedPostgres(configuration(), observers());
     }
 
     /**
@@ -304,6 +307,17 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      * {@inheritDoc}
      */
     @Override
+    public DefaultManagedPostgresBuilder toListener(final PostgresLogListener listener) {
+        final ManagedPostgresConfiguration updated =
+                configuration().withLogs(configuration().logs().toFiles());
+        return new DefaultManagedPostgresBuilder(
+                mode, updated, observers().withLog(Objects.requireNonNull(listener, "listener")));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public DefaultManagedPostgresBuilder serverConfiguration() {
         return this;
     }
@@ -369,6 +383,15 @@ public final class DefaultManagedPostgresBuilder extends AbstractManagedPostgres
      */
     @Override
     public DefaultManagedPostgresBuilder copy(final ManagedPostgresConfiguration updatedConfiguration) {
-        return new DefaultManagedPostgresBuilder(mode, updatedConfiguration);
+        return new DefaultManagedPostgresBuilder(mode, updatedConfiguration, observers());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DefaultManagedPostgresBuilder copyObservers(final ManagedPostgresObservers updatedObservers) {
+        return new DefaultManagedPostgresBuilder(
+                mode, configuration(), Objects.requireNonNull(updatedObservers, "updatedObservers"));
     }
 }

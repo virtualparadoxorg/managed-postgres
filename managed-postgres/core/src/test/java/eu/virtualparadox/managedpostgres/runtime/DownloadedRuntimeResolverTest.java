@@ -9,6 +9,9 @@ import eu.virtualparadox.managedpostgres.config.RuntimeRepository;
 import eu.virtualparadox.managedpostgres.config.RuntimeSource;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedPathOwnership;
 import eu.virtualparadox.managedpostgres.internal.runtime.ResolvedRuntime;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.StartupPhase;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.download.DownloadedRuntimeResolver;
 import eu.virtualparadox.managedpostgres.runtime.download.RuntimeArtifactDownloader;
 import eu.virtualparadox.managedpostgres.runtime.download.RuntimeCacheLayout;
@@ -20,9 +23,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+@SuppressWarnings({
+    // This suite exhaustively exercises the downloaded-runtime cache pipeline (cache hit/miss, telemetry,
+    // signature, retention and progress phases), so it intentionally carries many small scenario methods.
+    "PMD.CouplingBetweenObjects",
+    "PMD.TooManyMethods"
+})
 public final class DownloadedRuntimeResolverTest {
 
     @TempDir
@@ -146,6 +157,42 @@ public final class DownloadedRuntimeResolverTest {
         assertDownloadedArchivePublishesRuntime(archive, cacheRoot);
     }
 
+    @Test
+    void missingCacheEmitsVerifyingAndExtractingPhasesOnPublish() throws IOException {
+        final Path archive = zipWithEntries(
+                entry("bin/pg_ctl", "pg_ctl"), entry("bin/psql", "psql"), entry("bin/postgres", "postgres"));
+        final Path cacheRoot = temporaryDirectory.resolve("cache");
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        new DownloadedRuntimeResolver()
+                .resolveWithTelemetry(
+                        downloadedSource(archive, cacheRoot, RuntimeArchiveTestSupport.checksumText(archive)),
+                        "16.4",
+                        listener);
+
+        assertThat(listener.phases()).containsSequence(StartupPhase.VERIFYING, StartupPhase.EXTRACTING);
+    }
+
+    @Test
+    void cachedRuntimeEmitsNoDownloadOrExtractEvents() throws IOException {
+        final Path cacheRoot = temporaryDirectory.resolve("cache");
+        final String checksumText = RuntimeArchiveTestSupport.checksumText(zipWithEntries(entry("unused", "unused")));
+        final Checksum checksum = Checksum.parse(checksumText);
+        final RuntimeCacheLayout layout = new RuntimeCacheLayout(cacheRoot);
+        final Path cachedRuntime = layout.runtimeDirectory("16.4", checksum);
+        RuntimeArchiveTestSupport.createUsableRuntime(cachedRuntime);
+        final RecordingProgressListener listener = new RecordingProgressListener();
+
+        new DownloadedRuntimeResolver()
+                .resolveWithTelemetry(
+                        downloadedSource(temporaryDirectory.resolve("missing.zip"), cacheRoot, checksumText),
+                        "16.4",
+                        listener);
+
+        assertThat(listener.phases())
+                .doesNotContain(StartupPhase.DOWNLOADING, StartupPhase.VERIFYING, StartupPhase.EXTRACTING);
+    }
+
     private void assertDownloadedArchivePublishesRuntime(final Path archive, final Path cacheRoot) throws IOException {
         final String checksumText = RuntimeArchiveTestSupport.checksumText(archive);
         final Checksum checksum = Checksum.parse(checksumText);
@@ -255,5 +302,19 @@ public final class DownloadedRuntimeResolverTest {
 
     private static EntrySpec entry(final String name, final String content) {
         return RuntimeArchiveTestSupport.entry(name, content);
+    }
+
+    private static final class RecordingProgressListener implements ManagedPostgresProgressListener {
+
+        private final List<StartupPhase> phases = new ArrayList<>();
+
+        @Override
+        public void onProgress(final StartupProgress progress) {
+            phases.add(progress.phase());
+        }
+
+        private List<StartupPhase> phases() {
+            return List.copyOf(phases);
+        }
     }
 }

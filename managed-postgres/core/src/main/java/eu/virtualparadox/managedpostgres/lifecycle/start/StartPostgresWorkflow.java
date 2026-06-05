@@ -19,6 +19,7 @@ import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration
 import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal;
 import eu.virtualparadox.managedpostgres.filesystem.ManagedFileSystem;
+import eu.virtualparadox.managedpostgres.internal.ManagedPostgresObservers;
 import eu.virtualparadox.managedpostgres.internal.runtime.ResolvedRuntime;
 import eu.virtualparadox.managedpostgres.internal.runtime.TelemetryRuntimeResolver;
 import eu.virtualparadox.managedpostgres.lifecycle.PostgresStartupDiagnostics;
@@ -51,6 +52,8 @@ import eu.virtualparadox.managedpostgres.lifecycle.restore.pgrestore.PgRestoreOp
 import eu.virtualparadox.managedpostgres.metadata.ConfigHashCalculator;
 import eu.virtualparadox.managedpostgres.metadata.MetadataStore;
 import eu.virtualparadox.managedpostgres.metadata.PostgresInstanceMetadata;
+import eu.virtualparadox.managedpostgres.observe.StartupPhase;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.runtime.RuntimeResolver;
 import eu.virtualparadox.managedpostgres.security.FileCredentialStore;
 import java.io.IOException;
@@ -162,14 +165,26 @@ public final class StartPostgresWorkflow {
      * @return started PostgreSQL handle
      */
     public RunningPostgres start(final Configuration configuration) {
+        return start(configuration, ManagedPostgresObservers.defaults());
+    }
+
+    /**
+     * Starts PostgreSQL from the supplied configuration, emitting progress to the given observers.
+     *
+     * @param configuration startup configuration
+     * @param observers startup observers
+     * @return started PostgreSQL handle
+     */
+    public RunningPostgres start(final Configuration configuration, final ManagedPostgresObservers observers) {
         final Configuration checkedConfiguration = Objects.requireNonNull(configuration, "configuration");
+        final ManagedPostgresObservers checkedObservers = Objects.requireNonNull(observers, "observers");
         validateStartupConfiguration(checkedConfiguration);
         final PostgresLayout layout = PostgresLayout.plan(checkedConfiguration.storage(), fileSystem);
         final RunningPostgres handle;
         try (HeldPostgresLocks locks = lockService.acquireLifecycleLocks(layout)) {
             Objects.requireNonNull(locks, "locks");
             layout.createDirectories(fileSystem);
-            handle = startLocked(checkedConfiguration, layout);
+            handle = startLocked(checkedConfiguration, layout, checkedObservers);
         }
 
         return handle;
@@ -187,10 +202,11 @@ public final class StartPostgresWorkflow {
         }
     }
 
-    private RunningPostgres startLocked(final Configuration configuration, final PostgresLayout layout) {
+    private RunningPostgres startLocked(
+            final Configuration configuration, final PostgresLayout layout, final ManagedPostgresObservers observers) {
         recoverFileSystemOperations(layout);
         final ResolvedRuntime resolvedRuntime =
-                resolveRuntime(configuration.runtimeSource(), configuration.postgresqlVersion());
+                resolveRuntime(configuration.runtimeSource(), configuration.postgresqlVersion(), observers);
         final Path runtimeDirectory = resolvedRuntime.runtimeDirectory();
         final MetadataStore metadataStore = new MetadataStore(layout.metadataPath(), fileSystem);
         final Configuration effectiveConfiguration = loadPersistentCredentials(configuration, layout);
@@ -199,14 +215,20 @@ public final class StartPostgresWorkflow {
         final RunningPostgres handle;
         boolean processStarted = false;
         if (attachedHandle.isPresent()) {
+            observers
+                    .progress()
+                    .onProgress(new StartupProgress(
+                            StartupPhase.ATTACHING, 0, 0, "Attaching to running PostgreSQL instance"));
             handle = logBridgeSupport.wrap(
                     attachedHandle.orElseThrow(),
                     logBridgeSupport.start(
                             effectiveConfiguration.logs(),
                             layout.stateDirectory().resolve(POSTGRES_LOG),
                             effectiveConfiguration.credentials(),
-                            effectiveConfiguration.clusterBootstrap()),
-                    effectiveConfiguration.logs());
+                            effectiveConfiguration.clusterBootstrap(),
+                            observers.log()),
+                    effectiveConfiguration.logs(),
+                    observers.log());
         } else {
             new PostgresStartPreflight().verifyBeforeStart(effectiveConfiguration, layout, metadataStore.read());
             PostmasterPidSafety.failIfLivePostmaster(layout);
@@ -216,7 +238,8 @@ public final class StartPostgresWorkflow {
                         effectiveConfiguration.logs(),
                         layout.stateDirectory().resolve(POSTGRES_LOG),
                         effectiveConfiguration.credentials(),
-                        effectiveConfiguration.clusterBootstrap());
+                        effectiveConfiguration.clusterBootstrap(),
+                        observers.log());
                 boolean logBridgeTransferred = false;
                 try {
                     final Map<String, String> settings =
@@ -227,10 +250,24 @@ public final class StartPostgresWorkflow {
                     final PostgresConnectionInfo connectionInfo =
                             PostgresStartArtifacts.connectionInfo(effectiveConfiguration, allocatedPort);
 
-                    new PostgresClusterPreparer(fileSystem, commandRunner, startupTimeout)
-                            .prepare(runtimeDirectory, layout, effectiveConfiguration.credentials(), settings);
+                    final PostgresClusterPreparer clusterPreparer =
+                            new PostgresClusterPreparer(fileSystem, commandRunner, startupTimeout);
+                    if (clusterPreparer.requiresInitialization(layout)) {
+                        observers
+                                .progress()
+                                .onProgress(new StartupProgress(
+                                        StartupPhase.INITDB, 0, 0, "Initializing PostgreSQL data directory"));
+                    }
+                    clusterPreparer.prepare(runtimeDirectory, layout, effectiveConfiguration.credentials(), settings);
+                    observers
+                            .progress()
+                            .onProgress(new StartupProgress(StartupPhase.STARTING, 0, 0, "Starting PostgreSQL server"));
                     startProcess(runtimeDirectory, layout, effectiveConfiguration.cleanupPolicy());
                     processStarted = true;
+                    observers
+                            .progress()
+                            .onProgress(new StartupProgress(
+                                    StartupPhase.WAITING_FOR_READY, 0, 0, "Waiting for PostgreSQL readiness"));
                     final PostgresReadinessWaiter.ReadinessOutcome readinessOutcome = new PostgresReadinessWaiter(
                                     commandRunner, startupTimeout)
                             .await(runtimeDirectory, connectionInfo, layout);
@@ -261,7 +298,8 @@ public final class StartPostgresWorkflow {
                                                     resolvedRuntime.installDuration(),
                                                     readinessOutcome.failedHealthcheckCount()))),
                             logBridge,
-                            effectiveConfiguration.logs());
+                            effectiveConfiguration.logs(),
+                            observers.log());
                     logBridgeTransferred = true;
                 } finally {
                     if (!logBridgeTransferred) {
@@ -273,6 +311,8 @@ public final class StartPostgresWorkflow {
                 throw exception;
             }
         }
+
+        observers.progress().onProgress(new StartupProgress(StartupPhase.READY, 0, 0, "PostgreSQL ready"));
 
         return handle;
     }
@@ -343,11 +383,18 @@ public final class StartPostgresWorkflow {
         }
     }
 
-    private ResolvedRuntime resolveRuntime(final RuntimeSource runtimeSource, final String postgresqlVersion) {
+    private ResolvedRuntime resolveRuntime(
+            final RuntimeSource runtimeSource,
+            final String postgresqlVersion,
+            final ManagedPostgresObservers observers) {
+        observers
+                .progress()
+                .onProgress(new StartupProgress(StartupPhase.RESOLVING_RUNTIME, 0, 0, "Resolving PostgreSQL runtime"));
         try {
             final ResolvedRuntime resolvedRuntime;
             if (runtimeResolver instanceof TelemetryRuntimeResolver telemetryRuntimeResolver) {
-                resolvedRuntime = telemetryRuntimeResolver.resolveWithTelemetry(runtimeSource, postgresqlVersion);
+                resolvedRuntime = telemetryRuntimeResolver.resolveWithTelemetry(
+                        runtimeSource, postgresqlVersion, observers.progress());
             } else {
                 resolvedRuntime =
                         new ResolvedRuntime(runtimeResolver.resolve(runtimeSource, postgresqlVersion), Duration.ZERO);

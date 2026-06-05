@@ -1,6 +1,7 @@
 package eu.virtualparadox.managedpostgres.dsl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
@@ -25,9 +26,13 @@ import eu.virtualparadox.managedpostgres.config.network.Network;
 import eu.virtualparadox.managedpostgres.config.postgresql.PostgresConfiguration;
 import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
 import eu.virtualparadox.managedpostgres.diagnostics.DoctorReport;
+import eu.virtualparadox.managedpostgres.internal.AbstractManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
+import eu.virtualparadox.managedpostgres.observe.StartupProgress;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
@@ -39,7 +44,10 @@ import org.junit.jupiter.api.io.TempDir;
 
 @SuppressWarnings({
     // This contract test intentionally keeps one method per public API expectation.
-    "PMD.TooManyMethods"
+    "PMD.TooManyMethods",
+    // It also references the full public API surface (now including the observer types), so the
+    // object coupling is an intentional consequence of exercising the whole contract from one place.
+    "PMD.CouplingBetweenObjects"
 })
 public final class ManagedPostgresBuilderTest {
 
@@ -96,6 +104,29 @@ public final class ManagedPostgresBuilderTest {
     @Test
     void builderRejectsBlankPostgreSqlVersion() {
         assertThatThrownBy(() -> ManagedPostgres.create().version("\t")).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void onProgressRegistersProgressListenerInObservers() {
+        final ManagedPostgresProgressListener listener = new RecordingProgressListener();
+
+        final AbstractManagedPostgresBuilder builder = (AbstractManagedPostgresBuilder)
+                ManagedPostgres.create().version("18.4").onProgress(listener);
+
+        assertThat(builder.observers().progress()).isSameAs(listener);
+    }
+
+    @Test
+    void onProgressRejectsNull() throws NoSuchMethodException {
+        final ManagedPostgresBuilder builder = ManagedPostgres.create().version("18.4");
+        final Method onProgress =
+                ManagedPostgresBuilder.class.getMethod("onProgress", ManagedPostgresProgressListener.class);
+
+        assertThatExceptionOfType(InvocationTargetException.class)
+                .isThrownBy(() -> onProgress.invoke(builder, new Object[] {null}))
+                .satisfies(exception -> assertThat(exception.getCause())
+                        .isInstanceOf(NullPointerException.class)
+                        .hasMessage("listener"));
     }
 
     @Test
@@ -270,5 +301,12 @@ public final class ManagedPostgresBuilderTest {
                 .findFirst()
                 .map(DiagnosticSection::values)
                 .orElseThrow();
+    }
+
+    private static final class RecordingProgressListener implements ManagedPostgresProgressListener {
+        @Override
+        public void onProgress(final StartupProgress progress) {
+            // no-op recorder placeholder
+        }
     }
 }

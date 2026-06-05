@@ -5,6 +5,7 @@ import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
 import eu.virtualparadox.managedpostgres.lifecycle.handle.LogBridgedRunningPostgres;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -24,25 +25,32 @@ public final class PostgresLogBridgeSupport {
     /**
      * Starts an optional log bridge for the supplied PostgreSQL log file.
      *
+     * <p>The tailing bridge starts when SLF4J bridging is enabled, a structured listener is active, or both; the
+     * resulting sink forwards each line to whichever destinations are active. When neither is active no tail thread is
+     * started.
+     *
      * @param logs PostgreSQL log handling configuration
      * @param logFile PostgreSQL log file
      * @param credentials PostgreSQL credentials
      * @param clusterBootstrap bootstrap credentials that may also need redaction
-     * @return close action for the started bridge, or a no-op action when bridging is disabled
+     * @param listener structured log listener, or {@link PostgresLogListener#none()} when no listener is configured
+     * @return close action for the started bridge, or a no-op action when no destination is active
      */
     public Runnable start(
             final PostgresLogs logs,
             final Path logFile,
             final Credentials credentials,
-            final ClusterBootstrap clusterBootstrap) {
+            final ClusterBootstrap clusterBootstrap,
+            final PostgresLogListener listener) {
         final PostgresLogs checkedLogs = Objects.requireNonNull(logs, "logs");
+        final PostgresLogListener checkedListener = Objects.requireNonNull(listener, "listener");
         final Runnable closeAction;
-        if (checkedLogs.bridgeToSlf4j()) {
+        if (isActive(checkedLogs, checkedListener)) {
             closeAction = new BridgeCloseAction(new TailingPostgresLogBridge(
                     Objects.requireNonNull(logFile, "logFile"),
                     checkedLogs.loggerName(),
                     secrets(credentials, clusterBootstrap),
-                    new Slf4jPostgresLogSink()));
+                    composeSink(checkedLogs, checkedListener)));
         } else {
             closeAction = () -> {
                 // Intentionally empty: file-only logging remains the default behavior.
@@ -58,20 +66,48 @@ public final class PostgresLogBridgeSupport {
      * @param handle running PostgreSQL handle
      * @param closeAction bridge close action
      * @param logs PostgreSQL log handling configuration
-     * @return wrapped handle when bridging is enabled, otherwise the original handle
+     * @param listener structured log listener, or {@link PostgresLogListener#none()} when no listener is configured
+     * @return wrapped handle when a bridge is active, otherwise the original handle
      */
-    public RunningPostgres wrap(final RunningPostgres handle, final Runnable closeAction, final PostgresLogs logs) {
+    public RunningPostgres wrap(
+            final RunningPostgres handle,
+            final Runnable closeAction,
+            final PostgresLogs logs,
+            final PostgresLogListener listener) {
         final RunningPostgres checkedHandle = Objects.requireNonNull(handle, "handle");
         final Runnable checkedCloseAction = Objects.requireNonNull(closeAction, "closeAction");
         final PostgresLogs checkedLogs = Objects.requireNonNull(logs, "logs");
+        final PostgresLogListener checkedListener = Objects.requireNonNull(listener, "listener");
         final RunningPostgres wrappedHandle;
-        if (checkedLogs.bridgeToSlf4j()) {
+        if (isActive(checkedLogs, checkedListener)) {
             wrappedHandle = new LogBridgedRunningPostgres(checkedHandle, checkedCloseAction);
         } else {
             wrappedHandle = checkedHandle;
         }
 
         return wrappedHandle;
+    }
+
+    private static boolean isActive(final PostgresLogs logs, final PostgresLogListener listener) {
+        return logs.bridgeToSlf4j() || listener.isActive();
+    }
+
+    private static PostgresLogSink composeSink(final PostgresLogs logs, final PostgresLogListener listener) {
+        final List<PostgresLogSink> sinks = new ArrayList<>();
+        if (logs.bridgeToSlf4j()) {
+            sinks.add(new Slf4jPostgresLogSink());
+        }
+        if (listener.isActive()) {
+            sinks.add(new ListenerPostgresLogSink(listener));
+        }
+        final PostgresLogSink sink;
+        if (sinks.size() == 1) {
+            sink = sinks.get(0);
+        } else {
+            sink = new CompositePostgresLogSink(sinks);
+        }
+
+        return sink;
     }
 
     private static List<Secret> secrets(final Credentials credentials, final ClusterBootstrap clusterBootstrap) {

@@ -1,5 +1,7 @@
 package eu.virtualparadox.managedpostgres.dsl;
 
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
+
 /**
  * Fluent section for PostgreSQL process log handling.
  *
@@ -29,4 +31,12 @@ public interface LogsSection extends ManagedPostgresBuilder {
      * @return the logs section
      */
     LogsSection loggerName(String loggerName);
+
+    /**
+     * Sends PostgreSQL server log lines to the given listener (and turns the SLF4J bridge off).
+     *
+     * @param listener log listener
+     * @return the logs section, so configuration can continue
+     */
+    public LogsSection toListener(PostgresLogListener listener);
 }

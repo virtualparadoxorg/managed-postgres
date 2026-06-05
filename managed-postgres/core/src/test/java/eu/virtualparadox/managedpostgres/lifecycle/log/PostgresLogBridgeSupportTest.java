@@ -9,11 +9,20 @@ import eu.virtualparadox.managedpostgres.RunningPostgres;
 import eu.virtualparadox.managedpostgres.config.ClusterBootstrap;
 import eu.virtualparadox.managedpostgres.config.Credentials;
 import eu.virtualparadox.managedpostgres.config.logging.PostgresLogs;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLevel;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogLine;
+import eu.virtualparadox.managedpostgres.observe.PostgresLogListener;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -25,14 +34,15 @@ public final class PostgresLogBridgeSupportTest {
     PostgresLogBridgeSupportTest() {}
 
     @Test
-    void startReturnsNoOpCloseActionWhenSlf4jBridgeDisabled() {
+    void startReturnsNoOpCloseActionWhenNoDestinationActive() {
         final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
 
         final Runnable closeAction = support.start(
                 PostgresLogs.defaults(),
                 temporaryDirectory.resolve("postgres.log"),
                 Credentials.of("postgres", Secret.of("cluster-secret")),
-                ClusterBootstrap.defaultCluster());
+                ClusterBootstrap.defaultCluster(),
+                PostgresLogListener.none());
 
         closeAction.run();
 
@@ -49,7 +59,8 @@ public final class PostgresLogBridgeSupportTest {
                 PostgresLogs.defaults().toSlf4j().loggerName("managed.postgres.test"),
                 logFile,
                 Credentials.of("postgres", Secret.of("cluster-secret")),
-                ClusterBootstrap.defaultCluster().password(Secret.of("owner-secret")));
+                ClusterBootstrap.defaultCluster().password(Secret.of("owner-secret")),
+                PostgresLogListener.none());
 
         closeAction.run();
 
@@ -57,12 +68,97 @@ public final class PostgresLogBridgeSupportTest {
     }
 
     @Test
-    void wrapReturnsOriginalHandleWhenSlf4jBridgeDisabled() {
+    void startTailsAndDeliversStructuredLinesWhenListenerActiveAndSlf4jDisabled() throws IOException {
+        final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
+        final Path logFile = temporaryDirectory.resolve("postgres.log");
+        Files.writeString(logFile, "");
+        final List<PostgresLogLine> received = new CopyOnWriteArrayList<>();
+
+        final Runnable closeAction = support.start(
+                PostgresLogs.defaults(),
+                logFile,
+                Credentials.of("postgres", Secret.of("cluster-secret")),
+                ClusterBootstrap.defaultCluster(),
+                received::add);
+        try {
+            appendLine(logFile, "2026-06-05 10:00:00.000 UTC [1234] LOG:  database system is ready\n");
+
+            awaitAtLeastOneLine(received);
+            assertThat(received.get(0).level()).isEqualTo(PostgresLogLevel.LOG);
+            assertThat(received.get(0).message()).contains("database system is ready");
+        } finally {
+            closeAction.run();
+        }
+    }
+
+    @Test
+    void startRedactsSecretsBeforeDeliveringToListener() throws IOException {
+        final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
+        final Path logFile = temporaryDirectory.resolve("postgres.log");
+        Files.writeString(logFile, "");
+        final List<PostgresLogLine> received = new CopyOnWriteArrayList<>();
+
+        final Runnable closeAction = support.start(
+                PostgresLogs.defaults(),
+                logFile,
+                Credentials.of("postgres", Secret.of("cluster-secret")),
+                ClusterBootstrap.defaultCluster(),
+                received::add);
+        try {
+            appendLine(logFile, "2026-06-05 10:00:00.000 UTC [1234] LOG:  password is cluster-secret here\n");
+
+            awaitAtLeastOneLine(received);
+            assertThat(received.get(0).message()).doesNotContain("cluster-secret");
+            assertThat(received.get(0).message()).contains("<redacted>");
+        } finally {
+            closeAction.run();
+        }
+    }
+
+    @Test
+    void startDeliversToBothSlf4jAndListenerWhenBothActive() throws IOException {
+        final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
+        final Path logFile = temporaryDirectory.resolve("postgres.log");
+        Files.writeString(logFile, "");
+        final List<PostgresLogLine> received = new CopyOnWriteArrayList<>();
+
+        final Runnable closeAction = support.start(
+                PostgresLogs.defaults().toSlf4j().loggerName("managed.postgres.test"),
+                logFile,
+                Credentials.of("postgres", Secret.of("cluster-secret")),
+                ClusterBootstrap.defaultCluster(),
+                received::add);
+        try {
+            appendLine(logFile, "2026-06-05 10:00:00.000 UTC [1234] WARNING:  high water mark\n");
+
+            awaitAtLeastOneLine(received);
+            assertThat(received.get(0).level()).isEqualTo(PostgresLogLevel.WARNING);
+        } finally {
+            closeAction.run();
+        }
+    }
+
+    @Test
+    void wrapReturnsOriginalHandleWhenNoDestinationActive() {
         final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
         final RecordingRunningPostgres handle = new RecordingRunningPostgres();
-        try (RunningPostgres wrapped = support.wrap(handle, () -> {}, PostgresLogs.defaults())) {
+        try (RunningPostgres wrapped =
+                support.wrap(handle, () -> {}, PostgresLogs.defaults(), PostgresLogListener.none())) {
 
             assertThat(wrapped).isSameAs(handle);
+        }
+    }
+
+    @Test
+    void wrapDecoratesHandleWhenListenerActiveAndSlf4jDisabled() {
+        final PostgresLogBridgeSupport support = new PostgresLogBridgeSupport();
+        final RecordingRunningPostgres handle = new RecordingRunningPostgres();
+        final PostgresLogListener listener = line -> {
+            // Intentionally ignores the line; only listener activity matters here.
+        };
+        try (RunningPostgres wrapped = support.wrap(handle, () -> {}, PostgresLogs.defaults(), listener)) {
+
+            assertThat(wrapped).isNotSameAs(handle);
         }
     }
 
@@ -72,7 +168,10 @@ public final class PostgresLogBridgeSupportTest {
         final AtomicInteger stopCloseCalls = new AtomicInteger();
         final RecordingRunningPostgres handle = new RecordingRunningPostgres();
         try (RunningPostgres wrapped = support.wrap(
-                handle, stopCloseCalls::incrementAndGet, PostgresLogs.defaults().toSlf4j())) {
+                handle,
+                stopCloseCalls::incrementAndGet,
+                PostgresLogs.defaults().toSlf4j(),
+                PostgresLogListener.none())) {
 
             wrapped.stop();
 
@@ -86,11 +185,24 @@ public final class PostgresLogBridgeSupportTest {
         try (RunningPostgres wrapped = support.wrap(
                 closingHandle,
                 closeCalls::incrementAndGet,
-                PostgresLogs.defaults().toSlf4j())) {
+                PostgresLogs.defaults().toSlf4j(),
+                PostgresLogListener.none())) {
             assertThat(wrapped).isNotSameAs(closingHandle);
         }
         assertThat(closingHandle.closeCalls()).isEqualTo(1);
         assertThat(closeCalls.get()).isEqualTo(1);
+    }
+
+    private static void appendLine(final Path logFile, final String line) throws IOException {
+        Files.writeString(logFile, line, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+    }
+
+    private static void awaitAtLeastOneLine(final List<PostgresLogLine> received) {
+        final long deadline = System.nanoTime() + Duration.ofSeconds(5).toNanos();
+        while (received.isEmpty() && System.nanoTime() < deadline) {
+            LockSupport.parkNanos(Duration.ofMillis(25).toNanos());
+        }
+        assertThat(received).isNotEmpty();
     }
 
     private static final class RecordingRunningPostgres implements RunningPostgres {

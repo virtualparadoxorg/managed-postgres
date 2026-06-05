@@ -9,6 +9,7 @@ import eu.virtualparadox.managedpostgres.config.model.ConfigDriftPolicy;
 import eu.virtualparadox.managedpostgres.config.model.ManagedPostgresMode;
 import eu.virtualparadox.managedpostgres.config.model.UpgradePolicy;
 import eu.virtualparadox.managedpostgres.internal.DefaultManagedPostgresBuilder;
+import eu.virtualparadox.managedpostgres.observe.ManagedPostgresProgressListener;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import java.nio.file.Path;
 
@@ -219,6 +220,14 @@ public interface ManagedPostgresBuilder {
      * @return log handling section
      */
     public LogsSection logs();
+
+    /**
+     * Registers a listener that receives startup progress events (download, initdb, start, …).
+     *
+     * @param listener progress listener
+     * @return updated builder
+     */
+    public ManagedPostgresBuilder onProgress(ManagedPostgresProgressListener listener);
 
     /**
      * Builds a managed PostgreSQL instance.
