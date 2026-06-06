@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <Match>
+        <Source name="~.*generated-sources/.*"/>
+    </Match>
+    <!-- CommandRunner intentionally uses ProcessBuilder(List<String>) with pre-split arguments; no shell string is built. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.command.CommandRunner"/>
+        <Method name="startProcess"/>
+        <Bug pattern="COMMAND_INJECTION"/>
+    </Match>
+    <!-- ProcessCommandExecutor launches pre-split fixed command arguments without shell interpolation. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.runtime.packaging.build.execution.ProcessCommandExecutor"/>
+        <Method name="runCommand"/>
+        <Bug pattern="COMMAND_INJECTION"/>
+    </Match>
+    <!-- PortAllocator briefly binds loopback to select a candidate port; it does not transport application data. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocator"/>
+        <Method name="selectAvailablePort"/>
+        <Bug pattern="UNENCRYPTED_SERVER_SOCKET"/>
+    </Match>
+    <!-- Managed filesystem temp directories are created under a normalized managed storage root, not from archive entries. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.filesystem.FileSystemOperationJournal"/>
+        <Method name="createTemporaryDirectory"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+    <!-- PortAllocatorTest uses plain loopback sockets to verify port reservation semantics. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocatorTest"/>
+        <Bug pattern="UNENCRYPTED_SERVER_SOCKET"/>
+    </Match>
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.lifecycle.port.PortAllocatorTest"/>
+        <Bug pattern="UNENCRYPTED_SOCKET"/>
+    </Match>
+    <!-- musl detection must reference the absolute musl loader path under /lib by design. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform"/>
+        <Method name="muslLoaderPresent"/>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+    <!-- Host OS/arch detection folds case on JVM-provided os.name/os.arch; not a security comparison. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.runtime.platform.HostRuntimePlatform"/>
+        <Bug pattern="IMPROPER_UNICODE"/>
+    </Match>
+    <!-- ClusterSectionDslTest uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.dsl.ClusterSectionDslTest"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- ManagedPostgresBuilderTest uses literal password strings to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.dsl.ManagedPostgresBuilderTest"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- FakeRuntimePreflightIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.FakeRuntimePreflightIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- ScenarioManagedPostgres uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.support.ScenarioManagedPostgres"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- RealRuntimeLifecycleIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.real.lifecycle.RealRuntimeLifecycleIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- RealRuntimeBackupRestoreIT uses a literal password string to exercise the .password(String) DSL method; not production code. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.scenario.real.lifecycle.RealRuntimeBackupRestoreIT"/>
+        <Bug pattern="HARD_CODE_PASSWORD"/>
+    </Match>
+    <!-- ConnectionInfoDataSourceTest asserts getConnection() throws against an unreachable DB; the call never returns a Connection to close. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.internal.ConnectionInfoDataSourceTest"/>
+        <Bug pattern="ODR_OPEN_DATABASE_RESOURCE"/>
+    </Match>
+    <!-- Slf4jManagedPostgresProgressListener logs library-internal progress messages and already strips CR/LF before logging. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.observe.Slf4jManagedPostgresProgressListener"/>
+        <Method name="onProgress"/>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+    </Match>
+    <!-- Main is the CLI process entry point; calling System.exit with the documented exit code is correct here. -->
+    <Match>
+        <Class name="eu.virtualparadox.managedpostgres.cli.Main"/>
+        <Method name="main"/>
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+</FindBugsFilter>

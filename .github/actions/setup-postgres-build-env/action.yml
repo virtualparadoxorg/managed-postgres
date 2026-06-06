@@ -1,0 +1,67 @@
+name: Setup PostgreSQL Build Environment
+description: Install Phase 1 runtime packaging prerequisites on GitHub-hosted runners.
+
+inputs:
+  skip-install:
+    description: Skip runner dependency installation for smoke-mode packaging.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare Linux build dependencies
+      if: runner.os == 'Linux' && inputs.skip-install != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y build-essential perl flex bison meson ninja-build python3
+
+    - name: Prepare macOS build dependencies
+      if: runner.os == 'macOS' && inputs.skip-install != 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        xcode-select -p >/dev/null
+        for pkg in make meson ninja; do
+          brew list "$pkg" >/dev/null 2>&1 || brew install "$pkg"
+        done
+        perl -v >/dev/null
+
+    - name: Prepare Windows build dependencies
+      if: runner.os == 'Windows' && inputs.skip-install != 'true'
+      shell: powershell
+      run: |
+        $ErrorActionPreference = "Stop"
+        choco install strawberryperl -y --no-progress
+        choco install winflexbison3 -y --no-progress
+        choco install ninja -y --no-progress
+        python -m pip install --upgrade meson
+        refreshenv
+        perl -v | Out-Null
+
+        # PostgreSQL's MSVC build invokes bare `bison`/`flex`, but winflexbison ships
+        # the tools as `win_bison.exe`/`win_flex.exe`. We create PostgreSQL-compatible
+        # aliases *inside* the winflexbison tools directory so the bundled `data`
+        # skeleton directory stays adjacent (win_bison resolves its skeletons relative
+        # to the executable), then expose that directory on PATH.
+        #
+        # We deliberately resolve the real binaries rather than copying the Chocolatey
+        # shim returned by (Get-Command ...).Source: the shim launches the real binary
+        # through a path relative to its own location, so copying it elsewhere yields
+        # "Cannot find file ... This usually indicates a missing or moved file".
+        $winBisonShim = (Get-Command win_bison.exe -ErrorAction Stop).Source
+        $chocolateyRoot = Split-Path -Parent (Split-Path -Parent $winBisonShim)
+        $toolsDir = Join-Path $chocolateyRoot "lib\winflexbison3\tools"
+
+        $realBison = Join-Path $toolsDir "win_bison.exe"
+        $realFlex = Join-Path $toolsDir "win_flex.exe"
+        if (-not (Test-Path $realBison) -or -not (Test-Path $realFlex)) {
+          throw "winflexbison tools not found under $toolsDir"
+        }
+
+        Copy-Item -Path $realBison -Destination (Join-Path $toolsDir "bison.exe") -Force
+        Copy-Item -Path $realFlex -Destination (Join-Path $toolsDir "flex.exe") -Force
+
+        $toolsDir | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append

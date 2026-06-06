@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+      managed-postgres-spring-boot-common compiles the version-agnostic Spring integration
+      against the LOWER supported Spring Boot baseline (spring.boot3.version = 3.5.0) so the
+      shared code stays forward-compatible with both the Boot 3 and Boot 4 starters. Spring Boot,
+      Spring Framework and their transitives are declared `provided`/`test` scope in that module
+      and are never shipped to consumers, which always supply their own (patched) Spring Boot
+      version. These advisories therefore do not affect the published artifact's runtime classpath.
+      The Spring CPE applies the same CVE set across every artifact in the family, so the
+      suppressions match all org.springframework(.boot) jars at the pinned baseline versions; a
+      future baseline bump changes the version and re-surfaces any newly relevant advisories.
+    -->
+    <suppress>
+        <notes><![CDATA[
+          Spring Boot 3.5.0 is the provided/test-scope lower compile baseline of
+          managed-postgres-spring-boot-common; not shipped to consumers.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework\.boot/[^@]+@3\.5\.0$</packageUrl>
+        <cve>CVE-2026-40977</cve>
+        <cve>CVE-2026-40971</cve>
+        <cve>CVE-2026-40972</cve>
+        <cve>CVE-2026-40975</cve>
+        <cve>CVE-2026-22733</cve>
+        <cve>CVE-2026-40973</cve>
+        <cve>CVE-2026-22731</cve>
+        <cve>CVE-2026-40974</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+          Spring Framework 6.2.7 arrives transitively via the Spring Boot 3.5.0 lower compile
+          baseline of managed-postgres-spring-boot-common; provided/test scope, not shipped to
+          consumers.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.springframework/[^@]+@6\.2\.7$</packageUrl>
+        <cve>CVE-2026-22741</cve>
+        <cve>CVE-2026-22740</cve>
+        <cve>CVE-2026-22737</cve>
+        <cve>CVE-2026-22735</cve>
+        <cve>CVE-2026-22745</cve>
+    </suppress>
+</suppressions>

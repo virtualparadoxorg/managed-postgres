@@ -1,0 +1,201 @@
+name: Runtime Packaging
+
+on:
+  workflow_dispatch:
+    inputs:
+      postgres_version:
+        description: PostgreSQL release version to package
+        required: true
+        type: string
+      packaging_revision:
+        description: Managed Postgres packaging revision
+        required: true
+        type: string
+      publish_release:
+        description: Attach bundles to a GitHub release named pg<version>-<revision>
+        required: false
+        default: false
+        type: boolean
+      smoke_mode:
+        description: Build a smoke-fixture runtime bundle instead of compiling PostgreSQL from source
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Package ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            target: macos-x86_64
+          - runner: macos-latest
+            target: macos-aarch64
+          - runner: ubuntu-24.04
+            target: linux-x86_64-glibc
+          - runner: windows-2025
+            target: windows-x86_64
+          - runner: ubuntu-24.04-arm
+            target: linux-aarch64-glibc
+          - runner: ubuntu-24.04
+            target: linux-x86_64-musl
+            container_image: alpine:3.21
+            docker_platform: linux/amd64
+          - runner: ubuntu-24.04-arm
+            target: linux-aarch64-musl
+            container_image: alpine:3.21
+            docker_platform: linux/arm64
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Prepare runner build prerequisites
+        uses: ./.github/actions/setup-postgres-build-env
+        with:
+          # musl targets build inside an Alpine container (deps installed there via apk),
+          # so the host runner needs no toolchain install — only Docker, which is preinstalled.
+          skip-install: ${{ (inputs.smoke_mode || matrix.container_image != '') && 'true' || 'false' }}
+
+      - name: Create smoke install tree
+        if: ${{ inputs.smoke_mode }}
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target }}
+          RAW_INSTALL_TREE: ${{ github.workspace }}/target/runtime-packaging-smoke/${{ matrix.target }}/raw-install
+        run: ./scripts/runtime-packaging/create-smoke-install-tree.sh
+
+      - name: Build runtime bundle
+        shell: bash
+        env:
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+          TARGET_PLATFORM: ${{ matrix.target }}
+          DIST_DIR: dist/${{ matrix.target }}
+          RAW_INSTALL_TREE: ${{ inputs.smoke_mode && format('{0}/target/runtime-packaging-smoke/{1}/raw-install', github.workspace, matrix.target) || '' }}
+          MANAGED_POSTGRES_WINDOWS_DIAGNOSTICS: ${{ !inputs.smoke_mode && runner.os == 'Windows' && '1' || '' }}
+          SMOKE_MODE: ${{ inputs.smoke_mode }}
+          MUSL_CONTAINER_IMAGE: ${{ matrix.container_image }}
+          MUSL_DOCKER_PLATFORM: ${{ matrix.docker_platform }}
+          # Some hosted-runner images ship Maven below the enforced minimum (e.g. the
+          # ubuntu-24.04-arm image has 3.9.12). Use the pinned wrapper on host-built Linux
+          # targets. macOS/Windows keep their preinstalled mvn; musl runs the wrapper in-container.
+          BUILD_PHASE1_MAVEN_CMD: ${{ (runner.os == 'Linux' && matrix.container_image == '') && './mvnw' || '' }}
+        run: |
+          if [[ -n "${MUSL_CONTAINER_IMAGE:-}" && "${SMOKE_MODE}" != "true" ]]; then
+            ./scripts/runtime-packaging/build-phase1-musl.sh
+          else
+            ./scripts/runtime-packaging/build-phase1.sh
+          fi
+
+      - name: Diagnose source-build failure
+        if: ${{ failure() && !inputs.smoke_mode }}
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target }}
+        run: |
+          set -x
+          work_root="${GITHUB_WORKSPACE}/target/runtime-packaging-work/${TARGET_PLATFORM}"
+          meson_build="${work_root}/build/${TARGET_PLATFORM}/meson"
+          for log in "${meson_build}/meson-logs/meson-log.txt" \
+                     "${meson_build}/meson-logs/testlog.txt"; do
+            if [[ -f "${log}" ]]; then
+              echo "=== ${log}"
+              tail -n 200 "${log}" || true
+            fi
+          done
+          command -v meson >/dev/null 2>&1 && meson --version || true
+          command -v ninja >/dev/null 2>&1 && ninja --version || true
+
+      - name: Resolve runtime bundle artifact metadata
+        id: publish
+        shell: bash
+        env:
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+          TARGET_PLATFORM: ${{ matrix.target }}
+          DIST_DIR: dist/${{ matrix.target }}
+        run: ./scripts/runtime-packaging/publish-phase1.sh
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.publish.outputs.artifact_name }}
+          path: ${{ steps.publish.outputs.artifact_path }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish release pg${{ inputs.postgres_version }}-${{ inputs.packaging_revision }}
+    needs: package
+    if: ${{ inputs.publish_release && !inputs.smoke_mode }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Download all platform bundles
+        uses: actions/download-artifact@v7
+        with:
+          path: dist-release
+          merge-multiple: true
+
+      - name: Generate consolidated manifest.json and SHA256SUMS
+        shell: bash
+        env:
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+          RELEASE_DIR: dist-release
+        run: ./scripts/runtime-packaging/finalize-release.sh
+
+      - name: Sign runtime bundles (detached Ed25519)
+        shell: bash
+        env:
+          # Private Ed25519 key (PEM) whose public counterpart is pinned in the core library.
+          RUNTIMES_SIGNING_SECRET: ${{ secrets.RUNTIMES_SIGNING_SECRET }}
+          RELEASE_DIR: dist-release
+        run: |
+          set -euo pipefail
+          if [ -z "${RUNTIMES_SIGNING_SECRET:-}" ]; then
+            echo "RUNTIMES_SIGNING_SECRET is not set; cannot sign runtime bundles" >&2
+            exit 1
+          fi
+          key_file="$(mktemp)"
+          trap 'rm -f "${key_file}"' EXIT
+          printf '%s\n' "${RUNTIMES_SIGNING_SECRET}" > "${key_file}"
+          SIGNING_KEY_FILE="${key_file}" ./scripts/runtime-packaging/sign-release.sh
+
+      - name: Create or update GitHub release (single, race-free)
+        shell: bash
+        env:
+          # Cross-repo publish: the default GITHUB_TOKEN is scoped to this repo only, so a token
+          # with contents:write on the public runtimes repo is required. Add a repository secret
+          # RUNTIMES_PUBLISH_TOKEN (fine-grained PAT or GitHub App token).
+          GH_TOKEN: ${{ secrets.RUNTIMES_PUBLISH_TOKEN }}
+          RUNTIMES_REPO: virtualparadoxorg/managed-postgres-runtimes
+          POSTGRES_VERSION: ${{ inputs.postgres_version }}
+          PACKAGING_REVISION: ${{ inputs.packaging_revision }}
+        run: |
+          set -euo pipefail
+          tag="pg${POSTGRES_VERSION}-${PACKAGING_REVISION}"
+          if ! gh release view "${tag}" --repo "${RUNTIMES_REPO}" >/dev/null 2>&1; then
+            gh release create "${tag}" --repo "${RUNTIMES_REPO}" --title "${tag}" \
+              --notes "Managed Postgres runtime bundles for PostgreSQL ${POSTGRES_VERSION} (revision ${PACKAGING_REVISION}). Verify downloads against SHA256SUMS / manifest.json."
+          fi
+          gh release upload "${tag}" \
+            dist-release/*.zip dist-release/*.sig dist-release/SHA256SUMS dist-release/manifest.json \
+            --repo "${RUNTIMES_REPO}" --clobber

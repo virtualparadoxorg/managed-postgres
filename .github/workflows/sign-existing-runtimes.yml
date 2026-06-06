@@ -1,0 +1,40 @@
+name: Sign existing runtimes (backfill)
+
+# One-off / on-demand: signs runtime bundles that were published to the public runtimes repo
+# before signing existed, so downloads can verify them. Needs the same two secrets as a normal
+# publish: RUNTIMES_SIGNING_SECRET (the Ed25519 private key) and RUNTIMES_PUBLISH_TOKEN (a token
+# with contents:write on the runtimes repo).
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to backfill (e.g. pg18.4-r1). Leave empty to sign every release."
+        required: false
+        type: string
+
+jobs:
+  backfill:
+    name: Backfill detached signatures
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Sign and upload .sig for existing release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RUNTIMES_PUBLISH_TOKEN }}
+          RUNTIMES_SIGNING_SECRET: ${{ secrets.RUNTIMES_SIGNING_SECRET }}
+          RUNTIMES_REPO: virtualparadoxorg/managed-postgres-runtimes
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RUNTIMES_SIGNING_SECRET:-}" ]; then
+            echo "RUNTIMES_SIGNING_SECRET is not set; cannot sign runtime bundles" >&2
+            exit 1
+          fi
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "RUNTIMES_PUBLISH_TOKEN is not set; cannot upload signatures cross-repo" >&2
+            exit 1
+          fi
+          ./scripts/runtime-packaging/backfill-signatures.sh

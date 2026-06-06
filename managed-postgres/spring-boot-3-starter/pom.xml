@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.virtualparadox</groupId>
+        <artifactId>managed-postgres-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>managed-postgres-spring-boot-3-starter</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Managed Postgres Spring Boot 3 Starter</name>
+    <description>Spring Boot 3 starter for managed PostgreSQL lifecycle operations.</description>
+
+    <properties>
+        <japicmp.skip>false</japicmp.skip>
+        <!--
+            The Spring Boot 3.5.0 BOM pins logback 1.5.18, whose POM still declares the
+            Eclipse Public License v1.0 (rejected by the license allowlist). Align with the
+            logback 1.5.32 that the Spring Boot 4 BOM already validates as license-clean
+            (Eclipse Public License v2.0). This only adjusts the managed logback version.
+        -->
+        <logback.version>1.5.32</logback.version>
+        <!--
+            The Spring Boot 3.5.0 BOM pins log4j 2.24.3 (CVE-2026-34477, CVE-2026-34479).
+            Align with the 2.25.4 release the Spring Boot 4 modules already ship, which clears
+            both advisories.
+        -->
+        <log4j2.version>2.25.4</log4j2.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot3.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--
+                Direct dependencyManagement entries override the imported Spring Boot 3.5.0 BOM,
+                which would otherwise pin logback 1.5.18 (Eclipse Public License v1.0, rejected by
+                the license allowlist). 1.5.32 is the license-clean EPL v2.0 release already
+                validated by the Spring Boot 4 modules.
+            -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+            <!--
+                Direct overrides of the imported Spring Boot 3.5.0 BOM, which would otherwise pin
+                log4j 2.24.3 (CVE-2026-34477, CVE-2026-34479). 2.25.4 is the patched release
+                already shipped by the Spring Boot 4 modules.
+            -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j2.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>managed-postgres-spring-boot-3</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.annotation</groupId>
+                    <artifactId>jakarta.annotation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

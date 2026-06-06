@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify (JDK 21)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # Full reactor gate: unit + integration tests, Spotless, Checkstyle, PMD,
+      # SpotBugs, forbidden-apis, JaCoCo coverage, ArchUnit, license checks.
+      # The OWASP dependency-check (NVD scan) is deferred to the scheduled
+      # security workflow so pull-request feedback stays fast and deterministic.
+      # The real-runtime integration tests are gated and skip without a provided runtime.
+      - name: Verify
+        run: ./mvnw -B -ntp -Ddependency.check.skip=true clean verify
