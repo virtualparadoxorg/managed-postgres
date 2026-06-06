@@ -1,0 +1,28 @@
+package eu.virtualparadox.managedpostgres.dsl;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import eu.virtualparadox.managedpostgres.ManagedPostgres;
+import eu.virtualparadox.managedpostgres.config.postgresql.Resources;
+import eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer;
+import org.junit.jupiter.api.Test;
+
+public final class ManagedPostgresBuilderConfigurationTest {
+
+    ManagedPostgresBuilderConfigurationTest() {}
+
+    @Test
+    void builderStoresPostgreSqlConfigurationAndResourcePreset() {
+        try (ManagedPostgres postgres = ManagedPostgresConfigurer.of(ManagedPostgres.create())
+                .configuration(Resources.small())
+                .serverConfiguration()
+                .maxConnections(48)
+                .sharedBuffers("192MB")
+                .build()) {
+            assertThat(postgres.toString())
+                    .contains("postgresConfiguration")
+                    .contains("maxConnections=OptionalInt[48]")
+                    .contains("sharedBuffers=Optional[192MB]");
+        }
+    }
+}

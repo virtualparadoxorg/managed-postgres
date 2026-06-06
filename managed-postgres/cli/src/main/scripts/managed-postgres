@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Convenience launcher for the managed-postgres CLI.
+#
+# Resolves the runnable shaded jar (managed-postgres-cli-<version>-cli.jar) relative to this
+# script and runs it. Override the jar location with MANAGED_POSTGRES_CLI_JAR if needed.
+#
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+jar="${MANAGED_POSTGRES_CLI_JAR:-}"
+if [ -z "${jar}" ]; then
+  # Look next to the script first (installed layout), then in the Maven target dir (dev layout).
+  for candidate in \
+    "${script_dir}"/managed-postgres-cli-*-cli.jar \
+    "${script_dir}"/../target/managed-postgres-cli-*-cli.jar; do
+    if [ -f "${candidate}" ]; then
+      jar="${candidate}"
+      break
+    fi
+  done
+fi
+
+if [ -z "${jar}" ] || [ ! -f "${jar}" ]; then
+  echo "managed-postgres: could not locate the runnable CLI jar (managed-postgres-cli-<version>-cli.jar)." >&2
+  echo "Build it with: ./mvnw -pl managed-postgres/cli -am package" >&2
+  echo "Or set MANAGED_POSTGRES_CLI_JAR to its path." >&2
+  exit 1
+fi
+
+exec java -jar "${jar}" "$@"

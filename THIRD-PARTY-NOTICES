@@ -1,0 +1,36 @@
+# Third-Party Notices
+
+Managed Postgres is licensed under the Apache License, Version 2.0. See
+`LICENSE` and `NOTICE` in the repository root.
+
+## Java Dependencies
+
+The Maven build generates a dependency notice report during `verify` through
+the configured license gate. The generated report is written under:
+
+```text
+target/generated-sources/license/THIRD-PARTY.txt
+```
+
+The release process must review and ship the generated notice report, the SBOM,
+and this root notice file with published distributions. Unknown or disallowed
+dependency licenses fail the Maven license check.
+
+## PostgreSQL Native Runtimes
+
+This repository currently does not bundle native PostgreSQL runtime archives.
+Runtime sources may be existing system installations, explicit local runtime
+directories, checksum-pinned downloaded archives, or checksum-pinned classpath
+archives supplied by an application.
+
+Any future native PostgreSQL runtime artifact distributed by this project must
+carry:
+
+- the PostgreSQL license text;
+- runtime-specific third-party notices;
+- source and build provenance;
+- checksums and, where supported, signatures;
+- a runtime manifest that records version, source, checksum, and platform
+  identity.
+
+See `docs/licensing.md` and `docs/runtime-bundles.md` for the release contract.

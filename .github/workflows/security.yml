@@ -1,0 +1,35 @@
+name: security
+
+# OWASP dependency-check (CVE scan) over the whole reactor. Run on a schedule
+# rather than per pull request: the CVE landscape changes with newly-published
+# advisories, not with code changes, and the NVD download is slow — keeping it
+# out of the PR gate keeps pull-request feedback fast and deterministic.
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # Mondays 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  owasp:
+    name: OWASP dependency-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # An NVD API key (repo/org secret NVD_API_KEY) makes the scan fast and
+      # avoids rate limiting; the scan still works without it, just slower.
+      - name: Dependency-check (aggregate)
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: ./mvnw -B -ntp org.owasp:dependency-check-maven:aggregate
