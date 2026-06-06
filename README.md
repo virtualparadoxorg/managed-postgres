@@ -13,6 +13,8 @@ No Docker. No install. No root. No `initdb` rituals.
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/status-pre--release-yellow.svg)](#status)
 
+📚 **[Read the documentation →](docs/README.md)**
+
 </div>
 
 ---
@@ -192,6 +194,19 @@ A standalone CLI (`managed-postgres-cli`) wraps the same engine:
 ```
 managed-postgres  start | stop | status | backup | restore | upgrade | doctor
 ```
+
+---
+
+## Documentation
+
+Full reference documentation lives in **[`docs/`](docs/README.md)**:
+
+- 🚀 [Getting started](docs/getting-started.md) · [Concepts](docs/concepts.md)
+- 📖 [DSL reference](docs/dsl-reference.md) · [Configuration reference](docs/configuration-reference.md) · [Connecting](docs/connecting.md)
+- ⚙️ [Lifecycle](docs/lifecycle.md) · [Observability](docs/observability.md)
+- 🔌 [Spring Boot](docs/spring-boot.md) · [CLI](docs/cli.md)
+- 📦 [Runtime distribution & security](docs/runtime-distribution.md) · [Compatibility](docs/compatibility.md)
+- 🛟 [Recipes](docs/recipes.md) · [Troubleshooting](docs/troubleshooting.md)
 
 ---
 
