@@ -1,10 +1,9 @@
 name: release-candidate
 
+# Manual-only pre-release smoke. The real Central release runs from release.yml on v* tags;
+# this no longer triggers on tags to avoid double-running on a release.
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "v*"
 
 jobs:
   release-candidate:
