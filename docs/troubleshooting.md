@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Troubleshooting
 
 FAQ and common problems for the `managed-postgres` Java library. Each entry is framed as a question or a problem → cause → fix.
@@ -22,7 +24,8 @@ See [runtime distribution](runtime-distribution.md) for the full resolve → dow
 
 **Cause.** Each downloaded runtime archive ships with a detached **Ed25519** signature that is checked against a **pinned public key**, alongside a **SHA-256** checksum. A failure (`runtime signature verification failed for artifact: …`, or a marker mismatch) means the archive's bytes do not match the signature for that bundle — typically a **tampered, corrupted, truncated, or mismatched** download, or an archive that was not produced by the trusted publisher.
 
-**Fix.** Do **not** bypass the check. Delete the cached/partial artifact and re-download from the official source so a clean bundle is fetched, verified, and extracted again. If it keeps failing, you are likely pointing at an untrusted or altered archive — get the runtime from the official channel. The trust chain (who signs, which key is pinned, how the marker is written into the extracted runtime) is documented in [runtime distribution](runtime-distribution.md).
+> **Warning**
+> **Fix.** Do **not** bypass the check. Delete the cached/partial artifact and re-download from the official source so a clean bundle is fetched, verified, and extracted again. If it keeps failing, you are likely pointing at an untrusted or altered archive — get the runtime from the official channel. The trust chain (who signs, which key is pinned, how the marker is written into the extracted runtime) is documented in [runtime distribution](runtime-distribution.md).
 
 ## "Does it need root?"
 
@@ -48,7 +51,10 @@ ManagedPostgres.create().network().stableRandomPort().start();
 ManagedPostgres.create().network().preferredPort(15432).fallbackToRandom().start();
 ```
 
-Without `fallbackToRandom()`, `preferredPort(...)` fails when the port is occupied (it does not silently move). `port(...)` is the strict fixed-port mode. Note: the listen host is **loopback-only** — it must be `127.0.0.1`; non-loopback binding is not supported.
+Without `fallbackToRandom()`, `preferredPort(...)` fails when the port is occupied (it does not silently move). `port(...)` is the strict fixed-port mode.
+
+> **Note**
+> The listen host is **loopback-only** — it must be `127.0.0.1`; non-loopback binding is not supported.
 
 ## "Which port and credentials did it pick?"
 

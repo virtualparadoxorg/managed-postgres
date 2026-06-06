@@ -1,10 +1,12 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # CLI Guide
 
 The `managed-postgres` CLI (`managed-postgres-cli`) wraps the same engine as the library and Spring
 starters, exposing the operational surface for local PostgreSQL lifecycle management: start, stop,
 restart, status, diagnostics, backup/restore, cleanup, destroy, and runtime verification.
 
-| | |
+| Property | Value |
 |---|---|
 | **Artifact** | `eu.virtualparadox:managed-postgres-cli` |
 | **version** | `1.0.0` (pre-release — see [Status & install](#status--install)) |
@@ -220,8 +222,9 @@ Prints `cleanup-complete`.
 
 ### `destroy`
 
-Destroys the **persistent cluster storage** (the data directory). This is destructive and requires
-explicit confirmation.
+> **Warning**
+> Destroys the **persistent cluster storage** (the data directory). This is destructive and requires
+> explicit confirmation.
 
 | Flag | Purpose |
 |---|---|

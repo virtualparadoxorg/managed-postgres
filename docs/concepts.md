@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Concepts
 
 The mental model behind `managed-postgres`: what is throwaway, what is yours, how instances are configured, and how their lifecycle works. Read this once and the [DSL reference](dsl-reference.md) and [getting started](getting-started.md) pages will make sense.

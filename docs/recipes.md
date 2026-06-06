@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Recipes
 
 Task-oriented how-tos for the `managed-postgres` Java library. Each recipe is a short, complete, runnable example built against the real fluent DSL (`ManagedPostgres` → `ManagedPostgresBuilder` → `RunningPostgres`).

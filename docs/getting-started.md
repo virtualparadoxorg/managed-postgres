@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Getting started
 
 Install `managed-postgres` and start a real PostgreSQL from Java, Spring Boot, or the CLI. This page walks all three entry points and explains exactly what the first start does.
@@ -41,6 +43,8 @@ dependencies {
 ```
 
 Start a database and run a query. `ManagedPostgres.create()` is the sole entry point; `RunningPostgres` is `AutoCloseable`, so a try-with-resources stops the server on close.
+
+<div align="center"><img src="assets/example.png" alt="managed-postgres in a few lines of Java" width="620"></div>
 
 ```java
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
