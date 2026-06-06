@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Configuration Reference
 
 `managed-postgres` exposes one configuration engine through two surfaces:
@@ -216,6 +218,9 @@ managed-postgres:
 
 The CLI YAML uses the same dotted structure under the `managed-postgres:` root. Cluster, lifecycle, and datasource sections are not part of the CLI schema.
 
+<details>
+<summary><b>Full CLI <code>managed-postgres.yml</code> example</b></summary>
+
 ```yaml
 managed-postgres:
   name: app-db
@@ -236,6 +241,8 @@ managed-postgres:
     temp-buffers: 8MB
     statement-timeout-seconds: 60
 ```
+
+</details>
 
 Load it and overlay flags as needed:
 

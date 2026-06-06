@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Connecting to a Started Instance
 
 Once `managed-postgres` has started a PostgreSQL instance you hold a `RunningPostgres` handle. This page covers how to turn that handle into a JDBC connection — a raw URL, a ready-to-use `javax.sql.DataSource`, or credentials for your own pool.

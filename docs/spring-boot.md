@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Spring Boot Guide
 
 `managed-postgres` ships first-class Spring Boot starters that start a local, managed PostgreSQL
@@ -10,7 +12,7 @@ There are two starters — one for Spring Boot 3 and one for Spring Boot 4 — b
 `managed-postgres-spring-boot-common` engine. Behaviour, property names and defaults are identical
 across both; the only difference is which Spring Boot health API is used internally.
 
-| | |
+| Property | Value |
 |---|---|
 | **groupId** | `eu.virtualparadox` |
 | **version** | `1.0.0` (pre-release — see [Status](#status)) |
@@ -286,7 +288,7 @@ By default the starter **refuses to clobber** an existing datasource. If
 `managed-postgres.datasource.enabled` is `true`, `managed-postgres.datasource.override-existing`
 is `false`, and the environment already contains `spring.datasource.url`, bootstrap fails with:
 
-```
+```text
 spring.datasource.url already exists; set managed-postgres.datasource.override-existing=true to replace it
 ```
 
@@ -364,7 +366,7 @@ Micrometer remains an optional dependency):
 Both starters are functionally identical and share the entire bootstrap, config-mapping, datasource
 and metrics engine in `managed-postgres-spring-boot-common`. The only differences:
 
-| | Spring Boot 3 | Spring Boot 4 |
+| Aspect | Spring Boot 3 | Spring Boot 4 |
 |---|---|---|
 | Starter artifact | `managed-postgres-spring-boot-3-starter` | `managed-postgres-spring-boot-4-starter` |
 | Engine artifact | `managed-postgres-spring-boot-3` | `managed-postgres-spring-boot-4` |
