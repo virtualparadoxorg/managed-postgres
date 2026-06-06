@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # CLI Guide
 
 The `managed-postgres` CLI (`managed-postgres-cli`) wraps the same engine as the library and Spring

@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Configuration Reference
 
 `managed-postgres` exposes one configuration engine through two surfaces:

@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Runtime Distribution
 
 How `managed-postgres` obtains a real PostgreSQL server runtime, and how that runtime is

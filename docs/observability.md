@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Observability Reference
 
 Reference for the two observability hooks in `managed-postgres`: **startup progress** and **PostgreSQL server logs**.

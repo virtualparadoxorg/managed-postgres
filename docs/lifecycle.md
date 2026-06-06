@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Lifecycle Reference
 
 Reference for every lifecycle operation exposed by `managed-postgres`.

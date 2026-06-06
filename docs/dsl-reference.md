@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Fluent DSL reference
 
 This is the complete reference for the `managed-postgres` fluent builder DSL: every public method on

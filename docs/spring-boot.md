@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Spring Boot Guide
 
 `managed-postgres` ships first-class Spring Boot starters that start a local, managed PostgreSQL

@@ -1,3 +1,5 @@
+<a href="README.md"><img src="assets/logo-mark.svg" alt="managed-postgres docs" height="30" align="right"></a>
+
 # Troubleshooting
 
 FAQ and common problems for the `managed-postgres` Java library. Each entry is framed as a question or a problem → cause → fix.
