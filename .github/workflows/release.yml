@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          # Writes ~/.m2/settings.xml with a 'central' server bound to the env vars below,
+          # and imports the GPG signing key (org-level secrets, visibility ALL).
+          server-id: central
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+      - name: Deploy to Maven Central
+        # The build tools and integration-test modules are not published; exclude them from the bundle.
+        run: >
+          ./mvnw -B -ntp -Prelease -DskipTests
+          -DexcludeArtifacts=managed-postgres-runtime-packager,managed-postgres-test,managed-postgres-fake-runtime-it,managed-postgres-real-runtime-it
+          deploy
+        env:
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_TOKEN_ID }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_TOKEN_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
