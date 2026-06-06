@@ -116,7 +116,10 @@ The pinned public key (Base64-encoded X.509 `SubjectPublicKeyInfo`) is:
 MCowBQYDK2VwAyEAAgpqMJ/qvwiRr0DZvU10GnDcPpdKuzmbFSfGkvjrcGc=
 ```
 
-Signature verification is **mandatory for the official repository**. A custom GitHub release
+> **Important**
+> Signature verification is **mandatory for the official repository**.
+
+A custom GitHub release
 repository (see below) reuses the same bundle layout and SHA-256 checks, but carries no
 signature that can be verified against this pinned key, so the Ed25519 step applies only to
 the official source.

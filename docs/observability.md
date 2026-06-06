@@ -4,7 +4,7 @@
 
 Reference for the two observability hooks in `managed-postgres`: **startup progress** and **PostgreSQL server logs**.
 
-| | |
+| Property | Value |
 | --- | --- |
 | groupId | `eu.virtualparadox` |
 | version | `1.0.0` (pre-release) |
@@ -93,7 +93,7 @@ public record StartupProgress(StartupPhase phase, long completedBytes, long tota
 
 `StartupPhase` values, in the order a fresh start passes through them:
 
-```
+```text
 RESOLVING_RUNTIME → DOWNLOADING → VERIFYING → EXTRACTING → INITDB → STARTING → WAITING_FOR_READY → READY
 ```
 

@@ -730,6 +730,9 @@ try (RunningPostgres pg = ManagedPostgres.create()
 
 ## Internal SPI (not for end users)
 
+<details>
+<summary><b>Integration SPI — <code>ManagedPostgresConfigurer</code> (framework plumbing)</b></summary>
+
 `eu.virtualparadox.managedpostgres.spi.ManagedPostgresConfigurer` is an **integration SPI**, not part of
 the human-facing DSL. It exists so integrations (Spring Boot, the CLI) can apply *complete value
 objects* — assembled from external configuration — to a builder programmatically.
@@ -755,6 +758,8 @@ builder = ManagedPostgresConfigurer.of(builder).cluster(clusterBootstrap);
 ```
 
 End users should use the fluent DSL documented above; the SPI is plumbing for framework integrations.
+
+</details>
 
 ---
 

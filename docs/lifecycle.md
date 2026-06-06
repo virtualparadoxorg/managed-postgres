@@ -4,7 +4,7 @@
 
 Reference for every lifecycle operation exposed by `managed-postgres`.
 
-| | |
+| Property | Value |
 | --- | --- |
 | groupId | `eu.virtualparadox` |
 | version | `1.0.0` (pre-release) |
