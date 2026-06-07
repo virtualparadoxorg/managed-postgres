@@ -47,3 +47,7 @@ package-lock.json
 
 # branding kit drop (do not commit the raw zip)
 /PostgreSQL.zip
+
+# Local development notes / agent files (not part of the published project)
+/MEMORY.md
+/AGENTS.md
