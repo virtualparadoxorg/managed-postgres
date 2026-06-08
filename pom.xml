@@ -16,13 +16,13 @@
     <parent>
         <groupId>eu.virtualparadox</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-RC2</version>
+        <version>1.0.0-RC3</version>
         <relativePath/>
     </parent>
 
     <groupId>eu.virtualparadox</groupId>
     <artifactId>managed-postgres-parent</artifactId>
-    <version>1.0.0-RC2</version>
+    <version>1.0.0-RC3</version>
     <packaging>pom</packaging>
 
     <name>Managed Postgres Parent</name>
@@ -677,31 +677,6 @@ checkstyle.local.suppressions.file=${root.dir}/config/static-analysis/checkstyle
                                 </fail>
                             </target>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!--
-                Attach the sources and Javadoc jars at `package` (the parent binds them at `verify`).
-                The release GPG signing runs at `verify`, so the jars must already exist by then;
-                otherwise sources/javadoc ship to Central unsigned and the deployment is rejected.
-            -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
