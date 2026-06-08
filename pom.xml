@@ -508,6 +508,8 @@ checkstyle.local.suppressions.file=${root.dir}/config/static-analysis/checkstyle
                                 <exclude>eu/virtualparadox/managedpostgres/config/UpgradePolicy*</exclude>
                                 <!-- CLI process entry point; the one-line main wraps System.exit and cannot be unit-tested. -->
                                 <exclude>eu/virtualparadox/managedpostgres/cli/Main*</exclude>
+                                <!-- Thin macOS Mach-O toolchain (otool/install_name_tool/codesign) IO boundary; not unit-testable cross-platform. -->
+                                <exclude>eu/virtualparadox/managedpostgres/runtime/packaging/relocate/ProcessMachOTool*</exclude>
                             </excludes>
                         </configuration>
                     </execution>
@@ -534,6 +536,8 @@ checkstyle.local.suppressions.file=${root.dir}/config/static-analysis/checkstyle
                                 <exclude>eu/virtualparadox/managedpostgres/config/UpgradePolicy*</exclude>
                                 <!-- CLI process entry point; the one-line main wraps System.exit and cannot be unit-tested. -->
                                 <exclude>eu/virtualparadox/managedpostgres/cli/Main*</exclude>
+                                <!-- Thin macOS Mach-O toolchain (otool/install_name_tool/codesign) IO boundary; not unit-testable cross-platform. -->
+                                <exclude>eu/virtualparadox/managedpostgres/runtime/packaging/relocate/ProcessMachOTool*</exclude>
                             </excludes>
                             <rules>
                                 <rule>

@@ -77,7 +77,9 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Ordered {
             storeAndPublishDatasource(environment, application, properties, bootstrapContext);
         } catch (final ManagedPostgresSpringException exception) {
             throw exception;
-        } catch (final ManagedPostgresException | IllegalArgumentException | IllegalStateException exception) {
+        } catch (final ManagedPostgresException exception) {
+            throw managedSpringException(exception, properties);
+        } catch (final IllegalArgumentException | IllegalStateException exception) {
             throw managedSpringException(exception, properties);
         }
     }
@@ -120,12 +122,28 @@ public final class ManagedPostgresEnvironmentPostProcessor implements Ordered {
     }
 
     private static ManagedPostgresSpringException managedSpringException(
-            final Exception exception, final ManagedPostgresSpringProperties properties) {
-        final String message =
-                Objects.toString(exception.getMessage(), exception.getClass().getName());
+            final ManagedPostgresException exception, final ManagedPostgresSpringProperties properties) {
+        final String diagnostics = exception.diagnosticReport().renderText().strip();
+        final String baseMessage = baseMessage(exception);
+        final String detailed =
+                diagnostics.isEmpty() ? baseMessage : baseMessage + System.lineSeparator() + diagnostics;
 
+        return springException(detailed, exception, properties);
+    }
+
+    private static ManagedPostgresSpringException managedSpringException(
+            final Exception exception, final ManagedPostgresSpringProperties properties) {
+        return springException(baseMessage(exception), exception, properties);
+    }
+
+    private static ManagedPostgresSpringException springException(
+            final String message, final Exception cause, final ManagedPostgresSpringProperties properties) {
         return new ManagedPostgresSpringException(
-                "Failed to start managed PostgreSQL: " + redacted(message, properties));
+                "Failed to start managed PostgreSQL: " + redacted(message, properties), cause);
+    }
+
+    private static String baseMessage(final Exception exception) {
+        return Objects.toString(exception.getMessage(), exception.getClass().getName());
     }
 
     private static String redacted(final String message, final ManagedPostgresSpringProperties properties) {

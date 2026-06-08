@@ -4,6 +4,7 @@ import eu.virtualparadox.managedpostgres.runtime.packaging.BundleManifest;
 import eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundleNormalizer;
 import eu.virtualparadox.managedpostgres.runtime.packaging.bundle.BundlePublisher;
 import eu.virtualparadox.managedpostgres.runtime.packaging.bundle.PublishResult;
+import eu.virtualparadox.managedpostgres.runtime.packaging.relocate.MacosBundleRelocator;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
@@ -14,17 +15,22 @@ import java.util.Objects;
 public final class BundlePublicationWorkflow {
 
     private final BundleNormalizer bundleNormalizer;
+    private final MacosBundleRelocator macosBundleRelocator;
     private final BundlePublisher bundlePublisher;
 
     /**
      * Creates the default bundle publication workflow.
      */
     public BundlePublicationWorkflow() {
-        this(new BundleNormalizer(), new BundlePublisher());
+        this(new BundleNormalizer(), new MacosBundleRelocator(), new BundlePublisher());
     }
 
-    BundlePublicationWorkflow(final BundleNormalizer bundleNormalizer, final BundlePublisher bundlePublisher) {
+    BundlePublicationWorkflow(
+            final BundleNormalizer bundleNormalizer,
+            final MacosBundleRelocator macosBundleRelocator,
+            final BundlePublisher bundlePublisher) {
         this.bundleNormalizer = Objects.requireNonNull(bundleNormalizer, "bundleNormalizer");
+        this.macosBundleRelocator = Objects.requireNonNull(macosBundleRelocator, "macosBundleRelocator");
         this.bundlePublisher = Objects.requireNonNull(bundlePublisher, "bundlePublisher");
     }
 
@@ -59,6 +65,7 @@ public final class BundlePublicationWorkflow {
                         .resolve("normalized")
                         .resolve(validatedRequest.targetPlatform().identifier()),
                 manifest);
+        macosBundleRelocator.relocate(normalized, validatedRequest.targetPlatform());
         final PublishResult publishResult =
                 bundlePublisher.publish(normalized, validatedRequest.outputDirectory(), manifest);
         return new RuntimePackagingResult(publishResult, validatedWorkspace.driver());

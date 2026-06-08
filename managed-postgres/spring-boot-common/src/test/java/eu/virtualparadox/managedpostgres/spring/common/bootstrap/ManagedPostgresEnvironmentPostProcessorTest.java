@@ -10,9 +10,13 @@ import static org.mockito.Mockito.when;
 import eu.virtualparadox.managedpostgres.ManagedPostgres;
 import eu.virtualparadox.managedpostgres.PostgresConnectionInfo;
 import eu.virtualparadox.managedpostgres.RunningPostgres;
+import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticReport;
+import eu.virtualparadox.managedpostgres.diagnostics.DiagnosticSection;
+import eu.virtualparadox.managedpostgres.exception.PostgresStartupException;
 import eu.virtualparadox.managedpostgres.security.Secret;
 import eu.virtualparadox.managedpostgres.spring.common.config.ManagedPostgresSpringException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -146,6 +150,28 @@ public final class ManagedPostgresEnvironmentPostProcessorTest {
                 .isInstanceOf(ManagedPostgresSpringException.class)
                 .hasMessageContaining("REDACTED")
                 .hasMessageNotContaining(RAW_PASSWORD);
+    }
+
+    @Test
+    void initdbFailuresSurfaceUnderlyingDiagnosticsAndPreserveCause() {
+        final MockEnvironment environment = environment(Map.of("managed-postgres.enabled", "true"));
+        final DiagnosticReport diagnosticReport = new DiagnosticReport(List.of(new DiagnosticSection(
+                "initdb",
+                Map.of(
+                        "exitCode", "1",
+                        "stderr", "dyld[71]: Library not loaded: @rpath/libpq.5.dylib"))));
+        final PostgresStartupException startupFailure =
+                new PostgresStartupException("PostgreSQL initdb failed", diagnosticReport);
+        final ManagedPostgresEnvironmentPostProcessor postProcessor =
+                new ManagedPostgresEnvironmentPostProcessor(properties -> {
+                    throw startupFailure;
+                });
+
+        assertThatThrownBy(() -> postProcessor.postProcessEnvironment(environment, application()))
+                .isInstanceOf(ManagedPostgresSpringException.class)
+                .hasMessageContaining("PostgreSQL initdb failed")
+                .hasMessageContaining("libpq.5.dylib")
+                .hasCause(startupFailure);
     }
 
     private static ManagedPostgresEnvironmentPostProcessor postProcessorWithRunningPostgres() {
