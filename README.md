@@ -44,10 +44,6 @@ That's it. No container runtime. No system package. No `sudo`. No `data/` direct
 > right native build for your *exact* platform, verifies its signature, and caches it. On Alpine?
 > On **musl**? It just works — nothing to compile, nothing to match by hand.
 
-<div align="center">
-<img src="docs/assets/example.png" alt="managed-postgres in eight lines of Java" width="640">
-</div>
-
 ---
 
 ## Why you'll like it
