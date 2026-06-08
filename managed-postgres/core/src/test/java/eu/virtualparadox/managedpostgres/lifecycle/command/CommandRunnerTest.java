@@ -60,7 +60,10 @@ public final class CommandRunnerTest {
     @Test
     void commandTimeoutKillsProcess() throws IOException, InterruptedException {
         final Path finished = temporaryDirectory.resolve("finished");
-        final Path script = createScript("timeout.sh", "sleep 5\nprintf 'done' > \"" + finished + "\"");
+        // The script sleeps far longer than the 100ms command timeout, then would create the marker
+        // file. A long sleep keeps a wide margin so a loaded CI runner cannot let the process reach
+        // the marker write before the timeout kills it (this test was flaky with a 5s sleep).
+        final Path script = createScript("timeout.sh", "sleep 30\nprintf 'done' > \"" + finished + "\"");
         final CommandRequest request = CommandRequest.of(List.of(script.toString()), COMMAND_TIMEOUT);
 
         assertThatThrownBy(() -> new CommandRunner().run(request))
