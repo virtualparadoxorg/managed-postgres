@@ -13,7 +13,7 @@ signed repository with zero configuration.
 | Property | Value |
 | --- | --- |
 | groupId | `eu.virtualparadox` |
-| Version | `1.0.0` (pre-release, not yet on Maven Central) |
+| Version | `1.0.1` |
 | Java | 21 |
 | PostgreSQL | 16, 17, 18 (default runtime `18.4`) |
 | License | Apache-2.0 |

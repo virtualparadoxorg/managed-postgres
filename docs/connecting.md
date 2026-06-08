@@ -5,7 +5,7 @@
 Once `managed-postgres` has started a PostgreSQL instance you hold a `RunningPostgres` handle. This page covers how to turn that handle into a JDBC connection — a raw URL, a ready-to-use `javax.sql.DataSource`, or credentials for your own pool.
 
 - groupId: `eu.virtualparadox`
-- version: `1.0.0` (pre-release)
+- version: `1.0.1`
 - Java 21 baseline
 - PostgreSQL 16 / 17 / 18 supported
 

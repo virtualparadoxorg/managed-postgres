@@ -6,7 +6,7 @@ Task-oriented how-tos for the `managed-postgres` Java library. Each recipe is a 
 
 Conventions used throughout:
 
-- groupId `eu.virtualparadox`; version `1.0.0` (pre-release); Java 21.
+- groupId `eu.virtualparadox`; version `1.0.1`; Java 21.
 - PostgreSQL major versions 16, 17, 18 are supported; the default runtime is `18.4`.
 - The PostgreSQL JDBC driver (`org.postgresql:postgresql`) must be on your classpath — **no driver is bundled**. The `JdbcClient` snippets additionally need `spring-jdbc`.
 - `RunningPostgres` is `AutoCloseable`; closing it applies the configured [`StopPolicy`](concepts.md#lifecycle).
@@ -219,7 +219,7 @@ Add the starter for your Spring Boot generation and flip one switch. The starter
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-spring-boot-4-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

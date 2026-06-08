@@ -14,7 +14,7 @@ Supported platforms: macOS (x86-64 / arm64), Linux (x86-64 / arm64, glibc and mu
 
 ## Library quick start
 
-Add the core dependency. The coordinates below are placeholders — the artifacts are **not yet on Maven Central**, so build from source for now (see the [README](../README.md) "Build from source").
+Add the core dependency — `1.0.1` is published on Maven Central, so the coordinates below work as-is.
 
 Maven:
 
@@ -22,7 +22,7 @@ Maven:
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -30,7 +30,7 @@ Gradle (Kotlin DSL):
 
 ```kotlin
 dependencies {
-    implementation("eu.virtualparadox:managed-postgres-core:1.0.0")
+    implementation("eu.virtualparadox:managed-postgres-core:1.0.1")
 }
 ```
 
@@ -38,7 +38,7 @@ Gradle (Groovy DSL):
 
 ```groovy
 dependencies {
-    implementation 'eu.virtualparadox:managed-postgres-core:1.0.0'
+    implementation 'eu.virtualparadox:managed-postgres-core:1.0.1'
 }
 ```
 
@@ -76,7 +76,7 @@ Spring Boot 4:
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-spring-boot-4-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

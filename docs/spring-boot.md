@@ -15,7 +15,7 @@ across both; the only difference is which Spring Boot health API is used interna
 | Property | Value |
 |---|---|
 | **groupId** | `eu.virtualparadox` |
-| **version** | `1.0.0` (pre-release — see [Status](#status)) |
+| **version** | `1.0.1` (see [Status](#status)) |
 | **Java baseline** | 21 (inherited from `managed-postgres-core`) |
 | **PostgreSQL** | 16, 17, 18 (default runtime `18.4`, uniform with the core and CLI) |
 | **License** | Apache-2.0 |
@@ -34,14 +34,14 @@ Maven:
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-spring-boot-4-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'eu.virtualparadox:managed-postgres-spring-boot-4-starter:1.0.0'
+implementation 'eu.virtualparadox:managed-postgres-spring-boot-4-starter:1.0.1'
 ```
 
 ### Spring Boot 3
@@ -52,14 +52,14 @@ Maven:
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-spring-boot-3-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'eu.virtualparadox:managed-postgres-spring-boot-3-starter:1.0.0'
+implementation 'eu.virtualparadox:managed-postgres-spring-boot-3-starter:1.0.1'
 ```
 
 > The Java 21 baseline applies to both starters because `managed-postgres-core` targets Java 21.
@@ -400,10 +400,9 @@ from the message before it is thrown or logged.
 
 ## Status
 
-**Pre-release.** The engine, the supply chain (build → publish → sign → verify → download) and the
-public API are complete and verified, but artifacts are **not yet on Maven Central** — the `1.0.0`
-coordinates above are placeholders until the first release. Build from source for now (`./mvnw verify`
-from the repo root).
+**Released.** `1.0.1` is published on Maven Central — the coordinates above work as-is. The engine,
+the supply chain (build → publish → sign → verify → download) and the public API are complete and
+verified.
 
 ## See also
 

@@ -7,14 +7,14 @@ the builder and its sections, what it does, its default (where one exists), and 
 
 - groupId: `eu.virtualparadox`
 - artifact: `managed-postgres-core`
-- version: `1.0.0` (pre-release)
+- version: `1.0.1`
 - Java 21, PostgreSQL 16 / 17 / 18 (default `18.4`), Apache-2.0
 
 ```xml
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 

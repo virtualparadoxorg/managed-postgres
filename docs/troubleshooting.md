@@ -4,7 +4,7 @@
 
 FAQ and common problems for the `managed-postgres` Java library. Each entry is framed as a question or a problem → cause → fix.
 
-Context: groupId `eu.virtualparadox`; version `1.0.0` (pre-release); Java 21; PostgreSQL 16/17/18 (default runtime `18.4`); Apache-2.0.
+Context: groupId `eu.virtualparadox`; version `1.0.1`; Java 21; PostgreSQL 16/17/18 (default runtime `18.4`); Apache-2.0.
 
 ## "It can't download the runtime / I'm offline"
 

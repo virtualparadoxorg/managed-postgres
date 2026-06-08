@@ -7,7 +7,7 @@ Reference for the two observability hooks in `managed-postgres`: **startup progr
 | Property | Value |
 | --- | --- |
 | groupId | `eu.virtualparadox` |
-| version | `1.0.0` (pre-release) |
+| version | `1.0.1` |
 | Java | 21 |
 | PostgreSQL | 16 / 17 / 18 (default 18.4) |
 | License | Apache-2.0 |

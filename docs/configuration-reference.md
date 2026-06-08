@@ -10,7 +10,7 @@
 Both surfaces map onto the same core model (`Network`, `PostgresConfiguration`, `RuntimeSource`, `ClusterBootstrap`, `AttachPolicy`, `StopPolicy`). This page documents every knob on both surfaces side by side.
 
 - groupId: `eu.virtualparadox`
-- version: `1.0.0` (pre-release)
+- version: `1.0.1`
 - Java 21 baseline
 - PostgreSQL 16 / 17 / 18 supported
 

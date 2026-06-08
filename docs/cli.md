@@ -9,7 +9,7 @@ restart, status, diagnostics, backup/restore, cleanup, destroy, and runtime veri
 | Property | Value |
 |---|---|
 | **Artifact** | `eu.virtualparadox:managed-postgres-cli` |
-| **version** | `1.0.0` (pre-release — see [Status & install](#status--install)) |
+| **version** | `1.0.1` (see [Status & install](#status--install)) |
 | **Java baseline** | 21 |
 | **PostgreSQL** | 16, 17, 18 (default runtime `18.4`, uniform with the core and Spring) |
 | **Command name** | `managed-postgres` |
@@ -348,8 +348,8 @@ The CLI returns documented process exit codes:
 
 ## Status & install
 
-**Pre-release.** Artifacts are **not yet on Maven Central** — the `1.0.0` coordinates are
-placeholders until the first release. Build from source for now.
+**Released.** `1.0.1` is published on Maven Central — the library coordinates above work as-is. The
+CLI fat jar is built from source (`./mvnw -pl managed-postgres/cli -am package`); see below.
 
 The `managed-postgres-cli` module produces **two** jars:
 

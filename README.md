@@ -7,11 +7,12 @@
 **A real PostgreSQL, started from Java in one line.**
 No Docker. No install. No root. No `initdb` rituals.
 
+[![Maven Central](https://img.shields.io/maven-central/v/eu.virtualparadox/managed-postgres-core?label=Maven%20Central)](https://central.sonatype.com/artifact/eu.virtualparadox/managed-postgres-core)
+[![CI](https://github.com/virtualparadoxorg/managed-postgres/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/virtualparadoxorg/managed-postgres/actions/workflows/ci.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](#compatibility)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3%20%26%204-6DB33F.svg)](#spring-boot--one-line-and-your-app-has-a-database)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20–%2018-336791.svg)](#compatibility)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Status](https://img.shields.io/badge/status-pre--release-yellow.svg)](#status)
 
 📚 **[Read the documentation →](docs/README.md)**
 
@@ -77,7 +78,7 @@ real database with **zero code changes**.
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-spring-boot-4-starter</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -101,7 +102,7 @@ On **Spring Boot 3**? Use `managed-postgres-spring-boot-3-starter` instead — s
 <dependency>
   <groupId>eu.virtualparadox</groupId>
   <artifactId>managed-postgres-core</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -240,9 +241,8 @@ Java 21 is the baseline. From the repo root:
 
 ## Status
 
-**Pre-release.** The engine, supply chain (build → publish → sign → verify → download) and the public
-API are complete and green, but artifacts are **not yet on Maven Central** — the `1.0.0` coordinates
-above are placeholders until the first release. Build from source for now.
+**Released.** `1.0.1` is published on Maven Central — the coordinates above work as-is. The engine,
+supply chain (build → publish → sign → verify → download) and the public API are complete and green.
 
 ---
 
