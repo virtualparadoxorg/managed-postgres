@@ -7,11 +7,10 @@ Supported runtimes, frameworks, and platforms for `managed-postgres`.
 | Property | Value |
 | --- | --- |
 | groupId | `eu.virtualparadox` |
-| Version | `1.0.0` (pre-release) |
+| Version | `1.0.1` |
 | License | Apache-2.0 |
 
-> **Pre-release status.** Version `1.0.0` is a pre-release and is **not yet published to
-> Maven Central**.
+> **Released.** Version `1.0.1` is published on Maven Central.
 
 ## Java
 

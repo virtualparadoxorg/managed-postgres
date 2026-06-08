@@ -58,4 +58,4 @@
 
 ---
 
-**Status:** pre-release (`1.0.0`) — artifacts are not yet on Maven Central; build from source for now. Java 21 baseline. PostgreSQL 16 / 17 / 18 supported (default `18.4`). Licensed under Apache-2.0.
+**Status:** released (`1.0.1`) — published on Maven Central. Java 21 baseline. PostgreSQL 16 / 17 / 18 supported (default `18.4`). Licensed under Apache-2.0.
