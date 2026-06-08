@@ -27,9 +27,10 @@ jobs:
           java-version: "21"
           cache: maven
 
-      # An NVD API key (repo/org secret NVD_API_KEY) makes the scan fast and
-      # avoids rate limiting; the scan still works without it, just slower.
-      - name: Dependency-check (aggregate)
+      # Run through the `security` profile so the OWASP configuration inherited from
+      # eu.virtualparadox:parent applies — including nvdApiKeyEnvironmentVariable=NVD_API_KEY
+      # (without it the NVD update is rate-limited and fails) and the CVE suppression files.
+      - name: Dependency-check (security profile)
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: ./mvnw -B -ntp org.owasp:dependency-check-maven:aggregate
+        run: ./mvnw -B -ntp -Psecurity -DskipTests verify
