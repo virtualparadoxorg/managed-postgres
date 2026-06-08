@@ -38,6 +38,15 @@ public enum TargetPlatform {
     }
 
     /**
+     * Returns whether this target produces a macOS (Mach-O) runtime bundle.
+     *
+     * @return {@code true} for macOS targets
+     */
+    public boolean isMacos() {
+        return this == MACOS_X86_64 || this == MACOS_AARCH64;
+    }
+
+    /**
      * Parses a stable target identifier.
      *
      * @param value target identifier text

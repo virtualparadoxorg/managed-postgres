@@ -27,4 +27,17 @@ final class TargetPlatformTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("targetPlatform");
     }
+
+    @Test
+    void identifiesMacosTargets() {
+        assertThat(TargetPlatform.MACOS_X86_64.isMacos()).isTrue();
+        assertThat(TargetPlatform.MACOS_AARCH64.isMacos()).isTrue();
+    }
+
+    @Test
+    void doesNotTreatLinuxOrWindowsTargetsAsMacos() {
+        assertThat(TargetPlatform.LINUX_X86_64_GLIBC.isMacos()).isFalse();
+        assertThat(TargetPlatform.LINUX_AARCH64_MUSL.isMacos()).isFalse();
+        assertThat(TargetPlatform.WINDOWS_X86_64.isMacos()).isFalse();
+    }
 }
